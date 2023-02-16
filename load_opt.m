@@ -1,26 +1,29 @@
-function [sys,x0,str,tss]=load_opt(t,x, u,flag,Param,X_ss)
+function [sys,x0,str,tss] = load_opt(t,x,u,flag,Param,X_ss)
+
 switch flag
+    
+    case 0	% Initialize the states and sizes
+       [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss);
+       
+        % ****************
+  	    % Outputs
+  	    % ****************   
+         
+    case 3   % Calculate the outputs
+       
+       sys = mdlOutputs(t,x,u,Param);
+       
+       % ****************
+       % Update
+       % ****************
 
-case 0	% Initialize the states and sizes
-   [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss);
-   
-    % ****************
-  	%  Outputs
-  	% ****************   
-     
-case 3   % Calculate the outputs
-   
-   sys = mdlOutputs(t,x, u,Param);
-   
-   % ****************
-   % Update
-   % ****************
-case 1	% Obtain derivatives of states
+    case 1	% Obtain derivatives of states
+    
+       sys = mdlDerivatives(t,x,u,Param);
 
-   sys = mdlDerivatives(t,x, u,Param);
+    otherwise
+       sys = [];
 
-otherwise
-   sys = [];
 end
 
 % ******************************************
@@ -31,9 +34,11 @@ end
 % Initialization
 % ******************************************
 
-function [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss);
+function [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss)
+global LOData gprMdlLP_machine1 gprMdlLP_machine2 Current_Load_Target ...
+    PMax LOModelData curr_iteration SteadyState gprMdlLP_machine3 ...
+    gprMdlLP_machine4 gprMdlLP_machine5 total_uncertainty
 
-global LOData gprMdlLP_machine1 gprMdlLP_machine2  Current_Load_Target PMax LOModelData curr_iteration SteadyState gprMdlLP_machine3 gprMdlLP_machine4 gprMdlLP_machine5 total_uncertainty
 % This handles initialization of the function.
 % Call simsize of a sizes structure.
 sizes = simsizes;
@@ -50,45 +55,92 @@ str = [];	                  % set str to an empty matrix.
 tss = [250,0];	              % sample time: [period, offset].
 curr_iteration = 0;
 total_uncertainty= [];
+
 % ******************************************
 %  Outputs
 % ******************************************
 
-function [sys] = mdlOutputs(t,x,u,Param);
-global LOData gprMdlLP_machine1 gprMdlLP_machine2 Current_Load_Target PMax LOModelData SteadyState explore explore_signal gprMdlLP_machine3 gprMdlLP_machine4 gprMdlLP_machine5 significance total_uncertainty
+function [sys] = mdlOutputs(t,x,u,Param)
+global LOData gprMdlLP_machine1 gprMdlLP_machine2 Current_Load_Target ...
+    PMax LOModelData SteadyState explore explore_signal ...
+    gprMdlLP_machine3 gprMdlLP_machine4 gprMdlLP_machine5 significance ...
+    total_uncertainty
 
 % Inputs
 % Update data history with new measurements
 
+LOData.Load_Target = [LOData.Load_Target; u(1)];
 
-LOData.Load_Target=[LOData.Load_Target; u(1)];
+LOData.LoadMachine1 = [LOData.LoadMachine1; u(2)];
+LOData.LoadMachine2 = [LOData.LoadMachine2; u(3)];
+LOData.LoadMachine3 = [LOData.LoadMachine3; u(4)];
+LOData.LoadMachine4 = [LOData.LoadMachine4; u(5)];
+LOData.LoadMachine5 = [LOData.LoadMachine5; u(6)];
 
-LOData.LoadMachine1=[LOData.LoadMachine1; u(2)];
-LOData.LoadMachine2=[LOData.LoadMachine2; u(3)];
-LOData.LoadMachine3=[LOData.LoadMachine3; u(4)];
-LOData.LoadMachine4=[LOData.LoadMachine4; u(5)];
-LOData.LoadMachine5=[LOData.LoadMachine5; u(6)];
+LOData.PowerMachine1 = [LOData.PowerMachine1; u(7)];
+LOData.PowerMachine2 = [LOData.PowerMachine2; u(8)];
+LOData.PowerMachine3 = [LOData.PowerMachine3; u(9)];
+LOData.PowerMachine4 = [LOData.PowerMachine4; u(10)];
+LOData.PowerMachine5 = [LOData.PowerMachine5; u(11)];
 
-LOData.PowerMachine1=[LOData.PowerMachine1; u(7)];
-LOData.PowerMachine2=[LOData.PowerMachine2; u(8)];
-LOData.PowerMachine3=[LOData.PowerMachine3; u(9)];
-LOData.PowerMachine4=[LOData.PowerMachine4; u(10)];
-LOData.PowerMachine5=[LOData.PowerMachine5; u(11)];
+% Set operating limits of each machine. Note: Machines 4, 5
+% use same limits as machine 3
+operating_interval_machine1 = (56:220)';
+operating_interval_machine2 = (237:537)';
+operating_interval_machine3 = (194:795)';
 
-operating_interval_machine1 = [56:220]';
-operating_interval_machine2 = [237:537]';
-operating_interval_machine3 = [194:795]';
+% Gaussian process model predictions
+[mean_machine1, sigma_machine1, interval_machine1] = predict( ...
+    gprMdlLP_machine1, operating_interval_machine1, 'Alpha', significance); 
+[mean_machine2, sigma_machine2, interval_machine2] = predict( ...
+    gprMdlLP_machine2, operating_interval_machine2, 'Alpha', significance);
+[mean_machine3, sigma_machine3, interval_machine3] = predict( ...
+    gprMdlLP_machine3, operating_interval_machine3, 'Alpha', significance); 
+[mean_machine4, sigma_machine4, interval_machine4] = predict( ...
+    gprMdlLP_machine4, operating_interval_machine3, 'Alpha', significance);
+[mean_machine5, sigma_machine5, interval_machine5] = predict( ...
+    gprMdlLP_machine5, operating_interval_machine3, 'Alpha', significance); 
 
-[mean_machine1, sigma_machine1,interval_machine1] = predict(gprMdlLP_machine1,operating_interval_machine1, 'Alpha', significance); 
-[mean_machine2, sigma_machine2,interval_machine2] = predict(gprMdlLP_machine2,operating_interval_machine2, 'Alpha', significance);
-[mean_machine3, sigma_machine3,interval_machine3] = predict(gprMdlLP_machine3,operating_interval_machine3, 'Alpha', significance); 
-[mean_machine4, sigma_machine4,interval_machine4] = predict(gprMdlLP_machine4,operating_interval_machine3, 'Alpha', significance);
-[mean_machine5, sigma_machine5,interval_machine5] = predict(gprMdlLP_machine5,operating_interval_machine3, 'Alpha', significance); 
+% Sum covariance matrices to use as indicator of uncertainty
 sum1 = sum(sigma_machine1);
 sum2 = sum(sigma_machine2);
 sum3 = sum(sigma_machine3);
 sum4 = sum(sigma_machine4);
 sum5 = sum(sigma_machine5);
+
+% Plot GP model predictions
+figure(1)
+c = get(gca, 'colororder');
+% Plot predictions over full interval
+plot(operating_interval_machine1, mean_machine1, 'color', c(1, :)); hold on
+plot(operating_interval_machine2, mean_machine2, 'color', c(2, :))
+plot(operating_interval_machine3, mean_machine3, 'color', c(3, :))
+plot(operating_interval_machine3, mean_machine4, 'color', c(4, :))
+plot(operating_interval_machine3, mean_machine5, 'color', c(5, :))
+% Plot previous data points evaluated
+plot(LOData.LoadMachine1, LOData.PowerMachine1, '.', 'color', c(1, :))
+plot(LOData.LoadMachine2, LOData.PowerMachine2, '.', 'color', c(2, :))
+plot(LOData.LoadMachine3, LOData.PowerMachine3, '.', 'color', c(3, :))
+plot(LOData.LoadMachine4, LOData.PowerMachine4, '.', 'color', c(4, :))
+plot(LOData.LoadMachine5, LOData.PowerMachine5, '.', 'color', c(5, :))
+grid on
+legend(compose("machine %d", 1:5), 'location', 'best')
+xlabel("Load")
+ylabel("Power consumption")
+
+% Plot GP model uncertainties
+figure(2)
+c = get(gca, 'colororder');
+plot(operating_interval_machine1, sigma_machine1, 'color', c(1, :)); hold on
+plot(operating_interval_machine2, sigma_machine2, 'color', c(2, :))
+plot(operating_interval_machine3, sigma_machine3, 'color', c(3, :))
+plot(operating_interval_machine3, sigma_machine4, 'color', c(4, :))
+plot(operating_interval_machine3, sigma_machine5, 'color', c(5, :))
+grid on
+legend(compose("machine %d", 1:5), 'location', 'best')
+xlabel("Load")
+ylabel("sigma")
+
 
 total_uncertainty = [total_uncertainty; sum1+sum2+sum3+sum4+sum5];
 explore = [explore; explore_signal];
@@ -96,36 +148,78 @@ disp(explore_signal)
 
 
 % Steady State Detection for machine 1
-mean_Load_var_machine1 = mean([LOData.LoadMachine1(end,1)-LOData.LoadMachine1(end-1,1) LOData.LoadMachine1(end-1,1)-LOData.LoadMachine1(end-2,1) LOData.LoadMachine1(end-2,1)-LOData.LoadMachine1(end-3,1)]);
-mean_Power_var_machine1 = mean([LOData.PowerMachine1(end,1)-LOData.PowerMachine1(end-1,1) LOData.PowerMachine1(end-1,1)-LOData.PowerMachine1(end-2,1) LOData.PowerMachine1(end-2,1)-LOData.PowerMachine1(end-3,1)]);
+mean_Load_var_machine1 = mean([ ...
+    LOData.LoadMachine1(end,1)-LOData.LoadMachine1(end-1,1) ...
+    LOData.LoadMachine1(end-1,1)-LOData.LoadMachine1(end-2,1) ...
+    LOData.LoadMachine1(end-2,1)-LOData.LoadMachine1(end-3,1) ...
+]);
+mean_Power_var_machine1 = mean([ ...
+    LOData.PowerMachine1(end,1)-LOData.PowerMachine1(end-1,1) ...
+    LOData.PowerMachine1(end-1,1)-LOData.PowerMachine1(end-2,1) ...
+    LOData.PowerMachine1(end-2,1)-LOData.PowerMachine1(end-3,1) ...
+]);
 
 % Steady State Detection for machine 2
-mean_Load_var_machine2 = mean([LOData.LoadMachine2(end,1)-LOData.LoadMachine2(end-1,1) LOData.LoadMachine2(end-1,1)-LOData.LoadMachine2(end-2,1) LOData.LoadMachine2(end-2,1)-LOData.LoadMachine2(end-3,1)]);
-mean_Power_var_machine2 = mean([LOData.PowerMachine2(end,1)-LOData.PowerMachine2(end-1,1) LOData.PowerMachine2(end-1,1)-LOData.PowerMachine2(end-2,1) LOData.PowerMachine2(end-2,1)-LOData.PowerMachine2(end-3,1)]);
+mean_Load_var_machine2 = mean([ ...
+    LOData.LoadMachine2(end,1)-LOData.LoadMachine2(end-1,1) ...
+    LOData.LoadMachine2(end-1,1)-LOData.LoadMachine2(end-2,1) ...
+    LOData.LoadMachine2(end-2,1)-LOData.LoadMachine2(end-3,1) ...
+]);
+mean_Power_var_machine2 = mean([ ...
+    LOData.PowerMachine2(end,1)-LOData.PowerMachine2(end-1,1) ...
+    LOData.PowerMachine2(end-1,1)-LOData.PowerMachine2(end-2,1) ...
+    LOData.PowerMachine2(end-2,1)-LOData.PowerMachine2(end-3,1) ...
+]);
 
 % Steady State Detection for machine 3
-mean_Load_var_machine3 = mean([LOData.LoadMachine3(end,1)-LOData.LoadMachine3(end-1,1) LOData.LoadMachine3(end-1,1)-LOData.LoadMachine3(end-2,1) LOData.LoadMachine3(end-2,1)-LOData.LoadMachine3(end-3,1)]);
-mean_Power_var_machine3 = mean([LOData.PowerMachine3(end,1)-LOData.PowerMachine3(end-1,1) LOData.PowerMachine3(end-1,1)-LOData.PowerMachine3(end-2,1) LOData.PowerMachine3(end-2,1)-LOData.PowerMachine3(end-3,1)]);
+mean_Load_var_machine3 = mean( ...
+    [LOData.LoadMachine3(end,1)-LOData.LoadMachine3(end-1,1) ...
+    LOData.LoadMachine3(end-1,1)-LOData.LoadMachine3(end-2,1) ...
+    LOData.LoadMachine3(end-2,1)-LOData.LoadMachine3(end-3,1) ...
+]);
+mean_Power_var_machine3 = mean([ ...
+    LOData.PowerMachine3(end,1)-LOData.PowerMachine3(end-1,1) ...
+    LOData.PowerMachine3(end-1,1)-LOData.PowerMachine3(end-2,1) ...
+    LOData.PowerMachine3(end-2,1)-LOData.PowerMachine3(end-3,1) ...
+]);
 
 % Steady State Detection for machine 4
-mean_Load_var_machine4 = mean([LOData.LoadMachine4(end,1)-LOData.LoadMachine4(end-1,1) LOData.LoadMachine4(end-1,1)-LOData.LoadMachine4(end-2,1) LOData.LoadMachine4(end-2,1)-LOData.LoadMachine4(end-3,1)]);
-mean_Power_var_machine4 = mean([LOData.PowerMachine4(end,1)-LOData.PowerMachine4(end-1,1) LOData.PowerMachine4(end-1,1)-LOData.PowerMachine4(end-2,1) LOData.PowerMachine4(end-2,1)-LOData.PowerMachine4(end-3,1)]);
+mean_Load_var_machine4 = mean([ ...
+    LOData.LoadMachine4(end,1)-LOData.LoadMachine4(end-1,1) ...
+    LOData.LoadMachine4(end-1,1)-LOData.LoadMachine4(end-2,1) ...
+    LOData.LoadMachine4(end-2,1)-LOData.LoadMachine4(end-3,1) ...
+]);
+mean_Power_var_machine4 = mean([ ...
+    LOData.PowerMachine4(end,1)-LOData.PowerMachine4(end-1,1) ...
+    LOData.PowerMachine4(end-1,1)-LOData.PowerMachine4(end-2,1) ...
+    LOData.PowerMachine4(end-2,1)-LOData.PowerMachine4(end-3,1) ...
+]);
 
 % Steady State Detection for machine 5
-mean_Load_var_machine5 = mean([LOData.LoadMachine5(end,1)-LOData.LoadMachine5(end-1,1) LOData.LoadMachine5(end-1,1)-LOData.LoadMachine5(end-2,1) LOData.LoadMachine5(end-2,1)-LOData.LoadMachine5(end-3,1)]);
-mean_Power_var_machine5 = mean([LOData.PowerMachine5(end,1)-LOData.PowerMachine5(end-1,1) LOData.PowerMachine5(end-1,1)-LOData.PowerMachine5(end-2,1) LOData.PowerMachine5(end-2,1)-LOData.PowerMachine5(end-3,1)]);
+mean_Load_var_machine5 = mean([ ...
+    LOData.LoadMachine5(end,1)-LOData.LoadMachine5(end-1,1) ...
+    LOData.LoadMachine5(end-1,1)-LOData.LoadMachine5(end-2,1) ...
+    LOData.LoadMachine5(end-2,1)-LOData.LoadMachine5(end-3,1) ...
+]);
+mean_Power_var_machine5 = mean([ ...
+    LOData.PowerMachine5(end,1)-LOData.PowerMachine5(end-1,1) ...
+    LOData.PowerMachine5(end-1,1)-LOData.PowerMachine5(end-2,1) ...
+    LOData.PowerMachine5(end-2,1)-LOData.PowerMachine5(end-3,1) ...
+]);
 
 
-if(mean_Load_var_machine1<=2 && mean_Load_var_machine2<=2 && mean_Power_var_machine1<=5 && mean_Power_var_machine2<=5 ...
-        && mean_Load_var_machine3<=2 &&  mean_Power_var_machine3<=5 && mean_Load_var_machine4<=2 &&  mean_Power_var_machine4<=5 ...
+if (mean_Load_var_machine1<=2 && mean_Power_var_machine1<=5 ...
+        && mean_Load_var_machine2<=2 && mean_Power_var_machine2<=5 ...
+        && mean_Load_var_machine3<=2 &&  mean_Power_var_machine3<=5 ...
+        && mean_Load_var_machine4<=2 &&  mean_Power_var_machine4<=5 ...
         && mean_Load_var_machine5<=2 &&  mean_Power_var_machine5<=5)
-    SteadyState=1;
+    SteadyState = 1;
 else
-    SteadyState=0;
+    SteadyState = 0;
 end
 
 % Dataset Update
-if SteadyState==1
+if SteadyState == 1
     % for machine 1
 %     if min(abs(LOModelData.LoadMachine1-LOData.LoadMachine1(end,1)))>=4
         
@@ -199,7 +293,6 @@ options = optimoptions('fmincon', "SubproblemAlgorithm","cg", 'MaxIterations',50
 %         LOData.LoadMachine3(end,1),LOData.LoadMachine4(end,1),LOData.LoadMachine5(end,1)],[],[],[],[],[56,237,194,194,194],[220,537,795,795,795],@MaxPowerConstraint, options);
 
 gen_load_target = fmincon(@LoadObjFun,[56.1, 237.1, 194.1, 194.1, 194.1],[],[],[],[],[56,237,194,194,194],[220,537,795,795,795],@MaxPowerConstraint, options);
-
 
 % Send outputs
 sys(1) = gen_load_target(1); 
