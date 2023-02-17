@@ -7,8 +7,9 @@ addpath("plot-utils")
 out = sim("comp_curves");
 
 include = {'C1', 'C2', 'C3', 'C4', 'C5'};
-labels = cell(1, numel(include));
+labels = compose("machine %d", 1:5);
 
+% Plot of power consumption vs load
 figure(1); clf
 
 for i = 1:numel(include)
@@ -16,10 +17,10 @@ for i = 1:numel(include)
     x = out.(compose("%s_LOAD", name));
     y = out.(compose("%s_POW", name));
     plot(x.Data, y.Data, 'linewidth', 2); hold on
-    labels{i} = y.name;
+    assert(endsWith(y.name, compose('machine_%d', i)))
 end
-xlabel("Compressor load", 'Interpreter', 'latex')
-ylabel("Power consumption", 'Interpreter', 'latex')
+xlabel("Compressor load (kW thermal)", 'Interpreter', 'latex')
+ylabel("Power consumption (kW electric)", 'Interpreter', 'latex')
 grid on
 set(gca, 'TickLabelInterpreter', 'latex')
 legend(escape_latex_chars(labels), ...
@@ -27,3 +28,23 @@ legend(escape_latex_chars(labels), ...
 
 mkdir("plots")
 exportgraphics(gcf, "plots/comp_curves.pdf")
+
+
+% Plot of specific power consumption vs load
+figure(2); clf
+
+for i = 1:numel(include)
+    name = include{i};
+    x = out.(compose("%s_LOAD", name));
+    y = out.(compose("%s_POW", name)) ./ x;
+    plot(x.Data, y.Data, 'linewidth', 2); hold on
+end
+xlabel("Compressor load (kW thermal)", 'Interpreter', 'latex')
+ylabel("Specific power consumption (kW/kW)", 'Interpreter', 'latex')
+grid on
+set(gca, 'TickLabelInterpreter', 'latex')
+legend(escape_latex_chars(labels), ...
+    'Interpreter', 'latex', 'location', 'best')
+
+mkdir("plots")
+exportgraphics(gcf, "plots/comp_curves_se.pdf")
