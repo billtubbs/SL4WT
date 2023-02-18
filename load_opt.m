@@ -1,18 +1,16 @@
-function [sys,x0,str,tss] = load_opt(t,x,u,flag,Param,X_ss)
+function [sys,x0,str,tss] = load_opt(t,x,u,flag,config)
 
 switch flag
 
     case 0	% Initialize the states and sizes
-       [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss);
-         
-    case 3   % Calculate the outputs
+       [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config);
 
-       sys = mdlOutputs(t,x,u,Param);
+    case 3   % Calculate the outputs
+       sys = mdlOutputs(t,x,u,config);
 
 %    case 2	% Update
 
 %    case 1	% Obtain derivatives of states
-
 %       sys = mdlDerivatives(t,x,u,Param);
 
     otherwise
@@ -28,252 +26,146 @@ end
 % Initialization
 % ******************************************
 
-function [sys,x0,str,tss] = mdlInitialSizes(t,x,u,X_ss)
-global LOData LOModelData curr_iteration ...
-    gprMdlLP_machine1 gprMdlLP_machine2 gprMdlLP_machine3 ...
-    gprMdlLP_machine4 gprMdlLP_machine5 total_uncertainty explore ...
-    explore_signal
+function [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config)
+global LOData LOModelData curr_iteration models significance
 
 % This handles initialization of the function.
 % Call simsize of a sizes structure.
 sizes = simsizes;
-sizes.NumContStates  = 0;     % continuous states
-sizes.NumDiscStates  = 0;     % discrete states
-sizes.NumOutputs     = 5;     % outputs of model 
-sizes.NumInputs      = 11;     % inputs of model
-sizes.DirFeedthrough = 1;     % System is causal
-sizes.NumSampleTimes = 1;     %
-sys = simsizes(sizes);        %
-x0  = X_ss;                   % Initialize the states 
+sizes.NumContStates  = config.block.NumContStates;      % continuous states
+sizes.NumDiscStates  = config.block.NumDiscStates;      % discrete states
+sizes.NumOutputs     = config.block.NumOutputs;         % outputs of model 
+sizes.NumInputs      = config.block.NumInputs;          % inputs of model
+sizes.DirFeedthrough = config.block.DirFeedthrough;     % System is causal
+sizes.NumSampleTimes = config.block.NumSampleTimes;     %
+sys = simsizes(sizes);
+x0  = config.block.x0;              % Initial states 
 
 str = [];	                  % set str to an empty matrix.
-tss = [250,0];	              % sample time: [period, offset].
+tss = config.block.tss;	  % sample time: [period, offset].
+
+% Initialize global variables (these are used to avoid saving
+% all the state information in the Simulink block state variables)
 curr_iteration = 0;
-total_uncertainty = [];
-explore = 0;
-explore_signal = [];
 
-% Initialize GP models using pre-defined model data points
-gprMdlLP_machine1 = fitrgp(LOModelData.LoadMachine1, ...
-    LOModelData.PowerMachine1, 'KernelFunction', 'squaredexponential');
-gprMdlLP_machine2 = fitrgp(LOModelData.LoadMachine2, ...
-    LOModelData.PowerMachine2, 'KernelFunction', 'squaredexponential');
-gprMdlLP_machine3 = fitrgp(LOModelData.LoadMachine2, ...
-    LOModelData.PowerMachine2, 'KernelFunction', 'squaredexponential');
-gprMdlLP_machine4 = fitrgp(LOModelData.LoadMachine2, ...
-    LOModelData.PowerMachine2, 'KernelFunction', 'squaredexponential');
-gprMdlLP_machine5 = fitrgp(LOModelData.LoadMachine2, ...
-    LOModelData.PowerMachine2, 'KernelFunction', 'squaredexponential');
+significance = config.simulation.params.significance;
 
-% Initialize empty dataset
+% Create model objects by running the setup scripts with 
+% the pre-defined model data specified in the config struct 
+for machine = config.machines.names
+    model_name = config.machines.(machine).model;
+    model_config = config.models.(model_name);
+    training_data = config.training.data.(machine);
+    model_setup_func = config.models.(model_name).setup_script;
+    models.(machine) = feval(model_setup_func, model_config, training_data);
+    % Initialize empty arrays to store simulation results
+    LOModelData.(machine).Load = training_data.Load;
+    LOModelData.(machine).Power = training_data.Power;
+    LOData.(machine).Load = [];
+    LOData.(machine).Power = [];
+end
+
+% Array to store time and target values from simulation
+LOData.Iteration = [];
+LOData.Time = [];
 LOData.Load_Target = [];
-LOData.LoadMachine1 = [];
-LOData.PowerMachine1 = [];
-LOData.LoadMachine2 = [];
-LOData.PowerMachine2 = [];
-LOData.LoadMachine3 = [];
-LOData.PowerMachine3 = [];
-LOData.LoadMachine4 = [];
-LOData.PowerMachine4 = [];
-LOData.LoadMachine5 = [];
-LOData.PowerMachine5 = [];
+LOData.TotalUncertainty = [];
+LOData.SteadyState = [];
 
 
 % ******************************************
 %  Outputs
 % ******************************************
 
-function [sys] = mdlOutputs(t,x,u,Param)
-global LOData LOModelData curr_iteration ...
-    gprMdlLP_machine1 gprMdlLP_machine2 gprMdlLP_machine3 ...
-    gprMdlLP_machine4 gprMdlLP_machine5 Current_Load_Target ...
-    PMax SteadyState explore explore_signal ...
-    significance total_uncertainty
+function [sys] = mdlOutputs(t,x,u,config)
+global LOData LOModelData curr_iteration models significance ...
+    Current_Load_Target
 
-% Inputs
-% Update data history with new measurements
-LOData.Load_Target = [LOData.Load_Target; u(1)];
-LOData.LoadMachine1 = [LOData.LoadMachine1; u(2)];
-LOData.LoadMachine2 = [LOData.LoadMachine2; u(3)];
-LOData.LoadMachine3 = [LOData.LoadMachine3; u(4)];
-LOData.LoadMachine4 = [LOData.LoadMachine4; u(5)];
-LOData.LoadMachine5 = [LOData.LoadMachine5; u(6)];
-LOData.PowerMachine1 = [LOData.PowerMachine1; u(7)];
-LOData.PowerMachine2 = [LOData.PowerMachine2; u(8)];
-LOData.PowerMachine3 = [LOData.PowerMachine3; u(9)];
-LOData.PowerMachine4 = [LOData.PowerMachine4; u(10)];
-LOData.PowerMachine5 = [LOData.PowerMachine5; u(11)];
+% Process inputs from Simulink
+
+% Update data history with new data and measurements
+Current_Load_Target = u(1);
+LOData.Load_Target = [LOData.Load_Target; Current_Load_Target];
+LOData.Iteration = [LOData.Iteration; curr_iteration];
+LOData.Time = [LOData.Time; t];
+n_machines = numel(config.machines.names);
+for i = 1:n_machines
+    machine = config.machines.names{i};
+    LOData.(machine).Load = [LOData.(machine).Load; u(i+1)];
+    LOData.(machine).Power = [LOData.(machine).Power; u(i+1+n_machines)];
+end
 
 % Steady State Detection for each machine
-mean_abs_Load_diff_machine = nan(1, 5);
-mean_abs_Power_diff_machine = nan(1, 5);
-
-% Machine 1
-if size(LOData.LoadMachine1, 1) > 3
-    mean_abs_Load_diff_machine(1) = ...
-        mean(abs(diff(LOData.LoadMachine1(end-3:end))));
-    mean_abs_Power_diff_machine(1) = ...
-        mean(abs(diff(LOData.PowerMachine1(end-3:end))));
+mean_abs_Load_diffs = nan(1, n_machines);
+mean_abs_Power_diffs = nan(1, n_machines);
+for machine = config.machines.names
+    if size(LOData.(machine).Load, 1) > 3
+        mean_abs_Load_diffs(1) = ...
+            mean(abs(diff(LOData.(machine).Load(end-3:end))));
+        mean_abs_Power_diffs(1) = ...
+            mean(abs(diff(LOData.(machine).Power(end-3:end))));
+    end
 end
 
-% Machine 2
-if size(LOData.LoadMachine2, 1) > 3
-    mean_abs_Load_diff_machine(2) = ...
-        mean(abs(diff(LOData.LoadMachine2(end-3:end))));
-    mean_abs_Power_diff_machine(2) = ...
-        mean(abs(diff(LOData.PowerMachine2(end-3:end))));
-end
-
-% Machine 3
-if size(LOData.LoadMachine3, 1) > 3
-    mean_abs_Load_diff_machine(3) = ...
-        mean(abs(diff(LOData.LoadMachine3(end-3:end))));
-    mean_abs_Power_diff_machine(3) = ...
-        mean(abs(diff(LOData.PowerMachine3(end-3:end))));
-end
-
-% Machine 4
-if size(LOData.LoadMachine4, 1) > 3
-    mean_abs_Load_diff_machine(4) = ...
-        mean(abs(diff(LOData.LoadMachine4(end-3:end))));
-    mean_abs_Power_diff_machine(4) = ...
-        mean(abs(diff(LOData.PowerMachine4(end-3:end))));
-end
-
-% Machine 5
-if size(LOData.LoadMachine5, 1) > 3
-    mean_abs_Load_diff_machine(5) = ...
-        mean(abs(diff(LOData.LoadMachine5(end-3:end))));
-    mean_abs_Power_diff_machine(5) = ...
-        mean(abs(diff(LOData.PowerMachine5(end-3:end))));
-end
-
-if (all(mean_abs_Load_diff_machine <= 2) ...
-        && all(mean_abs_Power_diff_machine <= 5))
+% Set steady state flag if load and power readings have 
+% not significantly changed
+if (all(mean_abs_Load_diffs <= 2) ...
+        && all(mean_abs_Power_diffs <= 5))
     SteadyState = 1;
 else
     SteadyState = 0;
 end
+LOData.SteadyState = [LOData.SteadyState SteadyState];
 
-
-% Gaussian process model Updates (if conditions met)
-
+% Do model updates if conditions met
 if SteadyState == 1
-    % for machine 1
-     if min(abs(LOModelData.LoadMachine1 - LOData.LoadMachine1(end,1))) >= 4
-        
-        LOModelData.LoadMachine1 = ...
-            [LOModelData.LoadMachine1; LOData.LoadMachine1(end,1)];
-        LOModelData.PowerMachine1 = ...
-            [LOModelData.PowerMachine1; LOData.PowerMachine1(end,1)];
 
-        % Model Update
-        gprMdlLP_machine1 = fitrgp(LOModelData.LoadMachine1, ...
-            LOModelData.PowerMachine1, 'KernelFunction','squaredexponential');
-%         gprMdlLP_machine1 = fitrgp(LOModelData.LoadMachine1, ...
-%             LOModelData.PowerMachine1, 'KernelFunction', 'squaredexponential', ...
-%             'KernelParameters', [15.0; 95.7708]);
+    for machine = config.machines.names
+        % Check if current load is close to previous training points
+        if min(abs(LOData.(machine).Load(end,1)) ...
+                - LOModelData.(machine).Load) >= 4
 
-     end
+            % Add current data to training history
+            LOModelData.LoadMachine1 = ...
+                [LOModelData.LoadMachine1; LOData.LoadMachine1(end,:)];
+            LOModelData.PowerMachine1 = ...
+                [LOModelData.PowerMachine1; LOData.PowerMachine1(end,:)];
 
-    % for machine 2
-     if min(abs(LOModelData.LoadMachine2 - LOData.LoadMachine2(end,1))) >= 4
-        
-        LOModelData.LoadMachine2 = ...
-            [LOModelData.LoadMachine2;LOData.LoadMachine2(end,1)];
-        LOModelData.PowerMachine2 = ...
-            [LOModelData.PowerMachine2;LOData.PowerMachine2(end,1)];
-        
-        % Model Update
-        gprMdlLP_machine2 = fitrgp(LOModelData.LoadMachine2, ...
-            LOModelData.PowerMachine2, 'KernelFunction','squaredexponential');
-%         gprMdlLP_machine2 = fitrgp(LOModelData.LoadMachine2, ...
-%             LOModelData.PowerMachine2, 'KernelFunction', 'squaredexponential', ...
-%             'KernelParameters', [15.0; 111.0653]);
+            % Update model
+            training_data = struct();
+            training_data.Load = LOModelData.(machine).Load;
+            training_data.Power = LOModelData.(machine).Power;
+            model_name = config.machines.(machine).model;
+            model_config = config.models.(model_name);
+            setup_func_name = config.models.(model_name).setup_script;
+            models.(machine) = feval(setup_func_name, model_config, ...
+                training_data);
 
-     end
-
-     % for machine 3
-     if min(abs(LOModelData.LoadMachine3 - LOData.LoadMachine3(end,1))) >= 4
-        
-        LOModelData.LoadMachine3 = ...
-            [LOModelData.LoadMachine3;LOData.LoadMachine3(end,1)];
-        LOModelData.PowerMachine3 = ...
-            [LOModelData.PowerMachine3;LOData.PowerMachine3(end,1)];
-        
-        % Model Update
-        gprMdlLP_machine3 = fitrgp(LOModelData.LoadMachine3, ...
-            LOModelData.PowerMachine3, 'KernelFunction','squaredexponential');
-%         gprMdlLP_machine3 = fitrgp(LOModelData.LoadMachine3, ...
-%             LOModelData.PowerMachine3, 'KernelFunction', 'squaredexponential', ...
-%             'KernelParameters', [15.5848; 153.5634]);
-
-     end
-
-      % for machine 4
-     if min(abs(LOModelData.LoadMachine4 - LOData.LoadMachine4(end,1))) >= 4
-
-        LOModelData.LoadMachine4 = ...
-            [LOModelData.LoadMachine4;LOData.LoadMachine4(end,1)];
-        LOModelData.PowerMachine4 = ...
-            [LOModelData.PowerMachine4;LOData.PowerMachine4(end,1)];
-
-        % Model Update
-        gprMdlLP_machine4 = fitrgp(LOModelData.LoadMachine4, ...
-            LOModelData.PowerMachine4, 'KernelFunction','squaredexponential');
-%         gprMdlLP_machine4 = fitrgp(LOModelData.LoadMachine4, ...
-%             LOModelData.PowerMachine4, 'KernelFunction', 'squaredexponential', ...
-%             'KernelParameters', [15;280.8635]);
-
-     end
-
-      % for machine 5
-     if min(abs(LOModelData.LoadMachine5 - LOData.LoadMachine5(end,1))) >= 4
-        
-        LOModelData.LoadMachine5 = ...
-            [LOModelData.LoadMachine5;LOData.LoadMachine5(end,1)];
-        LOModelData.PowerMachine5 = ...
-            [LOModelData.PowerMachine5;LOData.PowerMachine5(end,1)];
-        
-        % Model Update
-        gprMdlLP_machine5 = fitrgp(LOModelData.LoadMachine5, ...
-            LOModelData.PowerMachine5, 'KernelFunction','squaredexponential');
-       % gprMdlLP_machine5 = fitrgp(LOModelData.LoadMachine5, ...
-       %      LOModelData.PowerMachine5, 'KernelFunction', 'squaredexponential', ...
-       %      'KernelParameters', [15.1001;236.1767]);
-
+        end
     end
 
-    % Make predictions - optional, for plotting only
-    % Set prediction points over operating range of each machine.
-    % Note: Machines 4 and 5 use same values as machine 3
-    operating_interval_machine1 = (56:220)';
-    operating_interval_machine2 = (237:537)';
-    operating_interval_machine3 = (194:795)';
-    
-    % Gaussian process model predictions
-    [mean_machine1, sigma_machine1, interval_machine1] = predict( ...
-        gprMdlLP_machine1, operating_interval_machine1, 'Alpha', significance); 
-    [mean_machine2, sigma_machine2, interval_machine2] = predict( ...
-        gprMdlLP_machine2, operating_interval_machine2, 'Alpha', significance);
-    [mean_machine3, sigma_machine3, interval_machine3] = predict( ...
-        gprMdlLP_machine3, operating_interval_machine3, 'Alpha', significance); 
-    [mean_machine4, sigma_machine4, interval_machine4] = predict( ...
-        gprMdlLP_machine4, operating_interval_machine3, 'Alpha', significance);
-    [mean_machine5, sigma_machine5, interval_machine5] = predict( ...
-        gprMdlLP_machine5, operating_interval_machine3, 'Alpha', significance); 
-    
-    % Sum covariance matrices to use as indicator of uncertainty
-    sum1 = sum(sigma_machine1);
-    sum2 = sum(sigma_machine2);
-    sum3 = sum(sigma_machine3);
-    sum4 = sum(sigma_machine4);
-    sum5 = sum(sigma_machine5);
-    
-    total_uncertainty = [total_uncertainty; sum1+sum2+sum3+sum4+sum5];
-    explore = [explore; explore_signal];
-    disp(explore_signal)
-    
+    % Model predictions - this is only needed for plotting
+    % and for calculation of total uncertainty
+    y_means = cell(1, n_machines);
+    y_sigmas = cell(1, n_machines);
+    x = cell(1, n_machines);
+    for i = 1:n_machines
+        machine = config.machines.names{i};
+        machine_config = config.machines.(machine);
+        % Set prediction points over operating range of each machine.
+        op_interval = ( ...
+            machine_config.op_limits(1):machine_config.op_limits(2) ...
+        )';
+        model_name = config.machines.(machine).model;
+        model_config = config.models.(model_name);
+        [y_means{i}, y_sigmas{i}, x{i}] = gpr_model_predict( ...
+            models.(machine), op_interval, model_config);
+    end
+
+    % Sum covariance matrices as an indicator of model uncertainty
+    total_uncertainty = sum(cellfun(@sum, y_sigmas));
+    LOData.TotalUncertainty = [LOData.TotalUncertainty; total_uncertainty];
+
     % Plot GP model predictions
     figure(1); clf
     c = get(gca, 'colororder');
@@ -312,14 +204,17 @@ if SteadyState == 1
     % Put a breakpoint or pause here if you want to pause to view plots
     %pause
 
+    curr_iteration = curr_iteration + 1;
+
 end
 
 
 % Load optimization
-Current_Load_Target = LOData.Load_Target(end,1);
-
-% TODO: What is this?
-PMax = 1580;
+% Lower and upper bounds of load for each machine
+op_limits = cell2mat( ...
+    cellfun(@(name) config.machines.(name).op_limits, ...
+        config.machines.names, 'UniformOutput', false)' ...
+);
 
 % options = optimoptions('fmincon', ...
 %   'MaxIterations', 500000, 
@@ -329,8 +224,11 @@ PMax = 1580;
 %   "StepTolerance", 1e-10, 
 %   "MaxFunctionEvaluations", 5000);
 %  , "StepTolerance",1e-14, "OptimalityTolerance",1e-14);
-options = optimoptions("fmincon", "SubproblemAlgorithm", "cg", ...
-    "MaxIterations", 500000, "Display", "iter");
+options = optimoptions("fmincon", ...
+    "SubproblemAlgorithm", "cg", ...
+    "MaxIterations", config.optimizer.optimoptions.MaxIterations, ...
+    "Display", config.optimizer.optimoptions.Display ...
+);
 % gen_load_target = fmincon( ...
 %     @LoadObjFun, ...
 %     [LOData.LoadMachine1(end,1), ...
@@ -344,13 +242,17 @@ options = optimoptions("fmincon", "SubproblemAlgorithm", "cg", ...
 %     @MaxPowerConstraint, ...
 %     options);
 
+FUN = @(x) LoadObjFun(x, config);
+
+NONLCON = @(x) MaxPowerConstraint(x, config);
+
 gen_load_target = fmincon( ...
-    @LoadObjFun, ...
-    [56.1, 237.1, 194.1, 194.1, 194.1], ...
-    [],[],[],[], ...
-    [56,237,194,194,194], ...
-    [220,537,795,795,795], ...
-    @MaxPowerConstraint, ...
+    FUN, ...
+    config.optimizer.X0', ...
+    [], [], [], [], ...
+    op_limits(:, 1), ...
+    op_limits(:, 2), ...
+    NONLCON, ...
     options);
 
 % Send outputs
