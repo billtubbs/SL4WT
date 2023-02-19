@@ -1,12 +1,9 @@
-function model = gpr_model_setup(config, data)
-% model = gpr_model_setup(config, data)
+function [model, vars] = gpr_model_setup(data, params)
+% [model, vars] = gpr_model_setup(data, params)
 % Fits new Gaussian process model to data
 %
 
-    model = fitrgp( ...
-        data.Load', data.Power', ...
-        'KernelFunction', config.params.KernelFunction, ...
-        'KernelParameters', config.params.KernelParameters' ...
-    );
+    vars = struct("significance", params.significance);
+    [model, vars] = gpr_model_update([], data, vars, params);
 
 end

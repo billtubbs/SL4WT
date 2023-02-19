@@ -5,13 +5,13 @@ switch flag
     case 0	% Initialize the states and sizes
        [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config);
 
-    case 3   % Calculate the outputs
-       sys = mdlOutputs(t,x,u,config);
+    case 1	% Obtain derivatives of states
+       sys = mdlDerivatives(t,x,u,Param);  % this is not implemented
 
 %    case 2	% Update
 
-%    case 1	% Obtain derivatives of states
-%       sys = mdlDerivatives(t,x,u,Param);
+    case 3   % Calculate the outputs
+       sys = mdlOutputs(t,x,u,config);
 
     otherwise
        sys = [];
@@ -27,7 +27,7 @@ end
 % ******************************************
 
 function [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config)
-global LOData LOModelData curr_iteration models significance
+global LOData LOModelData curr_iteration models model_vars
 
 % This handles initialization of the function.
 % Call simsize of a sizes structure.
@@ -45,27 +45,32 @@ str = [];	                  % set str to an empty matrix.
 tss = config.block.tss;	  % sample time: [period, offset].
 
 % Initialize global variables (these are used to avoid saving
-% all the state information in the Simulink block state variables)
+% all the state information as Simulink state variables)
 curr_iteration = 0;
-
-significance = config.simulation.params.significance;
 
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct 
 for machine = config.machines.names
     model_name = config.machines.(machine).model;
-    model_config = config.models.(model_name);
     training_data = config.training.data.(machine);
-    model_setup_func = config.models.(model_name).setup_script;
-    models.(machine) = feval(model_setup_func, model_config, training_data);
+    model_config = config.models.(model_name);
+
+    % Run model setup script
+    [models.(machine), model_vars.(machine)] = feval( ...
+        model_config.setup_script, ...
+        training_data, ...
+        model_config.params ...
+    );
+
     % Initialize empty arrays to store simulation results
     LOModelData.(machine).Load = training_data.Load;
     LOModelData.(machine).Power = training_data.Power;
     LOData.(machine).Load = [];
     LOData.(machine).Power = [];
+
 end
 
-% Array to store time and target values from simulation
+% Arrays to store simulation data
 LOData.Iteration = [];
 LOData.Time = [];
 LOData.Load_Target = [];
@@ -77,8 +82,8 @@ LOData.SteadyState = [];
 %  Outputs
 % ******************************************
 
-function [sys] = mdlOutputs(t,x,u,config)
-global LOData LOModelData curr_iteration models significance ...
+function [sys] = mdlOutputs(t,ci,u,config)
+global LOData LOModelData curr_iteration models model_vars ...
     Current_Load_Target
 
 % Process inputs from Simulink
@@ -99,7 +104,7 @@ end
 mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
 for machine = config.machines.names
-    if size(LOData.(machine).Load, 1) > 3
+    if size(LOData.(machine).Load, 1) > 3  % at least this many samples
         mean_abs_Load_diffs(1) = ...
             mean(abs(diff(LOData.(machine).Load(end-3:end))));
         mean_abs_Power_diffs(1) = ...
@@ -144,11 +149,11 @@ if SteadyState == 1
         end
     end
 
-    % Model predictions - this is only needed for plotting
-    % and for calculation of total uncertainty
+    % Model predictions - this is only needed for calculation of 
+    % total uncertainty
     y_means = cell(1, n_machines);
     y_sigmas = cell(1, n_machines);
-    x = cell(1, n_machines);
+    ci = cell(1, n_machines);
     for i = 1:n_machines
         machine = config.machines.names{i};
         machine_config = config.machines.(machine);
@@ -158,8 +163,9 @@ if SteadyState == 1
         )';
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
-        [y_means{i}, y_sigmas{i}, x{i}] = gpr_model_predict( ...
-            models.(machine), op_interval, model_config);
+        [y_means{i}, y_sigmas{i}, ci{i}] = gpr_model_predict( ...
+            models.(machine), op_interval, model_vars.(machine), ...
+            model_config);
     end
 
     % Sum covariance matrices as an indicator of model uncertainty
@@ -187,7 +193,7 @@ if SteadyState == 1
     ylabel("Power consumption")
     title(compose("$t = %d$", t), 'Interpreter', 'latex')
     
-    % Plot GP model uncertainties
+    % Plot GP model uncertaintielss
     figure(2); clf
     c = get(gca, 'colororder');
     plot(operating_interval_machine1, sigma_machine1, 'color', c(1, :)); hold on
@@ -242,17 +248,19 @@ options = optimoptions("fmincon", ...
 %     @MaxPowerConstraint, ...
 %     options);
 
-FUN = @(x) LoadObjFun(x, config);
+obj_func_name = config.optimizer.obj_func;
+const_func_name = config.optimizer.const_func;
 
-NONLCON = @(x) MaxPowerConstraint(x, config);
+obj_func = @(x) feval(obj_func_name, x, config);
+const_func = @(x) feval(const_func_name, x, config);
 
 gen_load_target = fmincon( ...
-    FUN, ...
+    obj_func, ...
     config.optimizer.X0', ...
     [], [], [], [], ...
     op_limits(:, 1), ...
     op_limits(:, 2), ...
-    NONLCON, ...
+    const_func, ...
     options);
 
 % Send outputs

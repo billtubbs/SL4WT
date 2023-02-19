@@ -1,10 +1,9 @@
-function [y_mean, y_sigma, x] = gpr_model_predict(model, x, config)
-% model = gpr_model_predict(model, x, config)
+function [y_mean, y_sigma, ci] = gpr_model_predict(model, x, vars, params)
+% [y_mean, y_sigma, ci] = gpr_model_predict(model, x, vars, params)
 % Make predictions with Gaussian process model
 %
-global significance
 
-    [y_mean, y_sigma, x] = predict( ...
-        model, x, 'Alpha', significance);
+    [y_mean, y_sigma, ci] = predict( ...
+        model, x, 'Alpha', vars.significance);
 
 end
