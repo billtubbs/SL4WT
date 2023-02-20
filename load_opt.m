@@ -1,5 +1,7 @@
 function [sys,x0,str,tss] = load_opt(t,x,u,flag,config)
 
+addpath("plot-utils")
+
 switch flag
 
     case 0	% Initialize the states and sizes
@@ -53,6 +55,8 @@ curr_iteration = 0;
 for machine = config.machines.names
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
+    training_data.Load = training_data.Load';
+    training_data.Power = training_data.Power';
     model_config = config.models.(model_name);
 
     % Run model setup script
@@ -103,11 +107,12 @@ end
 % Steady State Detection for each machine
 mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
-for machine = config.machines.names
+for i = 1:n_machines
+    machine = config.machines.names{i};
     if size(LOData.(machine).Load, 1) > 3  % at least this many samples
-        mean_abs_Load_diffs(1) = ...
+        mean_abs_Load_diffs(i) = ...
             mean(abs(diff(LOData.(machine).Load(end-3:end))));
-        mean_abs_Power_diffs(1) = ...
+        mean_abs_Power_diffs(i) = ...
             mean(abs(diff(LOData.(machine).Power(end-3:end))));
     end
 end
@@ -131,10 +136,10 @@ if SteadyState == 1
                 - LOModelData.(machine).Load) >= 4
 
             % Add current data to training history
-            LOModelData.LoadMachine1 = ...
-                [LOModelData.LoadMachine1; LOData.LoadMachine1(end,:)];
-            LOModelData.PowerMachine1 = ...
-                [LOModelData.PowerMachine1; LOData.PowerMachine1(end,:)];
+            LOModelData.(machine).Load = ...
+                [LOModelData.(machine).Load; LOData.(machine).Load(end,:)];
+            LOModelData.(machine).Power = ...
+                [LOModelData.(machine).Power; LOData.(machine).Power(end,:)];
 
             % Update model
             training_data = struct();
@@ -142,15 +147,24 @@ if SteadyState == 1
             training_data.Power = LOModelData.(machine).Power;
             model_name = config.machines.(machine).model;
             model_config = config.models.(model_name);
-            setup_func_name = config.models.(model_name).setup_script;
-            models.(machine) = feval(setup_func_name, model_config, ...
-                training_data);
+            models.(machine) = feval(model_config.update_script, ...
+                models.(machine), ...
+                training_data, ...
+                model_vars.(machine), ...
+                model_config.params ...
+            );
 
         end
     end
 
+    figure(1); clf
+    y_labels = "Power";
+    line_label = "predicted";
+    area_label = "confidence interval";
+    x_label = "Load";
+
     % Model predictions - this is only needed for calculation of 
-    % total uncertainty
+    % total uncertainty or if plots are needed.
     y_means = cell(1, n_machines);
     y_sigmas = cell(1, n_machines);
     ci = cell(1, n_machines);
@@ -163,52 +177,80 @@ if SteadyState == 1
         )';
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
-        [y_means{i}, y_sigmas{i}, ci{i}] = gpr_model_predict( ...
-            models.(machine), op_interval, model_vars.(machine), ...
-            model_config);
+        [y_means{i}, y_sigmas{i}, ci{i}] = feval( ...
+            model_config.predict_script, ...
+            models.(machine), ...
+            op_interval, ...
+            model_vars.(machine), ...
+            model_config.params ...
+        );
+
+        % Plot predictions and training data points
+        subplot(1, n_machines, i);
+        make_statplot(y_means{i}, ci{i}(:, 1), ci{i}(:, 2), ...
+            op_interval, y_labels, line_label, area_label, x_label)
+        h = findobj(gcf, 'Type', 'Legend');
+        leg_labels = h.String;
+        % Add training data points to plot
+        plot(LOModelData.(machine).Load, LOModelData.(machine).Power, ...
+            'k.', 'MarkerSize', 10)
+        legend([leg_labels 'data'], 'Location', 'southeast')
+        text(0.05, 0.95, compose("$t=%d$", t), 'Units', 'normalized', ...
+            'Interpreter', 'latex')
+        title(compose("Machine %d", i), 'Interpreter', 'latex')
+
     end
+
+    grid on
+    % Size figure appropriately
+    s = get(gcf, 'Position');
+    set(gcf, 'Position', [s(1:2) 420+280*n_machines 280]);
+    sim_name = config.simulation.name;
+    filename = compose("model_preds_%.0f.pdf", t);
+    exportgraphics(gcf, fullfile("simulations", sim_name, "plots", filename))
+    disp('Stop')
 
     % Sum covariance matrices as an indicator of model uncertainty
     total_uncertainty = sum(cellfun(@sum, y_sigmas));
     LOData.TotalUncertainty = [LOData.TotalUncertainty; total_uncertainty];
 
-    % Plot GP model predictions
-    figure(1); clf
-    c = get(gca, 'colororder');
-    % Plot predictions over full interval
-    plot(operating_interval_machine1, mean_machine1, 'color', c(1, :)); hold on
-    plot(operating_interval_machine2, mean_machine2, 'color', c(2, :))
-    plot(operating_interval_machine3, mean_machine3, 'color', c(3, :))
-    plot(operating_interval_machine3, mean_machine4, 'color', c(4, :))
-    plot(operating_interval_machine3, mean_machine5, 'color', c(5, :))
-    % Plot previous data points to which model has been fitted
-    plot(LOModelData.LoadMachine1, LOModelData.PowerMachine1, '.', 'color', c(1, :))
-    plot(LOModelData.LoadMachine2, LOModelData.PowerMachine2, '.', 'color', c(2, :))
-    plot(LOModelData.LoadMachine3, LOModelData.PowerMachine3, '.', 'color', c(3, :))
-    plot(LOModelData.LoadMachine4, LOModelData.PowerMachine4, '.', 'color', c(4, :))
-    plot(LOModelData.LoadMachine5, LOModelData.PowerMachine5, '.', 'color', c(5, :))
-    grid on
-    legend(compose("machine %d", 1:5), 'location', 'best')
-    xlabel("Load")
-    ylabel("Power consumption")
-    title(compose("$t = %d$", t), 'Interpreter', 'latex')
-    
-    % Plot GP model uncertaintielss
-    figure(2); clf
-    c = get(gca, 'colororder');
-    plot(operating_interval_machine1, sigma_machine1, 'color', c(1, :)); hold on
-    plot(operating_interval_machine2, sigma_machine2, 'color', c(2, :))
-    plot(operating_interval_machine3, sigma_machine3, 'color', c(3, :))
-    plot(operating_interval_machine3, sigma_machine4, 'color', c(4, :))
-    plot(operating_interval_machine3, sigma_machine5, 'color', c(5, :))
-    grid on
-    legend(compose("machine %d", 1:5), 'location', 'best')
-    xlabel("Load")
-    ylabel("sigma")
-    title(compose("$t = %d$", t), 'Interpreter', 'latex')
-
-    % Put a breakpoint or pause here if you want to pause to view plots
-    %pause
+%     % Plot all GP model predictions on one plot
+%     figure(1); clf
+%     c = get(gca, 'colororder');
+%     % Plot predictions over full interval
+%     plot(operating_interval_machine1, mean_machine1, 'color', c(1, :)); hold on
+%     plot(operating_interval_machine2, mean_machine2, 'color', c(2, :))
+%     plot(operating_interval_machine3, mean_machine3, 'color', c(3, :))
+%     plot(operating_interval_machine3, mean_machine4, 'color', c(4, :))
+%     plot(operating_interval_machine3, mean_machine5, 'color', c(5, :))
+%     % Plot previous data points to which model has been fitted
+%     plot(LOModelData.LoadMachine1, LOModelData.PowerMachine1, '.', 'color', c(1, :))
+%     plot(LOModelData.LoadMachine2, LOModelData.PowerMachine2, '.', 'color', c(2, :))
+%     plot(LOModelData.LoadMachine3, LOModelData.PowerMachine3, '.', 'color', c(3, :))
+%     plot(LOModelData.LoadMachine4, LOModelData.PowerMachine4, '.', 'color', c(4, :))
+%     plot(LOModelData.LoadMachine5, LOModelData.PowerMachine5, '.', 'color', c(5, :))
+%     grid on
+%     legend(compose("machine %d", 1:5), 'location', 'best')
+%     xlabel("Load")
+%     ylabel("Power consumption")
+%     title(compose("$t = %d$", t), 'Interpreter', 'latex')
+%     
+%     % Plot GP model uncertaintielss
+%     figure(2); clf
+%     c = get(gca, 'colororder');
+%     plot(operating_interval_machine1, sigma_machine1, 'color', c(1, :)); hold on
+%     plot(operating_interval_machine2, sigma_machine2, 'color', c(2, :))
+%     plot(operating_interval_machine3, sigma_machine3, 'color', c(3, :))
+%     plot(operating_interval_machine3, sigma_machine4, 'color', c(4, :))
+%     plot(operating_interval_machine3, sigma_machine5, 'color', c(5, :))
+%     grid on
+%     legend(compose("machine %d", 1:5), 'location', 'best')
+%     xlabel("Load")
+%     ylabel("sigma")
+%     title(compose("$t = %d$", t), 'Interpreter', 'latex')
+% 
+%     % Put a breakpoint or pause here if you want to pause to view plots
+%     %pause
 
     curr_iteration = curr_iteration + 1;
 

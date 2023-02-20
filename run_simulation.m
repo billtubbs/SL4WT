@@ -3,6 +3,7 @@
 clear variables
 addpath("yaml")
 
+
 % Simulink model name
 sim_model = "multiple_generators_els_2021b.mdl";
 
@@ -13,12 +14,21 @@ sim_dir = "simulations";
 % is located
 sim_name = "test_sim";
 
-% Load optimizer configuration file
+% Prepare sub-directories to store outputs
+if ~exist(fullfile("simulations", sim_name, "plots"), 'dir')
+    mkdir(fullfile("simulations", sim_name, "plots"))
+end
+if ~exist(fullfile("simulations", sim_name, "results"), 'dir')
+    mkdir(fullfile("simulations", sim_name, "results"))
+end
+
+% Load configuration file
 filepath = fullfile(sim_dir, sim_name, "opt_config.yaml");
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
-opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
+config = yaml.loadFile(filepath, "ConvertToArray", true);
 
+t 
 fprintf("Starting simulation...\n")
-t_stop = opt_config.simulation.params.t_stop;
+t_stop = config.simulation.params.t_stop;
 sim_out = sim(sim_model, "StopTime", string(t_stop));
 fprintf("Simulation finished.\n")
