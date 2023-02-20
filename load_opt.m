@@ -67,12 +67,15 @@ for machine = config.machines.names
         model_config.params ...
     );
 
-    % Initialize empty arrays to store model data
+    % Save pre-training data points
+    n_pre_train = size(training_data.Load, 1);
+    assert(size(training_data.Power, 1) == n_pre_train)
+    LOModelData.(machine).Iteration = nan(n_pre_train, 1);
+    LOModelData.(machine).Time = nan(n_pre_train, 1);
     LOModelData.(machine).Load = training_data.Load;
     LOModelData.(machine).Power = training_data.Power;
 
 end
-LOModelData.TotalUncertainty = [];
 
 % Arrays to store simulation data
 LOData.Iteration = [];
@@ -80,6 +83,7 @@ LOData.Time = [];
 LOData.Load_Target = [];
 LOData.SteadyState = [];
 LOData.ModelUpdates = [];
+LOData.TotalUncertainty = [];
 for machine = config.machines.names
     LOData.(machine).Load = [];
     LOData.(machine).Power = [];
@@ -131,7 +135,7 @@ if (all(mean_abs_Load_diffs <= 2) ...
 else
     SteadyState = 0;
 end
-LOData.SteadyState = [LOData.SteadyState SteadyState];
+LOData.SteadyState = [LOData.SteadyState; SteadyState];
 
 % Do model updates if conditions met
 ModelUpdates = zeros(1, n_machines);
@@ -139,15 +143,21 @@ if SteadyState == 1
 
     for i = 1:n_machines
         machine = config.machines.names{i};
+        model = config.machines.(machine).model;
+
         % Check if current load is close to previous training points
-        if min(abs(LOData.(machine).Load(end,1)) ...
-                - LOModelData.(machine).Load) >= 4
+        load_tol = config.models.model_1.params.x_tol;
+        if min(abs(LOData.(machine).Load(end,1) ...
+                - LOModelData.(machine).Load)) >= load_tol
 
             % Add current data to training history
             LOModelData.(machine).Load = ...
                 [LOModelData.(machine).Load; LOData.(machine).Load(end,:)];
             LOModelData.(machine).Power = ...
                 [LOModelData.(machine).Power; LOData.(machine).Power(end,:)];
+            LOModelData.(machine).Iteration = ...
+                [LOModelData.(machine).Iteration; curr_iteration];
+            LOModelData.(machine).Time = [LOModelData.(machine).Time; t];
 
             % Update model
             training_data = struct();
@@ -166,45 +176,6 @@ if SteadyState == 1
 
         end
     end
-
-    % Model predictions - this is needed for calculation of 
-    % total uncertainty and to save model predictions for
-    % subsequent plotting/analysis.
-    y_sigmas = cell(1, n_machines);
-    for i = 1:n_machines
-        machine = config.machines.names{i};
-        machine_config = config.machines.(machine);
-        % Set prediction points over operating range of each machine.
-        op_interval = ( ...
-            machine_config.op_limits(1):machine_config.op_limits(2) ...
-        )';
-        model_name = config.machines.(machine).model;
-        model_config = config.models.(model_name);
-        [y_mean, y_sigma, y_int] = feval( ...
-            model_config.predict_script, ...
-            models.(machine), ...
-            op_interval, ...
-            model_vars.(machine), ...
-            model_config.params ...
-        );
-
-        % Save for computations belows
-        y_sigmas{i} = y_sigma;
-
-        if ModelUpdates(i) == 1
-            % Save model prediction results to file
-            model_preds = table(op_interval, y_mean, y_sigma, y_int);
-            filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
-            writetable(model_preds, fullfile("simulations", sim_name, ...
-                "results", filename))
-        end
-
-    end
-
-    % Sum covariance matrices as an indicator of model uncertainty
-    total_uncertainty = sum(cellfun(@sum, y_sigmas));
-    LOModelData.TotalUncertainty = ...
-        [LOModelData.TotalUncertainty; total_uncertainty];
 
 %     % Plot all GP model predictions on one plot
 %     figure(1); clf
@@ -244,14 +215,52 @@ if SteadyState == 1
 %     % Put a breakpoint or pause here if you want to pause to view plots
 %     %pause
 
-    curr_iteration = curr_iteration + 1;
-
 end
 
 % Log whether models were updated this iteration
 LOData.ModelUpdates = [LOData.ModelUpdates; ModelUpdates];
 
-% Load optimization
+% Model predictions - this is needed for calculation of 
+% total uncertainty and to save model predictions if the
+% models were updated.
+y_sigmas = cell(1, n_machines);
+for i = 1:n_machines
+    machine = config.machines.names{i};
+    machine_config = config.machines.(machine);
+    % Set prediction points over operating range of each machine.
+    op_interval = ( ...
+        machine_config.op_limits(1):machine_config.op_limits(2) ...
+    )';
+    model_name = config.machines.(machine).model;
+    model_config = config.models.(model_name);
+    [y_mean, y_sigma, y_int] = feval( ...
+        model_config.predict_script, ...
+        models.(machine), ...
+        op_interval, ...
+        model_vars.(machine), ...
+        model_config.params ...
+    );
+
+    % Save for uncertainty calculation below
+    y_sigmas{i} = y_sigma;
+
+    if ModelUpdates(i) == 1
+        % Save model prediction results to file
+        model_preds = table(op_interval, y_mean, y_sigma, y_int);
+        filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
+        writetable(model_preds, fullfile("simulations", sim_name, ...
+            "results", filename))
+    end
+
+end
+
+% Sum covariance matrices as an indicator of model uncertainty
+total_uncertainty = sum(cellfun(@sum, y_sigmas));
+LOData.TotalUncertainty = ...
+    [LOData.TotalUncertainty; total_uncertainty];
+
+
+% Do load optimization
 % Lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
     cellfun(@(name) config.machines.(name).op_limits, ...
@@ -298,6 +307,10 @@ gen_load_target = fmincon( ...
     op_limits(:, 2), ...
     const_func, ...
     options);
+
+% Note this is the simulation iteration, not the same as
+% the model update iterations.
+curr_iteration = curr_iteration + 1;
 
 % Send outputs
 sys(1) = gen_load_target(1); 
