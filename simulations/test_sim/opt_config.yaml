@@ -40,6 +40,7 @@ models:
             KernelFunction: "SquaredExponential"
             KernelParameters: []  # [15.0; 95.7708]
             significance: 0.1
+            x_tol: 4
     model_2:
         setup_script: "gpr_model_setup"
         predict_script: "gpr_model_predict"
@@ -48,6 +49,7 @@ models:
             KernelFunction: "SquaredExponential"
             KernelParameters: []  # [15.0; 111.0653]
             significance: 0.1
+            x_tol: 4
     model_3:
         setup_script: "gpr_model_setup"
         predict_script: "gpr_model_predict"
@@ -56,6 +58,7 @@ models:
             KernelFunction: "SquaredExponential"
             KernelParameters: []  # [15.1001;236.1767]
             significance: 0.1
+            x_tol: 4
 training:
     data:
         machine_1:
