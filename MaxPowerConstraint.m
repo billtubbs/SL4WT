@@ -14,11 +14,12 @@ global  LOData models model_vars curr_iteration
 %         end
 
     % Compute model predictions
-    n_machines = numel(config.machines.names);
+    machine_names = string(fieldnames(config.machines))';
+    n_machines = numel(machine_names);
     y_means = nan(n_machines, 1);
     x_ci = nan(n_machines, 2);
     for i = 1:n_machines
-        machine = config.machines.names{i};
+        machine = machine_names{i};
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
         [y_means(i), ~, x_ci(i, :)] = gpr_model_predict( ...

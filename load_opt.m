@@ -49,11 +49,11 @@ tss = config.block.tss;	  % sample time: [period, offset].
 
 % Initialize global variables (these are used to avoid saving
 % all the state information as Simulink state variables)
-curr_iteration = 0;
+curr_iteration = 1;
 
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct 
-for machine = config.machines.names
+for machine = string(fieldnames(config.machines))'
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
     training_data.Load = training_data.Load';
@@ -72,6 +72,7 @@ for machine = config.machines.names
     assert(size(training_data.Power, 1) == n_pre_train)
     LOModelData.(machine).Iteration = nan(n_pre_train, 1);
     LOModelData.(machine).Time = nan(n_pre_train, 1);
+    LOModelData.(machine).Time(end) = 0;  % set time = 0 for last point
     LOModelData.(machine).Load = training_data.Load;
     LOModelData.(machine).Power = training_data.Power;
 
@@ -84,7 +85,7 @@ LOData.Load_Target = [];
 LOData.SteadyState = [];
 LOData.ModelUpdates = [];
 LOData.TotalUncertainty = [];
-for machine = config.machines.names
+for machine = string(fieldnames(config.machines))'
     LOData.(machine).Load = [];
     LOData.(machine).Power = [];
 end
@@ -107,9 +108,10 @@ Current_Load_Target = u(1);
 LOData.Load_Target = [LOData.Load_Target; Current_Load_Target];
 LOData.Iteration = [LOData.Iteration; curr_iteration];
 LOData.Time = [LOData.Time; t];
-n_machines = numel(config.machines.names);
+machine_names = string(fieldnames(config.machines))';
+n_machines = numel(machine_names);
 for i = 1:n_machines
-    machine = config.machines.names{i};
+    machine = machine_names{i};
     LOData.(machine).Load = [LOData.(machine).Load; u(i+1)];
     LOData.(machine).Power = [LOData.(machine).Power; u(i+1+n_machines)];
 end
@@ -118,7 +120,7 @@ end
 mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
 for i = 1:n_machines
-    machine = config.machines.names{i};
+    machine = machine_names{i};
     if size(LOData.(machine).Load, 1) > 3  % at least this many samples
         mean_abs_Load_diffs(i) = ...
             mean(abs(diff(LOData.(machine).Load(end-3:end))));
@@ -142,8 +144,7 @@ ModelUpdates = zeros(1, n_machines);
 if SteadyState == 1
 
     for i = 1:n_machines
-        machine = config.machines.names{i};
-        model = config.machines.(machine).model;
+        machine = machine_names{i};
 
         % Check if current load is close to previous training points
         load_tol = config.models.model_1.params.x_tol;
@@ -176,45 +177,6 @@ if SteadyState == 1
 
         end
     end
-
-%     % Plot all GP model predictions on one plot
-%     figure(1); clf
-%     c = get(gca, 'colororder');
-%     % Plot predictions over full interval
-%     plot(operating_interval_machine1, mean_machine1, 'color', c(1, :)); hold on
-%     plot(operating_interval_machine2, mean_machine2, 'color', c(2, :))
-%     plot(operating_interval_machine3, mean_machine3, 'color', c(3, :))
-%     plot(operating_interval_machine3, mean_machine4, 'color', c(4, :))
-%     plot(operating_interval_machine3, mean_machine5, 'color', c(5, :))
-%     % Plot previous data points to which model has been fitted
-%     plot(LOModelData.LoadMachine1, LOModelData.PowerMachine1, '.', 'color', c(1, :))
-%     plot(LOModelData.LoadMachine2, LOModelData.PowerMachine2, '.', 'color', c(2, :))
-%     plot(LOModelData.LoadMachine3, LOModelData.PowerMachine3, '.', 'color', c(3, :))
-%     plot(LOModelData.LoadMachine4, LOModelData.PowerMachine4, '.', 'color', c(4, :))
-%     plot(LOModelData.LoadMachine5, LOModelData.PowerMachine5, '.', 'color', c(5, :))
-%     grid on
-%     legend(compose("machine %d", 1:5), 'location', 'best')
-%     xlabel("Load")
-%     ylabel("Power consumption")
-%     title(compose("$t = %d$", t), 'Interpreter', 'latex')
-%     
-%     % Plot GP model uncertaintielss
-%     figure(2); clf
-%     c = get(gca, 'colororder');
-%     plot(operating_interval_machine1, sigma_machine1, 'color', c(1, :)); hold on
-%     plot(operating_interval_machine2, sigma_machine2, 'color', c(2, :))
-%     plot(operating_interval_machine3, sigma_machine3, 'color', c(3, :))
-%     plot(operating_interval_machine3, sigma_machine4, 'color', c(4, :))
-%     plot(operating_interval_machine3, sigma_machine5, 'color', c(5, :))
-%     grid on
-%     legend(compose("machine %d", 1:5), 'location', 'best')
-%     xlabel("Load")
-%     ylabel("sigma")
-%     title(compose("$t = %d$", t), 'Interpreter', 'latex')
-% 
-%     % Put a breakpoint or pause here if you want to pause to view plots
-%     %pause
-
 end
 
 % Log whether models were updated this iteration
@@ -225,7 +187,7 @@ LOData.ModelUpdates = [LOData.ModelUpdates; ModelUpdates];
 % models were updated.
 y_sigmas = cell(1, n_machines);
 for i = 1:n_machines
-    machine = config.machines.names{i};
+    machine = machine_names{i};
     machine_config = config.machines.(machine);
     % Set prediction points over operating range of each machine.
     op_interval = ( ...
@@ -244,7 +206,7 @@ for i = 1:n_machines
     % Save for uncertainty calculation below
     y_sigmas{i} = y_sigma;
 
-    if ModelUpdates(i) == 1
+    if t == 0 || ModelUpdates(i) == 1
         % Save model prediction results to file
         model_preds = table(op_interval, y_mean, y_sigma, y_int);
         filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
@@ -264,7 +226,7 @@ LOData.TotalUncertainty = ...
 % Lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
     cellfun(@(name) config.machines.(name).op_limits, ...
-        config.machines.names, 'UniformOutput', false)' ...
+        machine_names, 'UniformOutput', false)' ...
 );
 
 % options = optimoptions('fmincon', ...

@@ -5,11 +5,12 @@ function f = LoadObjFun(x, config)
 global models model_vars Current_Load_Target
 
     % Compute model predictions
-    n_machines = numel(config.machines.names);
+    machine_names = string(fieldnames(config.machines))';
+    n_machines = numel(machine_names);
     y_means = nan(n_machines, 1);
     y_sigmas = nan(n_machines, 1);
     for i = 1:n_machines
-        machine = config.machines.names{i};
+        machine = machine_names{i};
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
         [y_means(i), y_sigmas(i), ~] = gpr_model_predict( ...
@@ -23,7 +24,7 @@ global models model_vars Current_Load_Target
 
 %         if (is_load_same && SteadyState ==1 && abs(LOData.Load_Target(end,1) - total_load) < 10)
 
-    z = 1000;
+    z = config.optimizer.params.z;
 
 % %             disp("exploring ")
 %             explore_signal = 1;

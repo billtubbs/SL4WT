@@ -13,26 +13,29 @@ simulation:
         t_stop: 4000
         PMax: 1580
 machines:
-    names: ["machine_1", "machine_2", "machine_3", "machine_4", 
-        "machine_5"]
     machine_1:
+        name: "Machine 1"
         op_limits: [56, 220]
         model: "model_1"
     machine_2:
+        name: "Machine 2"
         op_limits: [237, 537]
         model: "model_2"
     machine_3:
+        name: "Machine 3"
         op_limits: [194, 795]
         model: "model_3"
     machine_4:
+        name: "Machine 4"
         op_limits: [194, 795]
         model: "model_3"
     machine_5:
+        name: "Machine 5"
         op_limits: [194, 795]
         model: "model_3"
 models:
-    names: ["model_1", "model_2", "model_3"]
     model_1:
+        name: "GP1"
         setup_script: "gpr_model_setup"
         predict_script: "gpr_model_predict"
         update_script: "gpr_model_update"
@@ -42,6 +45,7 @@ models:
             significance: 0.1
             x_tol: 4
     model_2:
+        name: "GP2"
         setup_script: "gpr_model_setup"
         predict_script: "gpr_model_predict"
         update_script: "gpr_model_update"
@@ -51,6 +55,7 @@ models:
             significance: 0.1
             x_tol: 4
     model_3:
+        name: "GP3"
         setup_script: "gpr_model_setup"
         predict_script: "gpr_model_predict"
         update_script: "gpr_model_update"
@@ -89,3 +94,5 @@ optimizer:
     optimoptions:
         MaxIterations: 500000
         Display: "iter"
+    params:
+        z: 1000
