@@ -5,18 +5,19 @@ addpath("plot-utils")
 switch flag
 
     case 0	% Initialize the states and sizes
-       [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config);
+        [sys,x0,str,tss] = mdlInitialSizes(t,x,u,config);
 
-    case 1	% Obtain derivatives of states
-       sys = mdlDerivatives(t,x,u,Param);  % this is not implemented
-
-%    case 2	% Update
+    case 2	% Update
+        sys = [];
 
     case 3   % Calculate the outputs
-       sys = mdlOutputs(t,x,u,config);
+        sys = mdlOutputs(t,x,u,config);
+
+    case 9   % Finish and save results
+        mdlTerminate(t,x,u,config);
 
     otherwise
-       sys = [];
+        DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
 
 end
 
@@ -66,20 +67,23 @@ for machine = config.machines.names
         model_config.params ...
     );
 
-    % Initialize empty arrays to store simulation results
+    % Initialize empty arrays to store model data
     LOModelData.(machine).Load = training_data.Load;
     LOModelData.(machine).Power = training_data.Power;
-    LOData.(machine).Load = [];
-    LOData.(machine).Power = [];
 
 end
+LOModelData.TotalUncertainty = [];
 
 % Arrays to store simulation data
 LOData.Iteration = [];
 LOData.Time = [];
 LOData.Load_Target = [];
-LOData.TotalUncertainty = [];
 LOData.SteadyState = [];
+LOData.ModelUpdates = [];
+for machine = config.machines.names
+    LOData.(machine).Load = [];
+    LOData.(machine).Power = [];
+end
 
 
 % ******************************************
@@ -90,8 +94,10 @@ function [sys] = mdlOutputs(t,ci,u,config)
 global LOData LOModelData curr_iteration models model_vars ...
     Current_Load_Target
 
-% Process inputs from Simulink
+% Directory where simulation results will be stored
+sim_name = config.simulation.name;
 
+% Process inputs from Simulink
 % Update data history with new data and measurements
 Current_Load_Target = u(1);
 LOData.Load_Target = [LOData.Load_Target; Current_Load_Target];
@@ -128,9 +134,11 @@ end
 LOData.SteadyState = [LOData.SteadyState SteadyState];
 
 % Do model updates if conditions met
+ModelUpdates = zeros(1, n_machines);
 if SteadyState == 1
 
-    for machine = config.machines.names
+    for i = 1:n_machines
+        machine = config.machines.names{i};
         % Check if current load is close to previous training points
         if min(abs(LOData.(machine).Load(end,1)) ...
                 - LOModelData.(machine).Load) >= 4
@@ -154,20 +162,15 @@ if SteadyState == 1
                 model_config.params ...
             );
 
+            ModelUpdates(i) = 1;
+
         end
     end
 
-    figure(1); clf
-    y_labels = "Power";
-    line_label = "predicted";
-    area_label = "confidence interval";
-    x_label = "Load";
-
-    % Model predictions - this is only needed for calculation of 
-    % total uncertainty or if plots are needed.
-    y_means = cell(1, n_machines);
+    % Model predictions - this is needed for calculation of 
+    % total uncertainty and to save model predictions for
+    % subsequent plotting/analysis.
     y_sigmas = cell(1, n_machines);
-    ci = cell(1, n_machines);
     for i = 1:n_machines
         machine = config.machines.names{i};
         machine_config = config.machines.(machine);
@@ -177,7 +180,7 @@ if SteadyState == 1
         )';
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
-        [y_means{i}, y_sigmas{i}, ci{i}] = feval( ...
+        [y_mean, y_sigma, y_int] = feval( ...
             model_config.predict_script, ...
             models.(machine), ...
             op_interval, ...
@@ -185,34 +188,23 @@ if SteadyState == 1
             model_config.params ...
         );
 
-        % Plot predictions and training data points
-        subplot(1, n_machines, i);
-        make_statplot(y_means{i}, ci{i}(:, 1), ci{i}(:, 2), ...
-            op_interval, y_labels, line_label, area_label, x_label)
-        h = findobj(gcf, 'Type', 'Legend');
-        leg_labels = h.String;
-        % Add training data points to plot
-        plot(LOModelData.(machine).Load, LOModelData.(machine).Power, ...
-            'k.', 'MarkerSize', 10)
-        legend([leg_labels 'data'], 'Location', 'southeast')
-        text(0.05, 0.95, compose("$t=%d$", t), 'Units', 'normalized', ...
-            'Interpreter', 'latex')
-        title(compose("Machine %d", i), 'Interpreter', 'latex')
+        % Save for computations belows
+        y_sigmas{i} = y_sigma;
+
+        if ModelUpdates(i) == 1
+            % Save model prediction results to file
+            model_preds = table(op_interval, y_mean, y_sigma, y_int);
+            filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
+            writetable(model_preds, fullfile("simulations", sim_name, ...
+                "results", filename))
+        end
 
     end
 
-    grid on
-    % Size figure appropriately
-    s = get(gcf, 'Position');
-    set(gcf, 'Position', [s(1:2) 420+280*n_machines 280]);
-    sim_name = config.simulation.name;
-    filename = compose("model_preds_%.0f.pdf", t);
-    exportgraphics(gcf, fullfile("simulations", sim_name, "plots", filename))
-    disp('Stop')
-
     % Sum covariance matrices as an indicator of model uncertainty
     total_uncertainty = sum(cellfun(@sum, y_sigmas));
-    LOData.TotalUncertainty = [LOData.TotalUncertainty; total_uncertainty];
+    LOModelData.TotalUncertainty = ...
+        [LOModelData.TotalUncertainty; total_uncertainty];
 
 %     % Plot all GP model predictions on one plot
 %     figure(1); clf
@@ -256,6 +248,8 @@ if SteadyState == 1
 
 end
 
+% Log whether models were updated this iteration
+LOData.ModelUpdates = [LOData.ModelUpdates; ModelUpdates];
 
 % Load optimization
 % Lower and upper bounds of load for each machine
@@ -314,6 +308,26 @@ sys(5) = gen_load_target(5);
 % end
 
 
+% ******************************************
+% Terminate
+% ******************************************
 
+function mdlTerminate(t,x,u,config)
+% Save workspace variables before quitting. This is useful
+% when running automated simulations where the analysis is
+% done later.  In theory a simulation could also be restarted
+% using this data.
+
+    global curr_iteration LOData LOModelData model_vars models
+
+    sim_name = config.simulation.name;
+
+    % Save variables from global workspace
+    filespec = fullfile("simulations", sim_name, "results", ...
+        "load_opt.mat");
+    save(filespec, 'curr_iteration', 'LOData', 'LOModelData', ...
+        'model_vars', 'models')
+
+% end
 
 

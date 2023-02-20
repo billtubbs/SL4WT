@@ -1,6 +1,6 @@
 % Run simulation
 
-clear variables
+clear all
 addpath("yaml")
 
 
@@ -27,7 +27,6 @@ filepath = fullfile(sim_dir, sim_name, "opt_config.yaml");
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-t 
 fprintf("Starting simulation...\n")
 t_stop = config.simulation.params.t_stop;
 sim_out = sim(sim_model, "StopTime", string(t_stop));

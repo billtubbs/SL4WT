@@ -42,6 +42,7 @@ global  LOData models model_vars curr_iteration
     % Calculate worst-case maximum power based on model upper
     % confidence intervals and return difference to max power
     % constraint
+    % TODO: is the max needed here?  Or is x_ci(:, 2) always > x_ci(:, 1)
     c(1) = sum(max(x_ci,[],2)) - config.simulation.params.PMax;
 
     ceq = [];
