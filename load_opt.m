@@ -73,8 +73,8 @@ for machine = string(fieldnames(config.machines))'
     LOModelData.(machine).Iteration = nan(n_pre_train, 1);
     LOModelData.(machine).Time = nan(n_pre_train, 1);
     LOModelData.(machine).Time(end) = 0;  % set time = 0 for last point
-    LOModelData.(machine).Load = training_data.Load;
-    LOModelData.(machine).Power = training_data.Power;
+    LOModelData.Machines.(machine).Load = training_data.Load;
+    LOModelData.Machines.(machine).Power = training_data.Power;
 
 end
 
@@ -86,8 +86,8 @@ LOData.SteadyState = [];
 LOData.ModelUpdates = [];
 LOData.TotalUncertainty = [];
 for machine = string(fieldnames(config.machines))'
-    LOData.(machine).Load = [];
-    LOData.(machine).Power = [];
+    LOData.Machines.(machine).Load = [];
+    LOData.Machines.(machine).Power = [];
 end
 
 
@@ -112,20 +112,20 @@ machine_names = string(fieldnames(config.machines))';
 n_machines = numel(machine_names);
 for i = 1:n_machines
     machine = machine_names{i};
-    LOData.(machine).Load = [LOData.(machine).Load; u(i+1)];
-    LOData.(machine).Power = [LOData.(machine).Power; u(i+1+n_machines)];
+    LOData.Machines.(machine).Load = [LOData.Machines.(machine).Load; u(i+1)];
+    LOData.Machines.(machine).Power = [LOData.Machines.(machine).Power; u(i+1+n_machines)];
 end
 
-% Steady State Detection for each machine
+% Steady state detection for each machine
 mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
 for i = 1:n_machines
     machine = machine_names{i};
-    if size(LOData.(machine).Load, 1) > 3  % at least this many samples
+    if size(LOData.Machines.(machine).Load, 1) > 3  % at least this many samples
         mean_abs_Load_diffs(i) = ...
-            mean(abs(diff(LOData.(machine).Load(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).Load(end-3:end))));
         mean_abs_Power_diffs(i) = ...
-            mean(abs(diff(LOData.(machine).Power(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).Power(end-3:end))));
     end
 end
 
@@ -149,22 +149,24 @@ if SteadyState == 1
         % Check if current load is close to previous training points
         model = config.machines.(machine).model;
         load_tol = config.models.(model).params.x_tol;
-        if min(abs(LOData.(machine).Load(end,1) ...
-                - LOModelData.(machine).Load)) >= load_tol
+        if min(abs(LOData.Machines.(machine).Load(end,1) ...
+                - LOModelData.Machines.(machine).Load)) >= load_tol
 
             % Add current data to training history
-            LOModelData.(machine).Load = ...
-                [LOModelData.(machine).Load; LOData.(machine).Load(end,:)];
-            LOModelData.(machine).Power = ...
-                [LOModelData.(machine).Power; LOData.(machine).Power(end,:)];
+            LOModelData.Machines.(machine).Load = ...
+                [LOModelData.Machines.(machine).Load; 
+                 LOData.Machines.(machine).Load(end,:)];
+            LOModelData.Machines.(machine).Power = ...
+                [LOModelData.Machines.(machine).Power; 
+                 LOData.Machines.(machine).Power(end,:)];
             LOModelData.(machine).Iteration = ...
                 [LOModelData.(machine).Iteration; curr_iteration];
             LOModelData.(machine).Time = [LOModelData.(machine).Time; t];
 
             % Update model
             training_data = struct();
-            training_data.Load = LOModelData.(machine).Load;
-            training_data.Power = LOModelData.(machine).Power;
+            training_data.Load = LOModelData.Machines.(machine).Load;
+            training_data.Power = LOModelData.Machines.(machine).Power;
             model_name = config.machines.(machine).model;
             model_config = config.models.(model_name);
             [models.(machine), model_vars.(machine)] = feval( ...
@@ -224,7 +226,6 @@ LOData.TotalUncertainty = ...
     [LOData.TotalUncertainty; total_uncertainty];
 
 
-% Do load optimization
 % Lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
     cellfun(@(name) config.machines.(name).op_limits, ...
@@ -244,25 +245,19 @@ options = optimoptions("fmincon", ...
     "MaxIterations", config.optimizer.optimoptions.MaxIterations, ...
     "Display", config.optimizer.optimoptions.Display ...
 );
-% gen_load_target = fmincon( ...
-%     @LoadObjFun, ...
-%     [LOData.LoadMachine1(end,1), ...
-%      LOData.LoadMachine2(end,1), ...
-%      LOData.LoadMachine3(end,1), ...
-%      LOData.LoadMachine4(end,1), ...
-%      LOData.LoadMachine5(end,1)], ...
-%     [],[],[],[], ...
-%     [56,237,194,194,194], ...
-%     [220,537,795,795,795], ...
-%     @MaxPowerConstraint, ...
-%     options);
 
+% Partial functions to pass config parameters to
+% optimization functions
+
+% Function to miminize
 obj_func_name = config.optimizer.obj_func;
 obj_func = @(x) feval(obj_func_name, x, config);
 
+% Constraint function
 const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
 
+% Run the optimizer
 gen_load_target = fmincon( ...
     obj_func, ...
     config.optimizer.X0', ...
@@ -272,8 +267,7 @@ gen_load_target = fmincon( ...
     const_func, ...
     options);
 
-% Note this is the simulation iteration, not the same as
-% the model update iterations.
+% Simulation iteration (not the model updates iteration)
 curr_iteration = curr_iteration + 1;
 
 % Send outputs

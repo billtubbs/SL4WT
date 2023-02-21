@@ -81,8 +81,8 @@ for i = 1:n_machines
             k = find(LOModelData.(machine).Time == t);
 
             % Add all previous training data points to plot
-            x = LOModelData.(machine).Load(1:k);
-            y = LOModelData.(machine).Power(1:k);
+            x = LOModelData.Machines.(machine).Load(1:k);
+            y = LOModelData.Machines.(machine).Power(1:k);
             plot(x, y, 'k.', 'MarkerSize', 10)
             text(0.05, 0.9, compose("$t=%d$", t), 'Units', 'normalized', ...
                 'Interpreter', 'latex')
@@ -90,7 +90,7 @@ for i = 1:n_machines
             hLeg = findobj(gcf, 'Type', 'Legend');
             leg_labels = hLeg.String;
             legend([leg_labels(1:2) {'data'}], 'Location', 'southeast')
-            if j < min(n_times, n_max)
+            if j < n_times
                 set(hLeg, 'visible', 'off')
             end
         end

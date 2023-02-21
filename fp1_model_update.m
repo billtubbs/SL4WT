@@ -9,13 +9,13 @@ function [model, vars] = fp1_model_update(model, data, vars, params)
     % Specific energy estimates from observations
     specific_energy = data.Power ./ data.Load;
 
-    % Re-estimate the parameter, mean specific energy
+    % Re-estimate the mean of the estimates from observations
     vars.specific_energy = mean(specific_energy);
 
-    % TODO: is sigma the variance or the std. dev.?
-    vars.y_sigma = var(specific_energy);
+    % Std. dev. of the estimates from observations
+    vars.se_sigma = std(specific_energy);
 
-    % Calculate confidence interval
+    % Calculate confidence interval from observations
     intervals = [0.5.*vars.significance 1-0.5.*vars.significance];
     n = length(specific_energy);
     se = std(specific_energy) ./ sqrt(n);  % Standard Error

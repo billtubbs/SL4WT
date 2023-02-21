@@ -11,8 +11,8 @@ sim_dir = "simulations";
 
 % Choose simulation sub-directory name where config file
 % is located
-%sim_name = "test_sim";
-sim_name = "test_sim_fp1";
+sim_name = "test_sim";
+%sim_name = "test_sim_fp1";
 
 % Prepare sub-directories to store outputs
 if ~exist(fullfile("simulations", sim_name, "plots"), 'dir')

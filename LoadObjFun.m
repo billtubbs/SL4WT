@@ -22,12 +22,13 @@ global models model_vars Current_Load_Target
         );
     end
 
-%     total_load = LOData.LoadMachine1(end,1) + ...
-%         LOData.LoadMachine2(end,1) + LOData.LoadMachine3(end,1)+ ...
-%         LOData.LoadMachine4(end,1) + LOData.LoadMachine5(end,1);
-%     is_load_same = LOData.Load_Target(end,1) == LOData.Load_Target(end-1,1) && LOData.Load_Target(end-1,1) == LOData.Load_Target(end-2,1);
-
-%         if (is_load_same && SteadyState ==1 && abs(LOData.Load_Target(end,1) - total_load) < 10)
+%     total_load = sum(structfun(@(s) s.Load(end,1), LOData.Machines));
+%     is_load_same = ( ...
+%         LOData.Load_Target(end,1) == LOData.Load_Target(end-1,1) ...
+%         && LOData.Load_Target(end-1,1) == LOData.Load_Target(end-2,1) ...
+%     );
+%         if (is_load_same && SteadyState == 1 ...
+%             && abs(LOData.Load_Target(end,1) - total_load) < 10)
 
     z = config.optimizer.params.z;
 

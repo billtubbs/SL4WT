@@ -12,7 +12,7 @@ function [y_mean, y_sigma, y_int] = fp1_model_predict(model, x, vars, ...
 
     % Make predictions using model
     y_mean = vars.specific_energy .* x;
-    y_sigma = vars.y_sigma .* ones(length(x), 1);
+    y_sigma = vars.se_sigma .* x;
     y_int = vars.se_int .* x;
 
 end
