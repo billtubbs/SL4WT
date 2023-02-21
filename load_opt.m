@@ -147,7 +147,8 @@ if SteadyState == 1
         machine = machine_names{i};
 
         % Check if current load is close to previous training points
-        load_tol = config.models.model_1.params.x_tol;
+        model = config.machines.(machine).model;
+        load_tol = config.models.(model).params.x_tol;
         if min(abs(LOData.(machine).Load(end,1) ...
                 - LOModelData.(machine).Load)) >= load_tol
 
@@ -166,7 +167,8 @@ if SteadyState == 1
             training_data.Power = LOModelData.(machine).Power;
             model_name = config.machines.(machine).model;
             model_config = config.models.(model_name);
-            models.(machine) = feval(model_config.update_script, ...
+            [models.(machine), model_vars.(machine)] = feval( ...
+                model_config.update_script, ...
                 models.(machine), ...
                 training_data, ...
                 model_vars.(machine), ...
@@ -256,9 +258,9 @@ options = optimoptions("fmincon", ...
 %     options);
 
 obj_func_name = config.optimizer.obj_func;
-const_func_name = config.optimizer.const_func;
-
 obj_func = @(x) feval(obj_func_name, x, config);
+
+const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
 
 gen_load_target = fmincon( ...
