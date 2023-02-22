@@ -7,17 +7,17 @@ function [model, vars] = fp1_model_setup(data, params)
 %
 
     model = struct();  % no model object needed for this
-    vars = struct("significance", params.prior.significance);
+    vars = struct("significance", params.significance);
 
-    if size(data.Load, 1) > 0
+    if ~isempty(data.Load)
 
         % Estimate specific energy from the data provided
         [model, vars] = fp1_model_update([], data, vars, params);
 
-        % If there is only one data point then need to 
-        % use the prior values for confidence interval
+        % If there is only one data point then need to use 
+        % the prior values to estimate confidence interval
         % and std. dev.
-        if size(data.Load, 1) == 1
+        if length(data.Load) == 1
             vars.se_int = ( ...
                 (params.prior.se_int - params.prior.specific_energy) ...
                     .* vars.specific_energy ...

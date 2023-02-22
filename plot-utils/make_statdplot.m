@@ -1,9 +1,9 @@
-function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
-    line_label, area_label, y_lim)
-% make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
-%     line_label, area_label, y_lim)
+function make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
+    y_labels, line_label, area_label, y_lim)
+% make_statplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
+%     y_labels, line_label, area_label, y_lim)
 % Plots a curve of the mean, lower and upper bound of a 
-% variable y = f(x).
+% variable y = f(x) and a set of data points.
 %
 % Arguments
 %   Y_line : column vector or array of mean (or median) 
@@ -22,25 +22,26 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
 %   x_label : x-axis label (optional, default is '$x$')
 %   y_lim : y-axis limits (optional, default is nan(2))
 %
-    if nargin < 9
+    if nargin < 11
         y_lim = nan(2);
     end
-    if nargin < 8
+    if nargin < 10
         area_label = "min, max";
     end
-    if nargin < 7
+    if nargin < 9
         line_label = "";
     end
-    if nargin < 6
-        if size(Y_line, 2) == 1
+    ny = size(Y_line, 2);
+    if nargin < 8
+        if n == 1
             y_labels = "$y(t)$";
         else
-            y_labels = compose("$y_{%d}(t)$", 1:size(Y_line, 2));
+            y_labels = compose("$y_{%d}(t)$", 1:ny);
         end
     else
         y_labels = string(y_labels);
     end
-    if nargin < 5
+    if nargin < 7
         x_label = "$x$";
     else
         x_label = string(x_label);
@@ -49,7 +50,7 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
     % Get color order
     colors = get(gca,'colororder');
     set(gca, 'ColorOrder', colors);
-    for iy = 1:size(Y_line, 2)
+    for iy = 1:ny
         line_labels{iy*2-1} = strcat(y_labels(iy), " ", area_label);
         line_labels{iy*2} = strcat(y_labels(iy), " ", line_label);
         % Modify colors if plotting more than one group
@@ -66,11 +67,17 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
         %set(h, {'color'}, {colors(1, :); colors(2, :)});
         set(h, {'color'}, {colors(iy, :)});
     end
-    ylim(axes_limits_with_margin([Y_upper Y_lower], 0.1, y_lim, y_lim))
+    % Add data points to plot
+    plot(x_d, y_d, 'k.', 'MarkerSize', 10)
+    y_lims = [ ...
+        axes_limits_with_margin([Y_upper Y_lower], 0.1, y_lim, y_lim);
+        axes_limits_with_margin(y_d, 0.1, y_lim, y_lim) ...
+    ];
+    ylim([min(y_lims(:, 1)) max(y_lims(:, 2))])
     set(gca, 'TickLabelInterpreter', 'latex')
     if strlength(x_label) > 0
         xlabel(x_label, 'Interpreter', 'Latex')
     end
     ylabel(strjoin(y_labels, ', '), 'Interpreter', 'latex')
-    legend(line_labels, 'Interpreter', 'latex', 'Location', 'best')
+    legend([line_labels "data"], 'Interpreter', 'latex', 'Location', 'best')
     grid on
