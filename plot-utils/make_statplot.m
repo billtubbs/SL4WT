@@ -13,17 +13,17 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
 %   Y_upper : column vector or array definining the upper
 %     bound(s) of an area to be filled.
 %   x : column vector of x values.
+%   x_label : x-axis label (optional, default is '$x$')
 %   y_labels : label or cell array of labels for each data
 %     group (optional, default: '$y$').
 %   line_label : string containing text to describe the 
 %     mean line (optional, default: "");
 %   area_label : string containing text to describe the 
 %     lower and upper bounds (optional, default: "min, max");
-%   x_label : x-axis label (optional, default is '$x$')
 %   y_lim : y-axis limits (optional, default is nan(2))
 %
     if nargin < 9
-        y_lim = nan(2);
+        y_lim = nan(1, 2);
     end
     if nargin < 8
         area_label = "min, max";
@@ -31,11 +31,12 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
     if nargin < 7
         line_label = "";
     end
+    ny = size(Y_line, 2);
     if nargin < 6
-        if size(Y_line, 2) == 1
+        if ny == 1
             y_labels = "$y(t)$";
         else
-            y_labels = compose("$y_{%d}(t)$", 1:size(Y_line, 2));
+            y_labels = compose("$y_{%d}(t)$", 1:ny);
         end
     else
         y_labels = string(y_labels);
@@ -49,7 +50,7 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
     % Get color order
     colors = get(gca,'colororder');
     set(gca, 'ColorOrder', colors);
-    for iy = 1:size(Y_line, 2)
+    for iy = 1:ny
         line_labels{iy*2-1} = strcat(y_labels(iy), " ", area_label);
         line_labels{iy*2} = strcat(y_labels(iy), " ", line_label);
         % Modify colors if plotting more than one group
