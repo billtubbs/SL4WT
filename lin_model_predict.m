@@ -12,7 +12,7 @@ function [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, ...
     % Make predictions using model
     [y_mean, y_int] = predict(model, x, 'Alpha', vars.significance);
 
-    % TODO: Is this correct
+    % TODO: Is this correct?
     y_sigma = model.RMSE .* ones(size(x));  % Std. dev.
 
 end

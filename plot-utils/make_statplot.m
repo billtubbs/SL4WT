@@ -67,7 +67,8 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
         %set(h, {'color'}, {colors(1, :); colors(2, :)});
         set(h, {'color'}, {colors(iy, :)});
     end
-    ylim(axes_limits_with_margin([Y_upper Y_lower], 0.1, y_lim, y_lim))
+    ylim(axes_limits_with_margin([Y_upper Y_lower Y_line], ...
+        0.1, y_lim, y_lim))
     set(gca, 'TickLabelInterpreter', 'latex')
     if strlength(x_label) > 0
         xlabel(x_label, 'Interpreter', 'Latex')

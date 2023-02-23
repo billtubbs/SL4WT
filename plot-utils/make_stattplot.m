@@ -54,8 +54,8 @@ function make_stattplot(Y_line, Y_lower, Y_upper, y_true, x, x_label, ...
     
     % Add true values
     plot(x, y_true, 'k--')
-    ylim(axes_limits_with_margin([Y_upper Y_lower y_true], 0.1, y_lim, ...
-        y_lim))
+    ylim(axes_limits_with_margin([Y_upper Y_lower Y_line y_true], ...
+        0.1, y_lim, y_lim))
 
     % Change existing legend label
     hLeg = findobj(gcf, 'Type', 'Legend');
