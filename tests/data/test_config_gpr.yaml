@@ -36,7 +36,10 @@ models:
         params: 
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 95.7708]
+                KernelParameters: [15.0, 95.7708]  # [sigmaL0, sigmaF0]
+                #BasisFunction: "linear"
+                #Sigma: 0.2
+                #FitMethod: "none"
             significance: 0.1
     model_2:
         setup_script: "gpr_model_setup"
@@ -45,7 +48,10 @@ models:
         params: 
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 111.0653]
+                KernelParameters: [15.0, 111.0653]  # [sigmaL0, sigmaF0]
+                #BasisFunction: "linear"
+                #Sigma: 0.2
+                #FitMethod: "none"
             significance: 0.1
     model_3:
         setup_script: "gpr_model_setup"
@@ -54,7 +60,10 @@ models:
         params: 
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.1, 236.1767]
+                KernelParameters: [15.1, 236.1767]  # [sigmaL0, sigmaF0]
+                #BasisFunction: "linear"
+                #Sigma: 0.2
+                #FitMethod: "none"
             significance: 0.1
 training:
     data:

@@ -38,10 +38,14 @@ for machine = string(fieldnames(config.machines))'
 
     % Check selected model variables and params
     assert(model.NumObservations == numel(training_data.Load));
-    assert(strcmpi(model.KernelFunction, ...
-        model_config.params.fit.KernelFunction))
-    assert(isequal(model.ModelParameters.KernelParameters', ...
-        model_config.params.fit.KernelParameters))
+    if isfield(model_config.params.fit, 'KernelFunction')
+        assert(strcmpi(model.KernelFunction, ...
+            model_config.params.fit.KernelFunction))
+    end
+    if isfield(model_config.params.fit, 'KernelParameters')
+        assert(isequal(model.ModelParameters.KernelParameters', ...
+            model_config.params.fit.KernelParameters))
+    end
     assert(vars.significance == model_config.params.significance)
 
     % Save for use below
@@ -71,6 +75,13 @@ x = linspace(op_limits(1), op_limits(2), 101)';
     model_config ...
 );
 
+% % Plot predictions and data
+% figure(1); clf
+% make_statdplot(y_mean, ci(:, 1), ci(:, 2), x, training_data.Power', ...
+%     training_data.Load', "Load", "Power")
+% p = get(gcf, 'Position');
+% set(gcf, 'Position', [p(1:2) 320 210])
+
 % Check outputs
 assert(isequal( ...
     round(y_mean, 4), ...
@@ -84,13 +95,6 @@ assert(isequal( ...
     round(ci, 4), ...
     repmat([47.9876 53.2941], 101, 1) ...
 ))
-
-% Plot predictions and data
-figure(1); clf
-make_statdplot(y_mean, ci(:, 1), ci(:, 2), x, training_data.Power', ...
-    training_data.Load', "Load", "Power")
-p = get(gcf, 'Position');
-set(gcf, 'Position', [p(1:2) 320 210])
 
 % More data points
 io_data = [
@@ -122,6 +126,13 @@ training_data.Power = [training_data.Power io_data(9, 2)];
     model_vars.(machine), ...
     model_config ...
 );
+
+% % Plot predictions and data
+% figure(2); clf
+% make_statdplot(y_mean, ci(:, 1), ci(:, 2), x, training_data.Power', ...
+%     training_data.Load', "Load", "Power")
+% p = get(gcf, 'Position');
+% set(gcf, 'Position', [p(1:2) 320 210])
 
 % Check outputs
 assert(isequal( ...
@@ -208,10 +219,3 @@ assert(isequal( ...
   105.7894  105.8739  105.9459  106.0056  106.0535  106.0898 ...
   106.1150  106.1294  106.1333  106.1272  106.1114 ...
 ]'))
-
-% Plot predictions and data
-figure(2); clf
-make_statdplot(y_mean, ci(:, 1), ci(:, 2), x, training_data.Power', ...
-    training_data.Load', "Load", "Power")
-p = get(gcf, 'Position');
-set(gcf, 'Position', [p(1:2) 320 210])
