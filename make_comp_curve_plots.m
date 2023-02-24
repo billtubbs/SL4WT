@@ -21,7 +21,7 @@ for i = 1:numel(include)
     x = out.(compose("%s_LOAD", name));
     y = out.(compose("%s_POW", name));
     plot(x.Data, y.Data, 'linewidth', 2); hold on
-    %assert(endsWith(y.name, compose('machine_%d', i)))
+    assert(endsWith(y.name, compose('machine_%d', i)))  % check labels match
 end
 xlabel("Compressor load (kW thermal)", 'Interpreter', 'latex')
 ylabel("Power consumption (kW electric)", 'Interpreter', 'latex')
@@ -31,7 +31,6 @@ legend(escape_latex_chars(labels), ...
     'Interpreter', 'latex', 'location', 'best')
 exportgraphics(gcf, "plots/comp_curves.pdf")
 
-return
 
 % Plot of specific power consumption vs load
 figure(2); clf

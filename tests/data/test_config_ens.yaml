@@ -14,77 +14,120 @@ simulation:
         PMax: 1580
 machines:
     machine_1:
+        coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
         op_limits: [56, 220]
-        model: "model_1_poly1"
+        model: "model_1"
     machine_2:
+        coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
+                1.88469092, -2.19952823]
         op_limits: [237, 537]
         model: "model_2"
     machine_3:
+        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
+                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
     machine_4:
+        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
+                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
     machine_5:
+        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
+                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
 models:
-    model_1_poly1:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+    model_1:
+        setup_script: "ens_model_setup"
+        predict_script: "ens_model_predict"
+        update_script: "ens_model_update"
         params:
-            significance: 0.1
-            fit:
-                fitType: 'poly1'
-    model_1_poly2:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
-            significance: 0.1
-            fit:
-                fitType: 'poly2'
-    model_1_poly3:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
-            significance: 0.1
-            fit:
-                fitType: 'poly3'
-    model_1_cubicinterp:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
-            significance: 0.1
-            fit:
-                fitType: "cubicinterp"
-    model_1_smoothingspline:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
-            significance: 0.1
-            fit:
-                fitType: "smoothingspline"
+            models:
+                model_11:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly1'
+                model_12:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly2'
+                model_13:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly3'
     model_2:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+        setup_script: "ens_model_setup"
+        predict_script: "ens_model_predict"
+        update_script: "ens_model_update"
         params:
-            significance: 0.1
-            fit:
-                fitType: 'poly1'
+            models:
+                model_21:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly1'
+                model_22:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly2'
+                model_23:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly3'
     model_3:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+        setup_script: "ens_model_setup"
+        predict_script: "ens_model_predict"
+        update_script: "ens_model_update"
         params:
-            significance: 0.1
-            fit:
-                fitType: 'poly1'
+            models:
+                model_31:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly1'
+                model_32:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly2'
+                model_33:
+                    setup_script: "fit_model_setup"
+                    predict_script: "fit_model_predict"
+                    update_script: "fit_model_update"
+                    params:
+                        significance: 0.1
+                        fit:
+                            fitType: 'poly3'
 training:
     data:
         machine_1:

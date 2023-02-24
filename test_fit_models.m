@@ -81,9 +81,6 @@ assert(isequaln(y_int, nan(1, 2)));
 filepath = fullfile(test_dir, test_data_dir, "test_config_fit.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load initialization file
-load load_opt_init.mat
-
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
 models = struct();
@@ -154,14 +151,14 @@ for i = 1:numel(model_names)
         model_config.params ...
     );
 
-    % Plot predictions and data
-    figure(10+i); clf
-    make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-        training_data.Load', "Load", "Power")
-    ylim([40 190])
-    p = get(gcf, 'Position');
-    set(gcf, 'Position', [p(1:2) 320 210])
-    title(model_config.params.fit.fitType)
+%     % Plot predictions and data
+%     figure(10+i); clf
+%     make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
+%         training_data.Load', "Load", "Power")
+%     ylim([40 190])
+%     p = get(gcf, 'Position');
+%     set(gcf, 'Position', [p(1:2) 320 210])
+%     title(model_config.params.fit.fitType)
 
 end
 
@@ -215,14 +212,14 @@ for i = 1:numel(model_names)
         model_config.params ...
     );
 
-    % Plot predictions and data
-    figure(20+i); clf
-    make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-        training_data.Load', "Load", "Power")
-    ylim([40 190])
-    p = get(gcf, 'Position');
-    set(gcf, 'Position', [p(1:2) 320 210])
-    title(model_config.params.fit.fitType)
+%     % Plot predictions and data
+%     figure(20+i); clf
+%     make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
+%         training_data.Load', "Load", "Power")
+%     ylim([40 190])
+%     p = get(gcf, 'Position');
+%     set(gcf, 'Position', [p(1:2) 320 210])
+%     title(model_config.params.fit.fitType)
 
     % Save for use below
     models.(model_name) = model;
@@ -259,14 +256,14 @@ for i = 1:numel(model_names)
         model_config.params ...
     );
 
-    % Plot predictions and data
-    figure(30+i); clf
-    make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-        training_data.Load', "Load", "Power")
-    ylim([40 190])
-    p = get(gcf, 'Position');
-    set(gcf, 'Position', [p(1:2) 320 210])
-    title(model_config.params.fit.fitType)
+%     % Plot predictions and data
+%     figure(30+i); clf
+%     make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
+%         training_data.Load', "Load", "Power")
+%     ylim([40 190])
+%     p = get(gcf, 'Position');
+%     set(gcf, 'Position', [p(1:2) 320 210])
+%     title(model_config.params.fit.fitType)
 
 end
 

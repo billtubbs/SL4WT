@@ -87,9 +87,6 @@ assert(isequal(y_int_calc, y_int));
 filepath = fullfile(test_dir, test_data_dir, "test_config_fp1.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load initialization file
-load load_opt_init.mat
-
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
 models = struct();

@@ -64,9 +64,6 @@ assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 filepath = fullfile(test_dir, test_data_dir, "test_config_lin.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load initialization file
-load load_opt_init.mat
-
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
 models = struct();
