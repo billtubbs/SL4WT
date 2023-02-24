@@ -10,45 +10,14 @@ test_dir = "tests";
 test_data_dir = "data";
 
 
-% %% Test initialization and prediction without data 
-% 
-% params = struct();
-% params.significance = 0.1;
-% %params.prior.coeffs = [];
-% 
-% data = struct();
-% data.Load = double.empty(0, 1);
-% data.Power = double.empty(0, 1);
-% 
-% % Initialize model
-% [model, vars] = lin_model_setup(data, params);
-% 
-% assert(vars.significance == params.significance)
-% assert(isequal(vars.coeffs, [0 0]))
-% 
-% % Test predictions with input vector
-% x = [50 100 150 200]';
-% [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, params);
-% 
-% assert(isequal(y_mean, [35 70 105 140]'))
-% assert(isequal(y_sigma, [50 100 150 200]'))
-% assert(isequal(y_int, [ ...
-%     25    45
-%     50    90
-%     75   135
-%    100   180
-% ]))
-
-
 %% Test initialization with data
 
 params = struct();
 params.significance = 0.1;
-%params.prior.coeffs = [];
 
 data = struct();
-data.Load = [50 100 150];
-data.Power = [35.05 70.18 104.77];
+data.Load = [50 100 150]';
+data.Power = [35.05 70.18 104.77]';
 
 % Initialize model
 [model, vars] = lin_model_setup(data, params);
@@ -60,14 +29,14 @@ assert(isequal( ...
     round(model.Coefficients.Estimate, 4), ...
     [0.2800    0.6972]' ...
 ));
-assert(round(model.Rsquared.Adjusted, 4) == 1);
+assert(round(1 - model.Rsquared.Adjusted, 5, 'significant') == 3.9992e-05);
 
 % Test predictions with single point
 x = 200;
 [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
-assert(round(y_sigma, 4) == 0.2205);
+assert(isequaln(y_sigma, nan));  % TODO: Should we produce a y_sigma?
 assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 
 
@@ -94,26 +63,13 @@ coeffs_chk = [
     69.1626 0.5388
 ];
 
-y_pred_chk = [
-    0.858096
-    0.772222
-    0.760602
-    0.760602
-    0.760602
-];
-int_chk = [
-    0.748237 0.967956
-    0.756061 0.788382
-    -0.090211 1.611415
-    -0.090211 1.611415
-    -0.090211 1.611415
-];
-
 machine_names = string(fieldnames(config.machines))';
 for i = 1:numel(machine_names)
     machine = machine_names(i);
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
+    training_data.Load = training_data.Load';
+    training_data.Power = training_data.Power';
     assert(numel(training_data.Load) == numel(training_data.Power))
     model_config = config.models.(model_name);
 
@@ -140,7 +96,6 @@ end
 
 % Make predictions with one model
 machine = "machine_1";
-training_data = config.training.data.(machine);
 op_limits = config.machines.(machine).op_limits;
 model_name = config.machines.(machine).model;
 model_config = config.models.(model_name);
@@ -153,9 +108,12 @@ x = linspace(op_limits(1), op_limits(2), 101)';
 );
 
 % % Plot predictions and data
+% training_data = config.training.data.(machine);
+% training_data.Load = training_data.Load';
+% training_data.Power = training_data.Power';
 % figure(1); clf
-% make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-%     training_data.Load', "Load", "Power")
+% make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power, ...
+%     training_data.Load, "Load", "Power")
 % p = get(gcf, 'Position');
 % set(gcf, 'Position', [p(1:2) 320 210])
 
@@ -183,7 +141,8 @@ assert(isequal( ...
   131.5422   132.4017   133.2612   134.1207   134.9803
 ]'))
 % fprintf("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f ...\n", y_sigma)
-assert(isequal(round(y_sigma, 4), zeros(size(x))))
+assert(isequaln(y_sigma, nan(size(x))));  % TODO: Should we produce a y_sigma?
+
 % fprintf("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f ...\n", y_int(:, 1))
 assert(isequaln(round(y_int, 4), nan(size(x, 1), 2)))
 
@@ -203,15 +162,17 @@ io_data = [
 
 % Add one point to training data
 training_data = config.training.data.(machine);
-training_data.Load = [training_data.Load io_data(9, 1)];
-training_data.Power = [training_data.Power io_data(9, 2)];
+training_data.Load = training_data.Load';
+training_data.Power = training_data.Power';
+training_data.Load = [training_data.Load; io_data(9, 1)];
+training_data.Power = [training_data.Power; io_data(9, 2)];
 
 % Test update function (trivial for GPs)
-[models.(machine), vars] = lin_model_update(models.(machine), ...
+[models.(machine), model_vars.(machine)] = lin_model_update(models.(machine), ...
     training_data, vars, model_config.params);
 
 % Check vars updated
-assert(vars.significance == model_config.params.significance)
+assert(model_vars.(machine).significance == model_config.params.significance)
 assert(isequal( ...
     round(models.(machine).Coefficients.Estimate, 4), ...
     [19.6859 0.5240]' ...
@@ -253,27 +214,7 @@ assert(isequal( ...
   126.3660   127.2253   128.0846   128.9440   129.8033   130.6626 ...
   131.5219   132.3812   133.2405   134.0998   134.9591
 ]'))
-assert(isequal( ...
-    round(y_sigma, 4), ...
-    [   ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006     0.0006 ...
-    0.0006     0.0006     0.0006     0.0006     0.0006 ...
-]'))
+assert(isequaln(y_sigma, nan(size(x))));  % TODO: Should we produce a y_sigma?
 assert(isequal( ...
     round(y_int(:, 1), 4), ...
     [   ...

@@ -56,6 +56,8 @@ curr_iteration = 1;
 for machine = string(fieldnames(config.machines))'
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
+    %TODO: Better to get this data from CSV file not config
+    %      as yaml doesn't support arrays.
     training_data.Load = training_data.Load';
     training_data.Power = training_data.Power';
     model_config = config.models.(model_name);

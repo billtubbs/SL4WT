@@ -123,6 +123,9 @@ for i = 1:numel(machine_names)
     machine = machine_names(i);
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
+    % TODO: Eliminate this transposing
+    training_data.Load = training_data.Load';
+    training_data.Power = training_data.Power';
     assert(numel(training_data.Load) == numel(training_data.Power))
     model_config = config.models.(model_name);
 
@@ -149,8 +152,11 @@ end
 
 % Make predictions with one model
 machine = "machine_1";
-training_data = config.training.data.(machine);
 op_limits = config.machines.(machine).op_limits;
+training_data = config.training.data.(machine);
+% TODO: This will be eliminated
+training_data.Load = training_data.Load';
+training_data.Power = training_data.Power';
 model = config.machines.(machine).model;
 model_config = config.models.(model);
 x = linspace(op_limits(1), op_limits(2), 101)';
@@ -161,12 +167,12 @@ x = linspace(op_limits(1), op_limits(2), 101)';
     model_config ...
 );
 
-% Plot predictions and data
-figure(1); clf
-make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-    training_data.Load', "Load", "Power")
-p = get(gcf, 'Position');
-set(gcf, 'Position', [p(1:2) 320 210])
+% % Plot predictions and data
+% figure(1); clf
+% make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power, ...
+%     training_data.Load, "Load", "Power")
+% p = get(gcf, 'Position');
+% set(gcf, 'Position', [p(1:2) 320 210])
 
 % Check outputs
 % Use this command to find these values:
@@ -270,9 +276,8 @@ io_data = [
 ];
 
 % Add one point to training data
-training_data = config.training.data.(machine);
-training_data.Load = [training_data.Load io_data(9, 1)];
-training_data.Power = [training_data.Power io_data(9, 2)];
+training_data.Load = [training_data.Load; io_data(9, 1)];
+training_data.Power = [training_data.Power; io_data(9, 2)];
 
 % Test update function (trivial for GPs)
 [models.(machine), vars] = fp1_model_update(models.(machine), ...
@@ -295,12 +300,12 @@ assert(isequal(round(vars.se_int, 6), [0.688835  0.942752]))
     model_config ...
 );
 
-% Plot predictions and data
-figure(2); clf
-make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power', ...
-    training_data.Load', "Load", "Power")
-p = get(gcf, 'Position');
-set(gcf, 'Position', [p(1:2) 320 210])
+% % Plot predictions and data
+% figure(2); clf
+% make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power, ...
+%     training_data.Load, "Load", "Power")
+% p = get(gcf, 'Position');
+% set(gcf, 'Position', [p(1:2) 320 210])
 
 % Check outputs
 assert(~isequal( ...

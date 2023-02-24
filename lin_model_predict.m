@@ -6,13 +6,10 @@ function [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, ...
 %   power = a + b * load 
 %
 
-    % Check x is a column vector
-    assert(size(x, 2) == 1)
-
     % Make predictions using model
     [y_mean, y_int] = predict(model, x, 'Alpha', vars.significance);
 
-    % TODO: Is this correct?
-    y_sigma = model.RMSE .* ones(size(x));  % Std. dev.
+    % TODO: Is there a need for sigma estimates?
+    y_sigma = nan(size(x));
 
 end

@@ -7,9 +7,6 @@ function [y_mean, y_sigma, y_int] = fp1_model_predict(model, x, vars, ...
 % estimated by taking the average of past observations.
 %
 
-    % Check x is a column vector
-    assert(size(x, 2) == 1)
-
     % Make predictions using model
     y_mean = vars.specific_energy .* x;
     y_sigma = vars.se_sigma .* x;
