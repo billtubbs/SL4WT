@@ -16,9 +16,6 @@ test_data_dir = "data";
 filepath = fullfile(test_dir, test_data_dir, "test_config_gpr.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load initialization file
-load load_opt_init.mat
-
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
 models = struct();
@@ -26,6 +23,8 @@ model_vars = struct();
 for machine = string(fieldnames(config.machines))'
     model_name = config.machines.(machine).model;
     training_data = config.training.data.(machine);
+    training_data.Load = training_data.Load';
+    training_data.Power = training_data.Power';
     assert(numel(training_data.Load) == numel(training_data.Power))
     model_config = config.models.(model_name);
 
@@ -64,6 +63,8 @@ assert(isequal( ...
 % Make predictions with one model
 machine = "machine_1";
 training_data = config.training.data.(machine);
+training_data.Load = training_data.Load';
+training_data.Power = training_data.Power';
 op_limits = config.machines.(machine).op_limits;
 model = config.machines.(machine).model;
 model_config = config.models.(model);
@@ -111,9 +112,8 @@ io_data = [
 ];
 
 % Add one point to training data
-training_data = config.training.data.(machine);
-training_data.Load = [training_data.Load io_data(9, 1)];
-training_data.Power = [training_data.Power io_data(9, 2)];
+training_data.Load = [training_data.Load; io_data(9, 1)];
+training_data.Power = [training_data.Power; io_data(9, 2)];
 
 % Test update function (trivial for GPs)
 [models.(machine), vars] = gpr_model_update(models.(machine), ...

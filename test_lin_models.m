@@ -19,7 +19,7 @@ data = struct();
 data.Load = [50 100 150]';
 data.Power = [35.05 70.18 104.77]';
 
-% Initialize model
+% Initialize a linear model
 [model, vars] = lin_model_setup(data, params);
 
 specific_energy = data.Power ./ data.Load;
@@ -32,8 +32,26 @@ assert(isequal( ...
 assert(round(1 - model.Rsquared.Adjusted, 5, 'significant') == 3.9992e-05);
 
 % Test predictions with single point
+% TODO: Should we produce a y_sigma?
+
 x = 200;
 [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, params);
+
+assert(round(y_mean, 4) == 139.7200);
+assert(isequaln(y_sigma, nan));
+assert(isequal(round(y_int, 4), [137.5938  141.8462]));
+
+% define and test a function handle
+f_handle = @(model, x, vars, params) lin_model_predict(model, x, vars, params);
+[y_mean, y_sigma, y_int] = f_handle(model, x, vars, params);
+
+assert(round(y_mean, 4) == 139.7200);
+assert(isequaln(y_sigma, nan));
+assert(isequal(round(y_int, 4), [137.5938  141.8462]));
+
+% Test again using feval with function name
+f_name = "lin_model_predict";
+[y_mean, y_sigma, y_int] = builtin('feval', f_name, model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
 assert(isequaln(y_sigma, nan));  % TODO: Should we produce a y_sigma?

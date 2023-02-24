@@ -4,8 +4,7 @@ function [model, vars] = gpr_model_update(model, data, vars, params)
 %
 
     % Note: data vectors must be in columns for fitrgp
-    assert(size(data.Load, 1) == 1)
-    assert(size(data.Power, 1) == 1)
+    % TODO: Add checks for this
 
     % For a GP model, simply re-fit to all the data
     param_args = namedargs2cell(params.fit);
