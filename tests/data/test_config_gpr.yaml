@@ -37,9 +37,9 @@ models:
             fit:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.0, 95.7708]  # [sigmaL0, sigmaF0]
-                #BasisFunction: "linear"
-                #Sigma: 0.2  # noise std. dev.
-                #SigmaLowerBound: 0.1
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
                 #FitMethod: "none"
             significance: 0.1
     model_2:
@@ -50,9 +50,9 @@ models:
             fit:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.0, 111.0653]  # [sigmaL0, sigmaF0]
-                #BasisFunction: "linear"
-                #Sigma: 0.2  # noise std. dev.
-                #SigmaLowerBound: 0.1
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
                 #FitMethod: "none"
             significance: 0.1
     model_3:
@@ -63,9 +63,9 @@ models:
             fit:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.1, 236.1767]  # [sigmaL0, sigmaF0]
-                #BasisFunction: "linear"
-                #Sigma: 0.2  # noise std. dev.
-                #SigmaLowerBound: 0.1
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
                 #FitMethod: "none"
             significance: 0.1
 training:

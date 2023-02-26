@@ -15,19 +15,19 @@ simulation:
 machines:
     machine_1:
         op_limits: [56, 220]
-        model: "model_1_poly1"
+        model: "model_1_poly3"
     machine_2:
         op_limits: [237, 537]
-        model: "model_2"
+        model: "model_2_poly3"
     machine_3:
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_3_poly3"
     machine_4:
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_4_poly3"
     machine_5:
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_5_poly3"
 models:
     model_1_poly1:
         setup_script: "fit_model_setup"
@@ -69,22 +69,22 @@ models:
             significance: 0.1
             fit:
                 fitType: "smoothingspline"
-    model_2:
+    model_2_poly3:
         setup_script: "fit_model_setup"
         predict_script: "fit_model_predict"
         update_script: "fit_model_update"
         params:
             significance: 0.1
             fit:
-                fitType: 'poly1'
-    model_3:
+                fitType: 'poly3'
+    model_3_poly3:
         setup_script: "fit_model_setup"
         predict_script: "fit_model_predict"
         update_script: "fit_model_update"
         params:
             significance: 0.1
             fit:
-                fitType: 'poly1'
+                fitType: 'poly3'
 training:
     data:
         machine_1:

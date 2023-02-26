@@ -26,13 +26,13 @@ end
 % Load configuration file
 filepath = fullfile(sim_dir, sim_name, "opt_config.yaml");
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
-config = yaml.loadFile(filepath, "ConvertToArray", true);
+opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Over-write name just to make sure it matches folder
-config.simulation.name = sim_name;
+opt_config.simulation.name = sim_name;
 
 fprintf("Starting simulation...\n")
-t_stop = config.simulation.params.t_stop;
+t_stop = opt_config.simulation.params.t_stop;
 sim_out = sim(sim_model, "StopTime", string(t_stop));
 fprintf("Simulation finished.\n")
 fprintf("Run 'plot_model_preds.m' to make plots of model predictions.\n")
