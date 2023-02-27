@@ -13,7 +13,8 @@ sim_dir = "simulations";
 % is located
 %sim_name = "test_sim_gpr";
 %sim_name = "test_sim_fp1";
-sim_name = "test_sim_lin";
+%sim_name = "test_sim_lin";
+sim_name = "test_sim_ens";
 
 % Prepare sub-directories to store outputs
 if ~exist(fullfile("simulations", sim_name, "plots"), 'dir')

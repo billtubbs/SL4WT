@@ -43,7 +43,7 @@ models:
                 specific_energy: 0.7
                 se_sigma: 0.1
                 se_int: [0.4, 1.0]
-                significance: 0.1
+            significance: 0.1
             x_tol: 4
     model_2:
         name: "FP2"
@@ -55,7 +55,7 @@ models:
                 specific_energy: 0.7
                 se_sigma: 0.1
                 se_int: [0.4, 1.0]
-                significance: 0.1
+            significance: 0.1
             x_tol: 4
     model_3:
         name: "FP3"
@@ -67,7 +67,7 @@ models:
                 specific_energy: 0.7
                 se_sigma: 0.1
                 se_int: [0.4, 1.0]
-                significance: 0.1
+            significance: 0.1
             x_tol: 4
 training:
     data:
