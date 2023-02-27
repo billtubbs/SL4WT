@@ -8,7 +8,6 @@ block:
     x0: []
     tss: [250, 0]
 simulation:
-    name: "test_sim"
     params:
         t_stop: 4000
         PMax: 1580

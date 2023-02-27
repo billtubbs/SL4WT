@@ -11,7 +11,7 @@ sim_dir = "simulations";
 
 % Choose simulation sub-directory name where config file
 % is located
-%sim_name = "test_sim";
+%sim_name = "test_sim_gpr";
 %sim_name = "test_sim_fp1";
 sim_name = "test_sim_lin";
 

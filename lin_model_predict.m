@@ -9,7 +9,11 @@ function [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, ...
     % Make predictions using model
     [y_mean, y_int] = predict(model, x, 'Alpha', vars.significance);
 
-    % TODO: Is there a need for sigma estimates?
-    y_sigma = nan(size(x));
+    % Standard deviation of residuals. This is calculated:
+    % residuals = model.Residuals{:, "Raw"};
+    % n = model.NumObservations;
+    % p = model.NumCoefficients;
+    % RMSE = sqrt(sum(residuals.^2) ./ (n - p))
+    y_sigma = model.RMSE .* ones(size(x));
 
 end

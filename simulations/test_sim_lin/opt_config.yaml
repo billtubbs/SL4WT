@@ -1,0 +1,91 @@
+block:
+    NumContStates: 0
+    NumDiscStates: 0
+    NumOutputs: 5
+    NumInputs: 11
+    DirFeedthrough: 1
+    NumSampleTimes: 1
+    x0: []
+    tss: [250, 0]
+simulation:
+    params:
+        t_stop: 4000
+        PMax: 1580
+machines:
+    machine_1:
+        name: "Machine 1"
+        op_limits: [56, 220]
+        model: "model_1"
+    machine_2:
+        name: "Machine 2"
+        op_limits: [237, 537]
+        model: "model_2"
+    machine_3:
+        name: "Machine 3"
+        op_limits: [194, 795]
+        model: "model_3"
+    machine_4:
+        name: "Machine 4"
+        op_limits: [194, 795]
+        model: "model_3"
+    machine_5:
+        name: "Machine 5"
+        op_limits: [194, 795]
+        model: "model_3"
+models:
+    model_1:
+        name: "LIN1"
+        setup_script: "lin_model_setup"
+        predict_script: "lin_model_predict"
+        update_script: "lin_model_update"
+        params:
+            significance: 0.1
+            x_tol: 4
+    model_2:
+        name: "LIN2"
+        setup_script: "lin_model_setup"
+        predict_script: "lin_model_predict"
+        update_script: "lin_model_update"
+        params:
+            significance: 0.1
+            x_tol: 4
+    model_3:
+        name: "LIN3"
+        setup_script: "lin_model_setup"
+        predict_script: "lin_model_predict"
+        update_script: "lin_model_update"
+        params:
+            significance: 0.1
+            x_tol: 4
+training:
+    data:
+        machine_1:
+            Load: [56, 62.1555, 80]
+            Power: [49.0278, 52.2539, 61.2946]
+        machine_2:
+            Load: [237, 240.1964, 290]
+            Power: [183.6232, 184.8701, 203.7648]
+        machine_3:
+            Load: [194, 794.9977, 310]
+            Power: [173.6994, 497.5467, 228.7986]
+        machine_4:
+            Load: [194, 794.9977, 300]
+            Power: [173.6994, 497.5467, 223.8190]
+        machine_5:
+            Load: [194, 794.9977, 480]
+            Power: [173.6994, 497.5467, 322.7341]
+optimizer:
+    obj_func: "LoadObjFun"
+    X0: [56.1, 237.1, 194.1, 194.1, 194.1]
+    A: []
+    B: []
+    Aeq: []
+    Beq: []
+    LB: [56, 237, 194, 194, 194]
+    UB: [220, 537, 795, 795, 795]
+    const_func: "MaxPowerConstraint"
+    optimoptions:
+        MaxIterations: 500000
+        Display: "iter"
+    params:
+        z: 1000

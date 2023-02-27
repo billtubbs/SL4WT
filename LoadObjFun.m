@@ -13,7 +13,8 @@ global models model_vars Current_Load_Target
         machine = machine_names{i};
         model_name = config.machines.(machine).model;
         model_config = config.models.(model_name);
-        [y_means(i), y_sigmas(i), ~] = feval( ...
+        [y_means(i), y_sigmas(i), ~] = builtin( ...
+            "feval", ...
             model_config.predict_script, ...
             models.(machine), ...
             x(i), ...
@@ -22,21 +23,8 @@ global models model_vars Current_Load_Target
         );
     end
 
-%     total_load = sum(structfun(@(s) s.Load(end,1), LOData.Machines));
-%     is_load_same = ( ...
-%         LOData.Load_Target(end,1) == LOData.Load_Target(end-1,1) ...
-%         && LOData.Load_Target(end-1,1) == LOData.Load_Target(end-2,1) ...
-%     );
-%         if (is_load_same && SteadyState == 1 ...
-%             && abs(LOData.Load_Target(end,1) - total_load) < 10)
-
+    % Weight on model uncertainty
     z = config.optimizer.params.z;
 
-% %             disp("exploring ")
-%             explore_signal = 1;
-%         else
-%             z = 0;
-%             explore_signal = 0;
-%         end
-
+    % Compute objective function
     f = sum(y_means).^2 + 1000 * (sum(x) - Current_Load_Target).^2 - z * sum(y_sigmas);
