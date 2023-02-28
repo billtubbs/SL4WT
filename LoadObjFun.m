@@ -2,7 +2,7 @@ function f = LoadObjFun(x, config)
 % f = LoadObjFun(x, config)
 %
 
-global models model_vars Current_Load_Target
+global models model_vars CurrentLoadTarget
 
     % Compute model predictions
     machine_names = string(fieldnames(config.machines))';
@@ -27,4 +27,4 @@ global models model_vars Current_Load_Target
     z = config.optimizer.params.z;
 
     % Compute objective function
-    f = sum(y_means).^2 + 1000 * (sum(x) - Current_Load_Target).^2 - z * sum(y_sigmas);
+    f = sum(y_means).^2 + 1000 * (sum(x) - CurrentLoadTarget).^2 - z * sum(y_sigmas);

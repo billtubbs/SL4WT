@@ -20,6 +20,16 @@ sim_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
 machines = ["machine_1", "machine_2", "machine_3"];
 n_machines = numel(machines);
 
+% Choose model config file
+filename = "test_config_fit.yaml";
+opt_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
+    "ConvertToArray", true);
+
+% Choose where to sample points (in % of full operating range)
+%x_sample_range = [0 0.2];
+x_sample_range = [0.4 0.6];
+%x_sample_range = [0.8 1];
+
 % Choose limits for y-axes of plots
 y_lims = struct;
 y_lims.machine_1 = [20 180];
@@ -30,16 +40,11 @@ for i = 1:n_machines
     machine = machines{i};
 
     % get performance model parameters
-    params = sim_config.machines.(machine);
+    params = sim_config.machines.(machine).params;
 
     % Number of points to sample for the seed set
     n_samples = 5;
 
-    % Where to sample points (in % of full operating range)
-    %x_sample_range = [0 0.2];
-    %x_sample_range = [0.4 0.6];
-    x_sample_range = [0.8 1];
-    
     % Measurement noise level
     sigma_M = 0.1;
     
@@ -51,7 +56,7 @@ for i = 1:n_machines
     n_samples_val = 101;
 
     for j = 1:n
-    
+
         % Generate training data set
         X_sample = params.op_limits(1) + (x_sample_range(1) ...
             + rand(1, n_samples)' .* diff(x_sample_range)) .* diff(params.op_limits);
@@ -68,11 +73,7 @@ for i = 1:n_machines
         'Load', X, ...
         'Power', sample_op_pts_poly(X, params, 0) ...
     );
-    
-    % Load model config file
-    filename = "test_config_lin.yaml";
-    opt_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
-        "ConvertToArray", true);
+
     model_name = opt_config.machines.(machine).model;
     model_config = opt_config.models.(model_name);
     

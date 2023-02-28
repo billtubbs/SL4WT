@@ -29,14 +29,14 @@ n_machines = numel(machine_names);
 
 % Constraints: lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
-    cellfun(@(name) sim_config.machines.(name).op_limits, ...
+    cellfun(@(name) sim_config.machines.(name).params.op_limits, ...
         machine_names, 'UniformOutput', false) ...
 );
 
 % Test function to calculate power of one machine
 machine = machine_names{1};
 sigma_M = 0;  % no noise
-params = sim_config.machines.(machine);
+params = sim_config.machines.(machine).params;
 load = 500;
 power = sample_op_pts_poly(load, params, sigma_M);
 assert(round(power, 4) == 149.9006)
@@ -88,22 +88,16 @@ for i = 1:numel(load_targets)
     n_searches = 50;
     % Choose initial condition for solver
     x0 = best_load;  % best solution from previous iteration
-    %x0 = [56 237 200 200]';
+    %x0 = [60 240 200 200]';
     %x0 = [220 537 795 194]';
-    X0 = [x0'; nan(n_searches, 4)];
     if n_searches > 0
-        for j = 1:n_searches
-
-            % Find a random point that satisfies the constraints
-            x0 = mean(op_limits, 2);
-            x0 = x0 .* load_target ./ sum(x0);
-            % Enforce constraints
-            x0 = min(max(x0, op_limits(:, 1)), op_limits(:, 2));
-            x0(3:5) = x0(3:5) + (load_target - sum(x0)) ./ 3;
-            x0(5) = x0(5) + (load_target - ones(1, 5) * x0);
-            x0 = RandPtsInLinearConstraints( ...
-                1, ...
-                x0, ...
+        % Add random initialization points
+        % Start from a point inside operating limits
+        r = (load_target - sum(op_limits(:, 1))) / sum(diff(op_limits, [], 2));
+        xr = op_limits(:, 1) + r .* diff(op_limits, [], 2);
+        X0 = RandPtsInLinearConstraints( ...
+                n_searches, ...
+                xr, ...
                 ones(1, 5), ...
                 load_target, ...
                 op_limits(:, 2), ...
@@ -111,8 +105,7 @@ for i = 1:numel(load_targets)
                 [0 0 0 0 0], ...
                 0 ...
             );
-            X0(j+1, :) = x0(1:4)';
-        end
+        X0 = [x0(1:4)'; X0(1:4, :)'];  % remove final machine loads
     end
 
     best_power = inf;

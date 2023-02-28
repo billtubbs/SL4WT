@@ -72,9 +72,9 @@ for machine = string(fieldnames(config.machines))'
     % Save pre-training data points
     n_pre_train = size(training_data.Load, 1);
     assert(size(training_data.Power, 1) == n_pre_train)
-    LOModelData.(machine).Iteration = nan(n_pre_train, 1);
-    LOModelData.(machine).Time = nan(n_pre_train, 1);
-    LOModelData.(machine).Time(end) = 0;  % set time = 0 for last point
+    LOModelData.Machines.(machine).Iteration = nan(n_pre_train, 1);
+    LOModelData.Machines.(machine).Time = nan(n_pre_train, 1);
+    LOModelData.Machines.(machine).Time(end) = 0;  % set time = 0 for last point
     LOModelData.Machines.(machine).Load = training_data.Load;
     LOModelData.Machines.(machine).Power = training_data.Power;
 
@@ -83,9 +83,10 @@ end
 % Arrays to store simulation data
 LOData.Iteration = [];
 LOData.Time = [];
-LOData.Load_Target = [];
+LOData.LoadTarget = [];
 LOData.SteadyState = [];
 LOData.ModelUpdates = [];
+LOData.TotalPower = [];
 LOData.TotalUncertainty = [];
 for machine = string(fieldnames(config.machines))'
     LOData.Machines.(machine).Load = [];
@@ -99,15 +100,15 @@ end
 
 function [sys] = mdlOutputs(t,ci,u,config)
 global LOData LOModelData curr_iteration models model_vars ...
-    Current_Load_Target
+    CurrentLoadTarget
 
 % Directory where simulation results will be stored
 sim_name = config.simulation.name;
 
 % Process inputs from Simulink
 % Update data history with new data and measurements
-Current_Load_Target = u(1);
-LOData.Load_Target = [LOData.Load_Target; Current_Load_Target];
+CurrentLoadTarget = u(1);
+LOData.LoadTarget = [LOData.LoadTarget; CurrentLoadTarget];
 LOData.Iteration = [LOData.Iteration; curr_iteration];
 LOData.Time = [LOData.Time; t];
 machine_names = string(fieldnames(config.machines))';
@@ -163,9 +164,10 @@ if SteadyState == 1
             LOModelData.Machines.(machine).Power = ...
                 [LOModelData.Machines.(machine).Power; 
                  LOData.Machines.(machine).Power(end,:)];
-            LOModelData.(machine).Iteration = ...
-                [LOModelData.(machine).Iteration; curr_iteration];
-            LOModelData.(machine).Time = [LOModelData.(machine).Time; t];
+            LOModelData.Machines.(machine).Iteration = ...
+                [LOModelData.Machines.(machine).Iteration; curr_iteration];
+            LOModelData.Machines.(machine).Time = [ ...
+                LOModelData.Machines.(machine).Time; t];
 
             % Update model
             training_data = struct();
@@ -234,7 +236,6 @@ total_uncertainty = sum(cellfun(@sum, y_sigmas));
 LOData.TotalUncertainty = ...
     [LOData.TotalUncertainty; total_uncertainty];
 
-
 % Lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
     cellfun(@(name) config.machines.(name).op_limits, ...
@@ -258,7 +259,7 @@ options = optimoptions("fmincon", ...
 % Partial functions to pass config parameters to
 % optimization functions
 
-% Function to miminize
+% Objective function to be miminized
 obj_func_name = config.optimizer.obj_func;
 obj_func = @(x) feval(obj_func_name, x, config);
 
@@ -266,11 +267,9 @@ obj_func = @(x) feval(obj_func_name, x, config);
 x0 = config.optimizer.X0';
 y = obj_func(x0);
 
-% Constraint function
+% Constraint function (nonlinear)
 const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
-
-c = const_func(x0);
 
 % Run the optimizer
 gen_load_target = fmincon( ...

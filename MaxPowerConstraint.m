@@ -2,7 +2,7 @@ function [c,ceq] = MaxPowerConstraint(x, config)
 % [c,ceq] = MaxPowerConstraint(x, config) 
 %
 
-global  LOData models model_vars curr_iteration
+global models model_vars curr_iteration
 
         % TODO: unique is quite a costly compute.  Is it necessary?
         %iterations = length(unique(LOData.Load_Target));

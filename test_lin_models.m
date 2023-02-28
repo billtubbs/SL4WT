@@ -32,13 +32,11 @@ assert(isequal( ...
 assert(round(1 - model.Rsquared.Adjusted, 5, 'significant') == 3.9992e-05);
 
 % Test predictions with single point
-% TODO: Should we produce a y_sigma?
-
 x = 200;
 [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
-assert(isequaln(y_sigma, nan));
+assert(isequal(round(y_sigma, 4), 0.2205));
 assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 
 % define and test a function handle
@@ -46,7 +44,7 @@ f_handle = @(model, x, vars, params) lin_model_predict(model, x, vars, params);
 [y_mean, y_sigma, y_int] = f_handle(model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
-assert(isequaln(y_sigma, nan));
+assert(isequal(round(y_sigma, 4), 0.2205));
 assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 
 % Test again using feval with function name
@@ -54,7 +52,7 @@ f_name = "lin_model_predict";
 [y_mean, y_sigma, y_int] = builtin('feval', f_name, model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
-assert(isequaln(y_sigma, nan));  % TODO: Should we produce a y_sigma?
+assert(isequal(round(y_sigma, 4), 0.2205));
 assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 
 
@@ -156,7 +154,7 @@ assert(isequal( ...
   131.5422   132.4017   133.2612   134.1207   134.9803
 ]'))
 % fprintf("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f ...\n", y_sigma)
-assert(isequaln(y_sigma, nan(size(x))));  % TODO: Should we produce a y_sigma?
+assert(isequaln(y_sigma, zeros(size(x))));
 
 % fprintf("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f ...\n", y_int(:, 1))
 assert(isequaln(round(y_int, 4), nan(size(x, 1), 2)))
@@ -229,7 +227,7 @@ assert(isequal( ...
   126.3660   127.2253   128.0846   128.9440   129.8033   130.6626 ...
   131.5219   132.3812   133.2405   134.0998   134.9591
 ]'))
-assert(isequaln(y_sigma, nan(size(x))));  % TODO: Should we produce a y_sigma?
+assert(isequal(round(y_sigma, 5, 'significant'), 5.7717e-04 .* ones(size(x))));
 assert(isequal( ...
     round(y_int(:, 1), 4), ...
     [   ...
