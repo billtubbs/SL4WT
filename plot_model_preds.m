@@ -78,7 +78,7 @@ for i = 1:n_machines
                 y_labels, line_label, area_label, x_label, y_lim)
 
             % Index of current data point
-            k = find(LOModelData.(machine).Time == t);
+            k = find(LOModelData.Machines.(machine).Time == t);
 
             % Add all previous training data points to plot
             x = LOModelData.Machines.(machine).Load(1:k);
