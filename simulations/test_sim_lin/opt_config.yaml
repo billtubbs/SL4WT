@@ -87,7 +87,7 @@ optimizer:
     UB: [220, 537, 795, 795, 795]
     const_func: "MaxPowerConstraint"
     optimoptions:
-        MaxIterations: 100000
+        MaxIterations: 500000
         Display: "iter"
     params:
         z: 1000

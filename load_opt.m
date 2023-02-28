@@ -263,13 +263,14 @@ options = optimoptions("fmincon", ...
 obj_func_name = config.optimizer.obj_func;
 obj_func = @(x) feval(obj_func_name, x, config);
 
-% Test function
-x0 = config.optimizer.X0';
-y = obj_func(x0);
-
 % Constraint function (nonlinear)
 const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
+
+% Test functions before starting optimizer
+x0 = config.optimizer.X0';
+J = obj_func(x0);
+c = const_func(x0);
 
 % Run the optimizer
 gen_load_target = fmincon( ...

@@ -12,10 +12,10 @@ sim_dir = "simulations";
 
 % Choose simulation sub-directory name where config file and
 % results are located
-sim_name = "test_sim_gpr";  % Gaussian process models
+%sim_name = "test_sim_gpr";  % Gaussian process models
 %sim_name = "test_sim_fp1";  % Simple first-principles model
 %sim_name = "test_sim_lin";  % Linear model
-%sim_name = "test_sim_ens";  % Ensemble model
+sim_name = "test_sim_ens";  % Ensemble model
 
 % Prepare sub-directories to store outputs
 if ~exist(fullfile("simulations", sim_name, "results"), 'dir')
