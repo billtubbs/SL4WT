@@ -21,13 +21,16 @@ machines = ["machine_1", "machine_2", "machine_3"];
 n_machines = numel(machines);
 
 % Choose model config file
-filename = "test_config_fit.yaml";
+% filename = "test_config_fp1.yaml";
+% filename = "test_config_lin.yaml";
+% filename = "test_config_fit.yaml";
+filename = "test_config_gpr.yaml";
 opt_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
     "ConvertToArray", true);
 
 % Choose where to sample points (in % of full operating range)
-%x_sample_range = [0 0.2];
-x_sample_range = [0.4 0.6];
+x_sample_range = [0 0.2];
+%x_sample_range = [0.4 0.6];
 %x_sample_range = [0.8 1];
 
 % Choose limits for y-axes of plots
@@ -47,13 +50,10 @@ for i = 1:n_machines
 
     % Measurement noise level
     sigma_M = 0.1;
-    
+
     % Generate n sets of randomized training data
     n = 100;
     training_data = cell(1, n);
-
-    % No. of points to sample for validation data set
-    n_samples_val = 101;
 
     for j = 1:n
 
@@ -67,6 +67,9 @@ for i = 1:n_machines
     
     end
 
+    % No. of points to sample for validation data set
+    n_samples_val = 101;
+
     % Generate validation data set (without noise)
     X = linspace(params.op_limits(1), params.op_limits(2), n_samples_val)';
     validation_data = struct( ...
@@ -76,7 +79,7 @@ for i = 1:n_machines
 
     model_name = opt_config.machines.(machine).model;
     model_config = opt_config.models.(model_name);
-    
+
     predictions = struct();
     predictions.y_mean = nan(n_samples_val, n_samples);
 
@@ -108,7 +111,7 @@ for i = 1:n_machines
         predictions.y_mean(:, j) = y_mean';
 
     end
-    
+
     xlim(params.op_limits)
     ylim(y_lims.(machine))
     xlabel('Load')
@@ -120,3 +123,10 @@ for i = 1:n_machines
     set(gcf, 'Position', [p(1:2) 420 315])
 
 end
+
+% To use data in Matlab's Regression Learner app use these
+% data arrays
+data_val = table(validation_data.Load, validation_data.Power, ...
+    'VariableNames', {'Load', 'Power'});
+data_est = table(training_data{1}.Load, training_data{1}.Power, ...
+    'VariableNames', {'Load', 'Power'});

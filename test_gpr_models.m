@@ -16,27 +16,33 @@ test_data_dir = "data";
 filepath = fullfile(test_dir, test_data_dir, "test_config_gpr.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
+% Load training data from file
+training_data = struct();
+for machine = string(fieldnames(config.machines))'
+    filename = config.machines.(machine).trainingData;
+    training_data.(machine) = readtable(...
+        fullfile(test_dir, test_data_dir, filename) ...
+    );
+end
+
 % Create model objects by running the setup scripts with 
-% the pre-defined model data specified in the config struct
 models = struct();
 model_vars = struct();
 for machine = string(fieldnames(config.machines))'
     model_name = config.machines.(machine).model;
-    training_data = config.training.data.(machine);
-    training_data.Load = training_data.Load';
-    training_data.Power = training_data.Power';
-    assert(numel(training_data.Load) == numel(training_data.Power))
-    model_config = config.models.(model_name);
 
     % Run model setup script
+    model_config = config.models.(model_name);
     [model, vars] = feval( ...
-        model_config.setup_script, ...
-        training_data, ...
+        model_config.setupFcn, ...
+        training_data.(machine), ...
         model_config.params ...
     );
 
     % Check selected model variables and params
-    assert(model.NumObservations == numel(training_data.Load));
+    data = training_data.(machine);
+    assert(model.NumObservations == numel(data.Load));
+    assert(model.NumObservations == numel(data.Power));
     if isfield(model_config.params.fit, 'KernelFunction')
         assert(strcmpi(model.KernelFunction, ...
             model_config.params.fit.KernelFunction))
@@ -63,18 +69,16 @@ assert(isequal( ...
 
 % Make predictions with one model
 machine = "machine_1";
-training_data = config.training.data.(machine);
-training_data.Load = training_data.Load';
-training_data.Power = training_data.Power';
 op_limits = config.machines.(machine).op_limits;
 model = config.machines.(machine).model;
 model_config = config.models.(model);
 x = linspace(op_limits(1), op_limits(2), 101)';
-[y_mean, y_sigma, y_int] = gpr_model_predict( ...
+[y_mean, y_sigma, y_int] = builtin("feval", ...
+    model_config.predictFcn, ...
     models.(machine), ...
     x, ...
     model_vars.(machine), ...
-    model_config ...
+    model_config.params ...
 );
 
 % % Plot predictions and data
@@ -159,7 +163,7 @@ assert(isequal( ...
 ]'))
 
 % More data points
-io_data = [
+io_data = array2table([
   145.0000  101.0839
   175.0000  122.2633
   140.0000   97.6366
@@ -170,15 +174,19 @@ io_data = [
    75.0000   58.6758
    95.0000   69.4629
   170.0000  118.7371
-];
+], 'VariableNames', {'Load', 'Power'});
 
 % Add one point to training data
-training_data.Load = [training_data.Load; io_data(9, 1)];
-training_data.Power = [training_data.Power; io_data(9, 2)];
+training_data.machine_1 = [
+    training_data.machine_1;
+    io_data(9, :)
+];
 
 % Test update function (trivial for GPs)
-[models.(machine), vars] = gpr_model_update(models.(machine), ...
-    training_data, vars, model_config.params);
+[models.(machine), vars] = builtin("feval", ...
+    model_config.updateFcn, ...
+    models.(machine), ...
+    training_data.(machine), vars, model_config.params);
 
 % Re-do predictions with model
 [y_mean, y_sigma, ci] = gpr_model_predict( ...
