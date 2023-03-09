@@ -68,22 +68,6 @@ models:
                 KernelParameters: []  # [15.1001;236.1767]
             significance: 0.1
             x_tol: 4
-training:
-    data:
-        machine_1:
-            Load: [56, 62.1555, 80]
-            Power: [49.0278, 52.2539, 61.2946]
-        machine_2:
-            Load: [237, 240.1964, 290]
-            Power: [183.6232, 184.8701, 203.7648]
-        machine_3:
-            Load: [194, 794.9977, 310]
-            Power: [173.6994, 497.5467, 228.7986]
-        machine_4:
-            Load: [194, 794.9977, 300]
-            Power: [173.6994, 497.5467, 223.8190]
-        machine_5:
-            Load: [194, 794.9977, 480]
             Power: [173.6994, 497.5467, 322.7341]
 optimizer:
     obj_func: "LoadObjFun"

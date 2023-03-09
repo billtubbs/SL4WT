@@ -7,7 +7,8 @@ function [model, vars] = lin_model_setup(data, params)
 % fitted to past observations.
 %
 
-    assert(size(data.Load, 1) > 1, "Not enough data to fit model")
+    assert(size(data{:, params.predictorNames}, 1) > 1, ...
+        "Not enough data to fit model")
 
     % Initialize variables
     vars = struct("significance", params.significance);

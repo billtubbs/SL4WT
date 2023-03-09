@@ -7,7 +7,7 @@ function [model, vars] = fp1_model_update(model, data, vars, params)
 %
 
     % Specific energy estimates from observations
-    specific_energy = data.Power ./ data.Load;
+    specific_energy = data{:, "Power"} ./ data{:, "Load"};
 
     % Re-estimate the mean of the estimates from observations
     vars.specific_energy = mean(specific_energy);
