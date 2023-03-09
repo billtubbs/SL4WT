@@ -35,7 +35,7 @@ function [y_mean, y_sigma, y_int] = fit_model_predict(model, x, vars, ...
             y_int = nan(size(x, 1), 2);
     end
 
-    % TODO: Is there a need for sigma estimates?
+    % TODO: Is there a need for sigma estimates?  Yes!
     y_sigma = nan(size(x));
 
 end

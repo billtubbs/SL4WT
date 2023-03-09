@@ -90,7 +90,7 @@ for i = 1:n_machines
                 'Interpreter', 'latex')
             hLeg = findobj(gcf, 'Type', 'Legend');
             leg_labels = hLeg.String;
-            legend([leg_labels(1:2) {'data'}], 'Location', 'southeast')
+            hLeg = legend([leg_labels(1:2) {'data'}], 'Location', 'southeast');
             if j < n_times
                 set(hLeg, 'visible', 'off')
             end

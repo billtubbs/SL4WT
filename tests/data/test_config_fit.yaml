@@ -11,27 +11,27 @@ machines:
     machine_1:
         name: "Machine 1"
         op_limits: [56, 220]
-        model: "model_1"
+        model: "model_1_poly3"
         trainingData: "machine_1_data.csv"
     machine_2:
         name: "Machine 2"
         op_limits: [237, 537]
-        model: "model_2"
+        model: "model_2_poly3"
         trainingData: "machine_2_data.csv"
     machine_3:
         name: "Machine 3"
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_3_poly3"
         trainingData: "machine_3_data.csv"
     machine_4:
         name: "Machine 4"
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_3_poly3"
         trainingData: "machine_4_data.csv"
     machine_5:
         name: "Machine 5"
         op_limits: [194, 795]
-        model: "model_3"
+        model: "model_3_poly3"
         trainingData: "machine_5_data.csv"
 models:
     model_1_poly1:

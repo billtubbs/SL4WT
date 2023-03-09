@@ -44,6 +44,8 @@ models:
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
+            predictorNames: "Load"
+            responseNames: "Power"
             models:
                 model_11:
                     setupFcn: "fit_model_setup"
@@ -80,6 +82,8 @@ models:
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
+            predictorNames: "Load"
+            responseNames: "Power"
             models:
                 model_21:
                     setupFcn: "fit_model_setup"
@@ -116,6 +120,8 @@ models:
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
+            predictorNames: "Load"
+            responseNames: "Power"
             models:
                 model_31:
                     setupFcn: "fit_model_setup"

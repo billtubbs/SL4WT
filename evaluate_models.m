@@ -11,9 +11,9 @@ rng(0)
 test_dir = "tests";
 test_data_dir = "data";
 
-% Load config file with machine parameters
-filename = "test_sim_config.yaml";
-sim_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
+% Load system config file with machine parameters
+filename = "test_sys_config.yaml";
+sys_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
     "ConvertToArray", true);
 
 % Choose machines to make plots for
@@ -21,10 +21,10 @@ machines = ["machine_1", "machine_2", "machine_3"];
 n_machines = numel(machines);
 
 % Choose model config file
-filename = "test_config_fp1.yaml";
+% filename = "test_config_fp1.yaml";
 % filename = "test_config_lin.yaml";
 % filename = "test_config_fit.yaml";
-% filename = "test_config_gpr.yaml";
+filename = "test_config_gpr.yaml";
 opt_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
     "ConvertToArray", true);
 
@@ -42,14 +42,14 @@ y_lims.machine_3 = [100 600];
 for i = 1:n_machines
     machine = machines{i};
 
-    % get performance model parameters
-    params = sim_config.machines.(machine).params;
+    % Get machine performance model parameters
+    params = sys_config.equipment.(machine).params;
+
+    % Measurement noise level
+    sigma_M = sys_config.equipment.(machine).params.sigma_M;
 
     % Number of points to sample for the seed set
     n_samples = 5;
-
-    % Measurement noise level
-    sigma_M = 0.1;
 
     % Generate n sets of randomized training data
     n = 100;
@@ -58,10 +58,22 @@ for i = 1:n_machines
     for j = 1:n
 
         % Generate training data set
+
+        % Option 1: Uniform random distribution of load points
+%         X_sample = params.op_limits(1) + (x_sample_range(1) ...
+%             + rand(1, n_samples)' .* diff(x_sample_range)) ...
+%                 .* diff(params.op_limits);
+
+        % Option 2: evenly spaced linear points
         X_sample = params.op_limits(1) + (x_sample_range(1) ...
-            + rand(1, n_samples)' .* diff(x_sample_range)) .* diff(params.op_limits);
+            + linspace(0, 1, n_samples)' .* diff(x_sample_range)) ...
+                .* diff(params.op_limits);
+
+        % Sample from machine load-power models (with measurement noise)
+        Y_sample = sample_op_pts_poly(X_sample, params, sigma_M);
+
         training_data{j} = array2table( ...
-            [X_sample sample_op_pts_poly(X_sample, params, sigma_M)], ...
+            [X_sample Y_sample], ...
             "VariableNames", {'Load', 'Power'}  ...
         );
     

@@ -12,16 +12,16 @@ rng(0)
 data_dir = "data";
 
 % Load simulation config file with machine parameters
-filename = "sim_config.yaml";
-sim_config = yaml.loadFile(fullfile(data_dir, filename), ...
+filename = "sys_config.yaml";
+sys_config = yaml.loadFile(fullfile(data_dir, filename), ...
     "ConvertToArray", true);
 
-machine_names = fieldnames(sim_config.machines);
+machine_names = fieldnames(sys_config.equipment);
 n_machines = numel(machine_names);
 
 % Constraints: lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
-    cellfun(@(name) sim_config.machines.(name).params.op_limits, ...
+    cellfun(@(name) sys_config.equipment.(name).params.op_limits, ...
         machine_names, 'UniformOutput', false) ...
 );
 
