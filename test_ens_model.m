@@ -13,36 +13,44 @@ test_data_dir = "data";
 
 %% Test initialization with data
 
-data = struct();
-data.Load = [50 100 150]';
-data.Power = [35.05 70.18 104.77]';
+Load = [50 100 150]';
+Power = [35.05 70.18 104.77]';
+data = table(Load, Power);
 
 model_1 = struct;
-model_1.setup_script = "lin_model_setup";
-model_1.predict_script = "lin_model_predict";
-model_1.update_script = "lin_model_update";
+model_1.setupFcn = "lin_model_setup";
+model_1.predictFcn = "lin_model_predict";
+model_1.updateFcn = "lin_model_update";
+model_1.params.predictorNames = "Load";
+model_1.params.responseNames = "Power";
 model_1.params.significance = 0.1;
 
 model_2 = struct;
-model_2.setup_script = "fit_model_setup";
-model_2.predict_script = "fit_model_predict";
-model_2.update_script = "fit_model_update";
+model_2.setupFcn = "fit_model_setup";
+model_2.predictFcn = "fit_model_predict";
+model_2.updateFcn = "fit_model_update";
+model_2.params.predictorNames = "Load";
+model_2.params.responseNames = "Power";
 model_2.params.significance = 0.1;
 model_2.params.fit.fitType = 'poly2';
 
 model_3 = struct;
-model_3.setup_script = "fp1_model_setup";
-model_3.predict_script = "fp1_model_predict";
-model_3.update_script = "fp1_model_update";
+model_3.setupFcn = "fp1_model_setup";
+model_3.predictFcn = "fp1_model_predict";
+model_3.updateFcn = "fp1_model_update";
+model_3.params.predictorNames = "Load";
+model_3.params.responseNames = "Power";
 model_3.params.prior.se_sigma = 1;
 model_3.params.prior.specific_energy = 0.7;
 model_3.params.prior.se_int = [0.5 0.9];
 model_3.params.significance = 0.1;
 
 model_4 = struct;
-model_4.setup_script = "gpr_model_setup";
-model_4.predict_script = "gpr_model_predict";
-model_4.update_script = "gpr_model_update";
+model_4.setupFcn = "gpr_model_setup";
+model_4.predictFcn = "gpr_model_predict";
+model_4.updateFcn = "gpr_model_update";
+model_4.params.predictorNames = "Load";
+model_4.params.responseNames = "Power";
 model_4.params.fit.KernelFunction = "squaredexponential";
 model_4.params.fit.KernelParameters = [15.0, 95.7708];
 model_4.params.significance = 0.1;
@@ -77,6 +85,15 @@ assert(isequal(round(y_int, 4), [3.0000  141.8462]));
 % Load configuration file
 filepath = fullfile(test_dir, test_data_dir, "test_config_ens.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
+
+% Load training data from file
+training_data = struct();
+for machine = string(fieldnames(config.machines))'
+    filename = config.machines.(machine).trainingData;
+    training_data.(machine) = readtable(...
+        fullfile(test_dir, test_data_dir, filename) ...
+    );
+end
 
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
@@ -115,16 +132,12 @@ machine_names = string(fieldnames(config.machines))';
 for i = 1:numel(machine_names)
     machine = machine_names(i);
     model_name = config.machines.(machine).model;
-    training_data = config.training.data.(machine);
-    training_data.Load = training_data.Load';
-    training_data.Power = training_data.Power';
-    assert(numel(training_data.Load) == numel(training_data.Power))
     model_config = config.models.(model_name);
 
     % Run model setup script
     [model, vars] = builtin("feval", ...
-        model_config.setup_script, ...
-        training_data, ...
+        model_config.setupFcn, ...
+        training_data.(machine), ...
         model_config.params ...
     );
 
@@ -153,7 +166,7 @@ model_name = config.machines.(machine).model;
 model_config = config.models.(model_name);
 x = linspace(op_limits(1), op_limits(2), 101)';
 [y_mean, y_sigma, y_int] = builtin("feval", ...
-    model_config.predict_script, ...
+    model_config.predictFcn, ...
     models.(machine), ...
     x, ...
     model_vars.(machine), ...
@@ -161,9 +174,6 @@ x = linspace(op_limits(1), op_limits(2), 101)';
 );
 
 % % Plot predictions and data
-% training_data = config.training.data.(machine);
-% training_data.Load = training_data.Load';
-% training_data.Power = training_data.Power';
 % figure(1); clf
 % make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, training_data.Power, ...
 %     training_data.Load, "Load", "Power")
@@ -241,7 +251,7 @@ assert(isequal( ...
 ]'))
 
 % More data points
-io_data = [
+io_data = array2table([
   145.0000  101.0839
   175.0000  122.2633
   140.0000   97.6366
@@ -252,18 +262,21 @@ io_data = [
    75.0000   58.6758
    95.0000   69.4629
   170.0000  118.7371
-];
+], 'VariableNames', {'Load', 'Power'});
 
 % Add one point to training data
-training_data = config.training.data.(machine);
-training_data.Load = training_data.Load';
-training_data.Power = training_data.Power';
-training_data.Load = [training_data.Load; io_data(9, 1)];
-training_data.Power = [training_data.Power; io_data(9, 2)];
+training_data.machine_1 = [
+    training_data.(machine);
+    io_data(9, :)
+];
 
 % Test update function (trivial for GPs)
-[models.(machine), model_vars.(machine)] = ens_model_update(models.(machine), ...
-    training_data, model_vars.(machine), model_config.params);
+[models.(machine), model_vars.(machine)] = ens_model_update( ...
+    models.(machine), ...
+    training_data.(machine), ...
+    model_vars.(machine), ...
+    model_config.params ...
+);
 
 % Check vars updated
 for sub_model_name = string(fieldnames(model_config.params.models))'

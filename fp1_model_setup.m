@@ -9,7 +9,7 @@ function [model, vars] = fp1_model_setup(data, params)
     model = struct();  % no model object needed for this
     vars = struct("significance", params.significance);
 
-    if ~isempty(data.Load)
+    if ~isempty(data{:, params.predictorNames})
 
         % Estimate specific energy from the data provided
         [model, vars] = fp1_model_update([], data, vars, params);

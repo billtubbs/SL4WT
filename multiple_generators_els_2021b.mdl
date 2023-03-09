@@ -7,7 +7,6 @@ __MWOPC_PACKAGE_BEGIN__ R2021b
 __MWOPC_PART_BEGIN__ /[Content_Types].xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default ContentType="application/vnd.mathworks.matlab.mxarray+binary" Extension="mxarray"/>
   <Default ContentType="application/vnd.openxmlformats-package.relationships+xml" Extension="rels"/>
   <Default ContentType="application/vnd.mathworks.simulink.mdl+xml" Extension="xml"/>
   <Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/metadata/coreProperties.xml"/>
@@ -44,8 +43,8 @@ __MWOPC_PART_BEGIN__ /metadata/coreProperties.xml
   <dcterms:created xsi:type="dcterms:W3CDTF">2022-04-22T07:03:15Z</dcterms:created>
   <dc:creator>Memo Mer</dc:creator>
   <cp:lastModifiedBy>billtubbs</cp:lastModifiedBy>
-  <dcterms:modified xsi:type="dcterms:W3CDTF">2023-02-27T18:44:31Z</dcterms:modified>
-  <cp:revision>7.10</cp:revision>
+  <dcterms:modified xsi:type="dcterms:W3CDTF">2023-03-09T21:04:03Z</dcterms:modified>
+  <cp:revision>7.12</cp:revision>
   <cp:version>R2021b</cp:version>
 </cp:coreProperties>
 
@@ -79,9 +78,7 @@ __MWOPC_PART_BEGIN__ /simulink/_rels/blockdiagram.xml.rels
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="ScheduleCore" Target="ScheduleCore.xml" Type="http://schemas.mathworks.com/simulink/2013/relationships/ScheduleCore"/>
   <Relationship Id="ScheduleEditor" Target="ScheduleEditor.xml" Type="http://schemas.mathworks.com/simulink/2013/relationships/ScheduleEditor"/>
-  <Relationship Id="SigBuilderData_911_2" Target="bdmxdata/SigBuilderData_911_2.mxarray" Type="http://schemas.mathworks.com/simulinkModel/2015/relationships/modelMxArray"/>
   <Relationship Id="SimscapeModelParametersPlugin" Target="plugins/SimscapeModelParametersPlugin.xml" Type="http://schemas.mathworks.com/simulinkModel/2014/relationships/pluginParameters"/>
-  <Relationship Id="VnvData_911_2" Target="bdmxdata/VnvData_911_2.mxarray" Type="http://schemas.mathworks.com/simulinkModel/2015/relationships/modelMxArray"/>
   <Relationship Id="graphicalInterface" Target="graphicalInterface.xml" Type="http://schemas.mathworks.com/simulinkModel/2014/relationships/graphicalInterface"/>
   <Relationship Id="system_root" Target="systems/system_root.xml" Type="http://schemas.mathworks.com/simulink/2010/relationships/system"/>
   <Relationship Id="windowsInfo" Target="windowsInfo.xml" Type="http://schemas.mathworks.com/simulinkModel/2019/relationships/windowsInfo"/>
@@ -247,7 +244,16 @@ __MWOPC_PART_BEGIN__ /simulink/bddefaults.xml
       <P Name="SaturateOnIntegerOverflow">off</P>
       <P Name="SampleTime">-1</P>
     </Block>
-    <Block BlockType="Terminator"/>
+    <Block BlockType="ToWorkspace">
+      <P Name="VariableName">simulink_output</P>
+      <P Name="MaxDataPoints">1000</P>
+      <P Name="Decimation">1</P>
+      <P Name="SaveFormat">Array</P>
+      <P Name="Save2DSignal">3-D array (concatenate along third dimension)</P>
+      <P Name="FixptAsFi">off</P>
+      <P Name="NumInputs">1</P>
+      <P Name="SampleTime">0</P>
+    </Block>
     <Block BlockType="TransferFcn">
       <P Name="Numerator">[1]</P>
       <P Name="Denominator">[1 2 1]</P>
@@ -259,143 +265,6 @@ __MWOPC_PART_BEGIN__ /simulink/bddefaults.xml
   </BlockParameterDefaults>
 </BlockDiagramDefaults>
 
-__MWOPC_PART_BEGIN__ /simulink/bdmxdata/SigBuilderData_911_2.mxarray BASE64
-AAFJTQAAAAAOAAAAkAwAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAF
-AAQAFgAAAAEAAACwAAAAZ3JpZFNldHRpbmcAAAAAAAAAAAAAAGNoYW5uZWxzAAAAAAAAAAAAAAAA
-AABheGVzAAAAAAAAAAAAAAAAAAAAAAAAY29tbW9uAAAAAAAAAAAAAAAAAAAAAGRhdGFTZXQAAAAA
-AAAAAAAAAAAAAABkYXRhU2V0SWR4AAAAAAAAAAAAAAAAaXNWZXJpZmljYXRpb25WaXNpYmxlAHNi
-b2JqAAAAAAAAAAAAAAAAAAAAAAAOAAAAMAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAAC
-AAAAAQAAAAAAAAAQAAIAb24AAA4AAABIBQAABgAAAAgAAAACAAAAAAAAAAUAAAAIAAAAAQAAAAIA
-AAABAAAAAAAAAAUABAAKAAAAAQAAAFoAAABzdGVwWAAAAAAAc3RlcFkAAAAAAHlNaW4AAAAAAAB5
-TWF4AAAAAAAAY29sb3IAAAAAAGxpbmVTdHlsZQBsaW5lV2lkdGgAbGFiZWwAAAAAAG91dEluZGV4
-AAAAAAAAAAAOAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAJ
-AAAACAAAAAAAAAAAAAAADgAAADgAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEA
-AAAAAAAACQAAAAgAAAAAAAAAAAAAAA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAA
-AAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAAAA8P8OAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAFAAAA
-CAAAAAEAAAABAAAAAQAAAAAAAAAJAAAACAAAAAAAAAAAAPB/DgAAAEgAAAAGAAAACAAAAAYAAAAA
-AAAABQAAAAgAAAABAAAAAwAAAAEAAAAAAAAACQAAABgAAACq8dJNYhDQPwAAAAAAAAAAqvHSTWIQ
-0D8OAAAAMAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAQAAEALQAA
-AA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAA
-AAAAAAAA+D8OAAAASAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAARAAAAAQAAAAAAAAAQ
-AAAAEQAAAEltcG9ydGVkX1NpZ25hbCAxAAAAAAAAAA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUA
-AAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAAAA8D8OAAAAOAAAAAYAAAAIAAAABgAA
-AAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAJAAAACAAAAAAAAAAAAAAADgAAADgAAAAGAAAA
-CAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAACQAAAAgAAAAAAAAAAAAAAA4AAAA4
-AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAAAA
-8P8OAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAJAAAACAAA
-AAAAAAAAAPB/DgAAAEgAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAwAAAAEAAAAAAAAA
-CQAAABgAAACq8dJNYhDQPwAAAAAAAAAAqvHSTWIQ0D8OAAAAMAAAAAYAAAAIAAAABAAAAAAAAAAF
-AAAACAAAAAEAAAABAAAAAQAAAAAAAAAQAAEALQAAAA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUA
-AAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAAAA+D8OAAAASAAAAAYAAAAIAAAABAAA
-AAAAAAAFAAAACAAAAAEAAAARAAAAAQAAAAAAAAAQAAAAEQAAAEltcG9ydGVkX1NpZ25hbCAyAAAA
-AAAAAA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAI
-AAAAAAAAAAAAAEAOAAAAGAEAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAA
-AAAFAAQACQAAAAEAAAAbAAAAY2hhbm5lbHMAeUxpbQAAAAAAbGFiZWxQb3MAAAAAAAAOAAAAOAAA
-AAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAJAAAACAAAAAAAAAAAAPA/
-DgAAAEAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAgAAAAEAAAAAAAAACQAAABAAAAAA
-AAAAAAAAAAAAAAAAcKdADgAAADAAAAAGAAAACAAAAAQAAAAAAAAABQAAAAgAAAABAAAAAgAAAAEA
-AAAAAAAAEAACAFRMAAAOAAAAYAIAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAA
-AAAAAAAFAAQADgAAAAEAAABiAAAAZGlzcFRpbWUAAAAAAABkaXNwTW9kZQAAAAAAAG1pblRpbWUA
-AAAAAAAAbWF4VGltZQAAAAAAAABhZnRlckZpbmFsU3RyAHNhbXBsZVRpbWUAAAAAemVyb0Nyb3Nz
-AAAAAAAAAAAAAAAOAAAAQAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAACAAAAAQAAAAAA
-AAAJAAAAEAAAAAAAAAAAAAAAAAAAAABYu0AOAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAA
-AAEAAAABAAAAAQAAAAAAAAAJAAAACAAAAAAAAAAAAPA/DgAAADgAAAAGAAAACAAAAAYAAAAAAAAA
-BQAAAAgAAAABAAAAAQAAAAEAAAAAAAAACQAAAAgAAAAAAAAAAAAAAA4AAAA4AAAABgAAAAgAAAAG
-AAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAABYu0AOAAAAQAAAAAYA
-AAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAALAAAAAQAAAAAAAAAQAAAACwAAAEV4dHJhcG9sYXRl
-AAAAAAAOAAAAMAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAQAAEA
-MAAAAA4AAAAwAAAABgAAAAgAAAAEAAAAAAAAAAUAAAAIAAAAAQAAAAIAAAABAAAAAAAAABAAAgBv
-bgAADgAAAIgBAAAGAAAACAAAAAIAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAABQAEAA4A
-AAABAAAAOAAAAGFjdGl2ZURpc3BJZHgAdGltZVJhbmdlAAAAAABuYW1lAAAAAAAAAAAAAGRpc3Bs
-YXlSYW5nZQAADgAAADgAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAA
-CQAAAAgAAAAAAAAAAADwPw4AAABAAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAIAAAAB
-AAAAAAAAAAkAAAAQAAAAAAAAAAAAAAAAAAAAAFi7QA4AAABAAAAABgAAAAgAAAAEAAAAAAAAAAUA
-AAAIAAAAAQAAABAAAAABAAAAAAAAABAAAAAQAAAASW1wb3J0ZWRfR3JvdXAgMQ4AAABAAAAABgAA
-AAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAIAAAABAAAAAAAAAAkAAAAQAAAAAAAAAAAAAAAAAAAA
-AFi7QA4AAAA4AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAI
-AAAAAAAAAAAA8D8OAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAA
-AAAJAAAACAAAAAAAAAAAAAAADgAAAIAAAAAGAAAACAAAABEAAAAAAAAAAQAAAAAAAAABAAQATUNP
-UwEAAAAIAAAAU2lnU3VpdGUOAAAASAAAAAYAAAAIAAAADQAAAAAAAAAFAAAACAAAAAYAAAABAAAA
-AQAAAAAAAAAGAAAAGAAAAAAAAN0CAAAAAQAAAAEAAAABAAAAAwAAAA4AAABwDQAABgAAAAgAAAAJ
-AAAAAAAAAAUAAAAIAAAAAQAAAEANAAABAAAAAAAAAAIAAABADQAAAAFJTQAAAAAOAAAAoAwAAAYA
-AAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAFAAQABQAAAAEAAAAFAAAATUNP
-UwAAAAAOAAAAWAwAAAYAAAAIAAAAEQAAAAAAAAABAAAAAAAAAAEABABNQ09TAQAAAA0AAABGaWxl
-V3JhcHBlcl9fAAAADgAAABgMAAAGAAAACAAAAAEAAAAAAAAABQAAAAgAAAAOAAAAAQAAAAEAAAAA
-AAAADgAAAFACAAAGAAAACAAAAAkAAAAAAAAABQAAAAgAAAAgAgAAAQAAAAEAAAAAAAAAAgAAACAC
-AAADAAAADQAAALAAAADwAAAA8AAAAGgBAAD4AQAAIAIAAAAAAAAAAAAAR3JvdXBzAE5hbWUAU2ln
-bmFscwBYRGF0YQBZRGF0YQBTaWdTdWl0ZVNpZ25hbABVc2VyRGF0YQBUaW1lUmFuZ2UAU2lnU3Vp
-dGVHcm91cABBY3RpdmVTaWduYWwAUmVxdWlyZW1lbnRJbmZvAFNpZ1N1aXRlAEFjdGl2ZUdyb3Vw
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAAAA
-AAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAQAA
-AAQAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAMAAAABAAAAAAAAAAAAAAAAAAAAAwAAAAEAAAABAAAA
-AAAAAAAAAAAAAAAABAAAAAIAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAkAAAADAAAAAgAAAAEAAAAA
-AAAAAwAAAAEAAAAHAAAACAAAAAEAAAAIAAAAAwAAAAIAAAABAAAAAQAAAAQAAAABAAAAAgAAAAUA
-AAABAAAAAwAAAAMAAAACAAAAAQAAAAQAAAAEAAAAAQAAAAUAAAAFAAAAAQAAAAYAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAOAAAAQAAAAAYAAAAIAAAA
-BAAAAAAAAAAFAAAACAAAAAEAAAAQAAAAAQAAAAAAAAAQAAAAEAAAAEltcG9ydGVkX0dyb3VwIDEO
-AAAASAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAEAAAARAAAAAQAAAAAAAAAQAAAAEQAAAElt
-cG9ydGVkX1NpZ25hbCAxAAAAAAAAAA4AAACYAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAA
-AA0AAAABAAAAAAAAAAkAAABoAAAAAAAAAAAAAAAAAAAAAECPQAAAAAAAQI9AAAAAAABAn0AAAAAA
-AECfQAAAAAAAcKdAAAAAAABAr0AAAAAAAECvQAAAAAAAiLNAAAAAAACIs0AAAAAAAHC3QAAAAAAA
-cLdAAAAAAABYu0AOAAAAmAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEAAAANAAAAAQAAAAAA
-AAAJAAAAaAAAAAAAAAAA8IlAAAAAAADwiUAAAAAAACyQQAAAAAAALJBAAAAAAACIo0AAAAAAAIij
-QAAAAAAAiKNAAAAAAACYnEAAAAAAAJicQAAAAAAASJJAAAAAAABIkkAAAAAAAPCZQAAAAAAA8JlA
-DgAAAEgAAAAGAAAACAAAAAQAAAAAAAAABQAAAAgAAAABAAAAEQAAAAEAAAAAAAAAEAAAABEAAABJ
-bXBvcnRlZF9TaWduYWwgMgAAAAAAAAAOAAAAcAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAEA
-AAAIAAAAAQAAAAAAAAAJAAAAQAAAAAAAAAAAAAAAAAAAAABAj0AAAAAAAECfQAAAAAAAcKdAAAAA
-AABAr0AAAAAAAIizQAAAAAAAcLdAAAAAAABYu0AOAAAAcAAAAAYAAAAIAAAABgAAAAAAAAAFAAAA
-CAAAAAEAAAAIAAAAAQAAAAAAAAAJAAAAQAAAAAAAAAAAIJxAAAAAAAAgnEAAAAAAACCcQAAAAAAA
-IJxAAAAAAAAgnEAAAAAAACCcQAAAAAAAIJxAAAAAAAAgnEAOAAAAUAAAAAYAAAAIAAAADQAAAAAA
-AAAFAAAACAAAAAcAAAABAAAAAQAAAAAAAAAGAAAAHAAAAAAAAN0CAAAAAQAAAAIAAAADAAAABAAA
-AAEAAAAAAAAADgAAAEAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAgAAAAEAAAAAAAAA
-CQAAABAAAAAAAAAAAAAAAAAAAAAAWLtADgAAAEgAAAAGAAAACAAAAA0AAAAAAAAABQAAAAgAAAAG
-AAAAAQAAAAEAAAAAAAAABgAAABgAAAAAAADdAgAAAAEAAAABAAAAAgAAAAIAAAAOAAAAQAAAAAYA
-AAAIAAAADAAAAAAAAAAFAAAACAAAAAQAAAABAAAAAQAAAAAAAAAFAAAAEAAAAAAAAAAAAAAAAAAA
-AAAAAAAOAAAAOAUAAAYAAAAIAAAAAQAAAAAAAAAFAAAACAAAAAQAAAABAAAAAQAAAAAAAAAOAAAA
-OAAAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAAAAAAAAQAAAAAAAAAFAAQAAQAAAAEAAAAA
-AAAADgAAAEABAAAGAAAACAAAAAIAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAABQAEAAkA
-AAABAAAAJAAAAE5hbWUAAAAAAFhEYXRhAAAAAFlEYXRhAAAAAFVzZXJEYXRhAAAAAAAOAAAAMAAA
-AAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAQAAAAAAAAAA4AAAAwAAAA
-BgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAADgAAADAAAAAG
-AAAACAAAAAYAAAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAAAAAOAAAAMAAAAAYA
-AAAIAAAABgAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAJAAAAAAAAAA4AAAAQAgAABgAA
-AAgAAAACAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAUABAAQAAAAAQAAAGAAAABOYW1l
-AAAAAAAAAAAAAAAAU2lnbmFscwAAAAAAAAAAAEFjdGl2ZVNpZ25hbAAAAABSZXF1aXJlbWVudElu
-Zm8AVXNlckRhdGEAAAAAAAAAAFRpbWVSYW5nZQAAAAAAAAAOAAAAMAAAAAYAAAAIAAAABAAAAAAA
-AAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAQAAAAAAAAAA4AAABIAAAABgAAAAgAAAANAAAAAAAA
-AAUAAAAIAAAABQAAAAEAAAABAAAAAAAAAAYAAAAUAAAAAAAA3QIAAAAAAAAAAAAAAAEAAAAAAAAA
-DgAAADAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAAAAAO
-AAAAMAAAAAYAAAAIAAAABAAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAQAAAAAAAAAA4A
-AAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAADgAA
-AEAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAgAAAAEAAAAAAAAACQAAABAAAAAAAAAA
-AAAAAAAAAAAAACRADgAAAGgBAAAGAAAACAAAAAIAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAA
-AAAABQAEAAwAAAABAAAAMAAAAE5hbWUAAAAAAAAAAEdyb3VwcwAAAAAAAEFjdGl2ZUdyb3VwAFVz
-ZXJEYXRhAAAAAA4AAAAwAAAABgAAAAgAAAAEAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAA
-ABAAAAAAAAAADgAAAEgAAAAGAAAACAAAAA0AAAAAAAAABQAAAAgAAAAFAAAAAQAAAAEAAAAAAAAA
-BgAAABQAAAAAAADdAgAAAAAAAAAAAAAAAgAAAAAAAAAOAAAAOAAAAAYAAAAIAAAABgAAAAAAAAAF
-AAAACAAAAAEAAAABAAAAAQAAAAAAAAAJAAAACAAAAAAAAAAAAPA/DgAAADAAAAAGAAAACAAAAAYA
-AAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAAAAAOAAAAiAAAAAYAAAAIAAAACQAA
-AAAAAAAFAAAACAAAAAEAAABYAAAAAQAAAAAAAAACAAAAWAAAAAABSU0AAAAADgAAAEgAAAAGAAAA
-CAAAAAIAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAABQAEAAUAAAABAAAABQAAAE1DT1MA
-AAAADgAAAAAAAAA
-__MWOPC_PART_BEGIN__ /simulink/bdmxdata/VnvData_911_2.mxarray BASE64
-AAFJTQAAAAAOAAAAuAMAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAF
-AAQAEQAAAAEAAADMAAAAdmVyaWZ5QmxrUGF0aHMAAAB2ZXJpZnlCbGtIYW5kbGVzAHZudk1ncklk
-eAAAAAAAAAAAYWN0aXZlR3JvdXAAAAAAAAByZXFEaXNwUHJjbnQAAAAAAGJsa0Rpc3BNb2RlAAAA
-AAAAZ3JvdXBDbnQAAAAAAAAAAABncm91cFJlcUNudAAAAAAAAGdyb3VwRE9PUlNpZAAAAAAAbW9k
-ZWxIAAAAAAAAAAAAAABibG9ja0gAAAAAAAAAAAAAAG92ZXJpZGVTZXR0aW5ncwAAAAAAAA4AAAAw
-AAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAADgAAADAA
-AAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAAAAAOAAAAMAAA
-AAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAJAAAAAAAAAA4AAAA4AAAA
-BgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAQAAAAEAAAABAAAAAAAAAAkAAAAIAAAAAAAAAAAA8D8O
-AAAAMAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAJAAAAAAAAAA4A
-AAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAADgAA
-ADgAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAABAAAAAQAAAAEAAAAAAAAACQAAAAgAAAAAAAAA
-AADwPw4AAAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAA
-AAAADgAAADAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAA
-AAAOAAAAMAAAAAYAAAAIAAAABgAAAAAAAAAFAAAACAAAAAAAAAAAAAAAAQAAAAAAAAAJAAAAAAAA
-AA4AAAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAA
-DgAAADAAAAAGAAAACAAAAAYAAAAAAAAABQAAAAgAAAAAAAAAAAAAAAEAAAAAAAAACQAAAAAAAAA
 __MWOPC_PART_BEGIN__ /simulink/blockdiagram.xml
 <?xml version="1.0" encoding="utf-8"?>
 <ModelInformation Version="1.0">
@@ -407,8 +276,8 @@ load load_opt_init.mat</P>
     <ConfigManagerSettings>
       <P Name="ModifiedByFormat">%&lt;Auto&gt;</P>
       <P Name="ModifiedDateFormat">%&lt;Auto&gt;</P>
-      <P Name="RTWModifiedTimeStamp">599392132</P>
-      <P Name="ModelVersionFormat">%&lt;AutoIncrement:7.10&gt;</P>
+      <P Name="RTWModifiedTimeStamp">600262977</P>
+      <P Name="ModelVersionFormat">%&lt;AutoIncrement:7.12&gt;</P>
     </ConfigManagerSettings>
     <EditorSettings>
       <P Name="MultithreadedSim">on</P>
@@ -1260,8 +1129,8 @@ White Noise</P>
 __MWOPC_PART_BEGIN__ /simulink/modelDictionary.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <MF0 version="1.1" defaultPackage="slid" packageUris="http://schema.mathworks.com/mf0/slid/R2020b_20191110">
-  <System type="System" uuid="5022c007-de4e-4602-b138-bb9385bf622e">
-    <Interface type="Interface" uuid="5f1fd7de-9802-4802-ada5-76adacc31f7f"/>
+  <System type="System" uuid="dc58819e-f849-471d-be1d-643068a3d25e">
+    <Interface type="Interface" uuid="ea0ded0b-5a7e-4b4f-bf16-456bd0de54bb"/>
   </System>
 </MF0>
 __MWOPC_PART_BEGIN__ /simulink/plugins/SimscapeModelParametersPlugin.xml
@@ -1273,27 +1142,27 @@ __MWOPC_PART_BEGIN__ /simulink/plugins/SimscapeModelParametersPlugin.xml
 __MWOPC_PART_BEGIN__ /simulink/ScheduleCore.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <sltp_graph version="1.1" packageUris="http://schema.mathworks.com/mf0/sltp_mm/R2021b_202106150630">
-  <sltp.mm.core.Context type="sltp.mm.core.Context" uuid="2e7667ed-7b87-456e-b0d7-9063b6c5f294">
+  <sltp.mm.core.Context type="sltp.mm.core.Context" uuid="30cc14d7-4dcd-426d-b0f4-2fd05b047b90">
     <priorityDirection>HighNumberLast</priorityDirection>
     <editorState type="sltp.mm.core.EditorState" uuid="12fbbe72-4148-4bcf-b9ba-187ebf15c7d8">
       <isSynchronized>true</isSynchronized>
       <panelState type="sltp.mm.core.EditorPanelState" uuid="971a6fc5-a9f9-4170-b60f-d5305aed983b"/>
     </editorState>
-    <rootTask type="sltp.mm.core.Task" uuid="0e5d0e6e-d0c5-4410-9e32-ce1cd3898621">
-      <context type="sltp.mm.core.Context" uuid="2e7667ed-7b87-456e-b0d7-9063b6c5f294"/>
+    <rootTask type="sltp.mm.core.Task" uuid="80975b44-5cc9-47a0-97d2-59b5c7752af3">
+      <context type="sltp.mm.core.Context" uuid="30cc14d7-4dcd-426d-b0f4-2fd05b047b90"/>
       <explicit>false</explicit>
       <name>Default</name>
       <priority>-2147483648</priority>
-      <subgraph type="sltp.mm.core.Graph" uuid="f2e6f688-d0de-4c96-8d18-be4778d4daea">
-        <tasks type="sltp.mm.core.Task" uuid="67f2d42e-86d4-4b8f-994e-956bc25680da">
+      <subgraph type="sltp.mm.core.Graph" uuid="a5f3267b-874e-4d8d-8f95-41b295244310">
+        <tasks type="sltp.mm.core.Task" uuid="0ebf0091-f07f-433a-b46a-0556a30fc346">
           <baseTask>true</baseTask>
-          <context type="sltp.mm.core.Context" uuid="2e7667ed-7b87-456e-b0d7-9063b6c5f294"/>
+          <context type="sltp.mm.core.Context" uuid="30cc14d7-4dcd-426d-b0f4-2fd05b047b90"/>
           <explicit>false</explicit>
           <id>1</id>
           <isTimed>true</isTimed>
           <name>Cont</name>
           <priority>40</priority>
-          <rates type="sltp.mm.core.Rate" uuid="c1309aee-1a7e-44af-89ff-c9d929ae9df9">
+          <rates type="sltp.mm.core.Rate" uuid="64cd3847-0a0a-47f3-83b0-40459197c717">
             <annotation>Cont</annotation>
             <color>255</color>
             <hasBlocks>true</hasBlocks>
@@ -1303,7 +1172,7 @@ __MWOPC_PART_BEGIN__ /simulink/ScheduleCore.xml
             </rateSpec>
             <sti>0</sti>
           </rates>
-          <rates type="sltp.mm.core.Rate" uuid="cbf21388-9f47-443d-9a36-838ac43db032">
+          <rates type="sltp.mm.core.Rate" uuid="2022844d-37b9-47b0-87ad-af57e7f5def7">
             <annotation>D1</annotation>
             <color>-436207361</color>
             <hasBlocks>true</hasBlocks>
@@ -1312,7 +1181,7 @@ __MWOPC_PART_BEGIN__ /simulink/ScheduleCore.xml
             </rateSpec>
             <sti>1</sti>
           </rates>
-          <rates type="sltp.mm.core.Rate" uuid="0e30aeb7-6af0-4c74-86bb-4985384fd3e5">
+          <rates type="sltp.mm.core.Rate" uuid="e703a0bc-2d54-4999-bc8d-5c529d6bc3b2">
             <annotation>D2</annotation>
             <color>13697279</color>
             <hasBlocks>true</hasBlocks>
@@ -1426,25 +1295,25 @@ __MWOPC_PART_BEGIN__ /simulink/systems/_rels/system_root.xml.rels
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="system_446" Target="system_446.xml" Type="http://schemas.mathworks.com/simulink/2010/relationships/system"/>
-  <Relationship Id="system_911" Target="system_911.xml" Type="http://schemas.mathworks.com/simulink/2010/relationships/system"/>
 </Relationships>
 
 __MWOPC_PART_BEGIN__ /simulink/systems/system_446.xml
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[169, 23, 2405, 1305]</P>
+  <P Name="Location">[125, 23, 2361, 1305]</P>
   <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
   <P Name="Open">on</P>
   <P Name="SetExecutionDomain">off</P>
   <P Name="ExecutionDomainType">Deduce</P>
+  <P Name="ZoomFactor">90</P>
   <P Name="SimulinkSubDomain">Simulink</P>
-  <Block BlockType="Inport" Name="target_load" SID="447">
+  <Block BlockType="Inport" Name="load_target" SID="447">
     <P Name="Position">[2830, 753, 2860, 767]</P>
     <P Name="ZOrder">484</P>
     <Port>
       <P Name="PortNumber">1</P>
       <P Name="Name">new target load</P>
-      <P Name="PropagatedSignals">new target load</P>
+      <P Name="PropagatedSignals">load_target</P>
     </Port>
   </Block>
   <Block BlockType="Sum" Name="Add" SID="448">
@@ -1455,7 +1324,7 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_446.xml
     <P Name="Inputs">+++++</P>
     <Port>
       <P Name="PortNumber">1</P>
-      <P Name="Name">achieved total load</P>
+      <P Name="Name">total actual load</P>
     </Port>
   </Block>
   <Block BlockType="Sum" Name="Add1" SID="449">
@@ -1466,7 +1335,7 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_446.xml
     <P Name="Inputs">+++++</P>
     <Port>
       <P Name="PortNumber">1</P>
-      <P Name="Name">consumed total power</P>
+      <P Name="Name">total actual power</P>
     </Port>
   </Block>
   <Block BlockType="Demux" Name="Demux" SID="508">
@@ -1517,7 +1386,7 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_446.xml
     <P Name="Ports">[13]</P>
     <P Name="Position">[4710, 779, 4800, 901]</P>
     <P Name="ZOrder">561</P>
-    <P Name="ScopeSpecificationString">Simulink.scopes.TimeScopeBlockCfg(&apos;CurrentConfiguration&apos;, extmgr.ConfigurationSet(extmgr.Configuration(&apos;Core&apos;,&apos;General UI&apos;,true),extmgr.Configuration(&apos;Core&apos;,&apos;Source UI&apos;,true),extmgr.Configuration(&apos;Sources&apos;,&apos;WiredSimulink&apos;,true,&apos;DataLoggingVariableName&apos;,&apos;GP_signals_output&apos;,&apos;DataLogging&apos;,true,&apos;DataLoggingSaveFormat&apos;,&apos;StructureWithTime&apos;),extmgr.Configuration(&apos;Visuals&apos;,&apos;Time Domain&apos;,true,&apos;SerializedDisplays&apos;,{struct(&apos;MinYLimReal&apos;,&apos;-257.97408&apos;,&apos;MaxYLimReal&apos;,&apos;2806.44156&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos; 0.00000&apos;,&apos;MaxYLimMag&apos;,&apos;2806.44156&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[1 1 0.0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863],&apos;Title&apos;,&apos;%&lt;SignalLabel&gt;&apos;,&apos;LinePropertiesCache&apos;,{{struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;on&apos;)}},&apos;UserDefinedChannelNames&apos;,{{}},&apos;NumLines&apos;,13,&apos;LineNames&apos;,{{&apos;new target load&apos;,&apos;achieved total load&apos;,&apos;small compressor/achieved load_machine_1&apos;,&apos;middle compressor/achieved load_machine_2&apos;,&apos;large compressor 1/achieved load_machine_3&apos;,&apos;large compressor 2/achieved load_machine_4&apos;,&apos;large compressor 3/achieved load_machine5&apos;,&apos;small compressor/power machine1&apos;,&apos;middle compressor/power machine2&apos;,&apos;large compressor 1/power machine3&apos;,&apos;large compressor 2/power machine3&apos;,&apos;large compressor 3/power machine5&apos;,&apos;consumed total power&apos;}},&apos;ShowContent&apos;,true,&apos;Placement&apos;,1)},&apos;DisplayPropertyDefaults&apos;,struct(&apos;MinYLimReal&apos;,&apos;-257.97408&apos;,&apos;MaxYLimReal&apos;,&apos;2806.44156&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos; 0.00000&apos;,&apos;MaxYLimMag&apos;,&apos;2806.44156&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration(&apos;Tools&apos;,&apos;Plot Navigation&apos;,true,&apos;OnceAtStop&apos;,false,&apos;PreviousAutoscale&apos;,&apos;XY&apos;),extmgr.Configuration(&apos;Tools&apos;,&apos;Measurements&apos;,true,&apos;Version&apos;,&apos;2021b&apos;)),&apos;Version&apos;,&apos;2021b&apos;,&apos;Position&apos;,[1258 339 1202 774])</P>
+    <P Name="ScopeSpecificationString">Simulink.scopes.TimeScopeBlockCfg(&apos;CurrentConfiguration&apos;, extmgr.ConfigurationSet(extmgr.Configuration(&apos;Core&apos;,&apos;General UI&apos;,true),extmgr.Configuration(&apos;Core&apos;,&apos;Source UI&apos;,true),extmgr.Configuration(&apos;Sources&apos;,&apos;WiredSimulink&apos;,true,&apos;DataLoggingVariableName&apos;,&apos;GP_signals_output&apos;,&apos;DataLogging&apos;,true,&apos;DataLoggingSaveFormat&apos;,&apos;StructureWithTime&apos;),extmgr.Configuration(&apos;Visuals&apos;,&apos;Time Domain&apos;,true,&apos;SerializedDisplays&apos;,{struct(&apos;MinYLimReal&apos;,&apos;-257.97408&apos;,&apos;MaxYLimReal&apos;,&apos;2806.44156&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos; 0.00000&apos;,&apos;MaxYLimMag&apos;,&apos;2806.44156&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[1 1 0.0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863],&apos;Title&apos;,&apos;%&lt;SignalLabel&gt;&apos;,&apos;LinePropertiesCache&apos;,{{struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;on&apos;)}},&apos;UserDefinedChannelNames&apos;,{{}},&apos;NumLines&apos;,0,&apos;LineNames&apos;,{{[]}},&apos;ShowContent&apos;,true,&apos;Placement&apos;,1)},&apos;DisplayPropertyDefaults&apos;,struct(&apos;MinYLimReal&apos;,&apos;-257.97408&apos;,&apos;MaxYLimReal&apos;,&apos;2806.44156&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos; 0.00000&apos;,&apos;MaxYLimMag&apos;,&apos;2806.44156&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration(&apos;Tools&apos;,&apos;Plot Navigation&apos;,true,&apos;OnceAtStop&apos;,false,&apos;PreviousAutoscale&apos;,&apos;XY&apos;),extmgr.Configuration(&apos;Tools&apos;,&apos;Measurements&apos;,true,&apos;Version&apos;,&apos;2021b&apos;)),&apos;Version&apos;,&apos;2021b&apos;,&apos;Position&apos;,[1258 339 1202 774])</P>
     <P Name="NumInputPorts">13</P>
     <P Name="Floating">off</P>
   </Block>
@@ -1601,20 +1470,33 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_446.xml
     <P Name="ContentPreviewEnabled">on</P>
     <System Ref="system_607"/>
   </Block>
+  <Block BlockType="Outport" Name="Out2" SID="927">
+    <P Name="Position">[4740, 348, 4770, 362]</P>
+    <P Name="ZOrder">685</P>
+  </Block>
   <Block BlockType="Outport" Name="Out1" SID="506">
     <P Name="Position">[4740, 1088, 4770, 1102]</P>
     <P Name="ZOrder">576</P>
+    <P Name="Port">2</P>
   </Block>
   <Line>
-    <P Name="Name">achieved total load</P>
+    <P Name="Name">total actual load</P>
     <P Name="ZOrder">447</P>
     <P Name="Labels">[1, 1]</P>
     <P Name="Src">448#out:1</P>
-    <P Name="Points">[73, 0; 0, 435]</P>
-    <P Name="Dst">466#in:2</P>
+    <P Name="Points">[73, 0]</P>
+    <Branch>
+      <P Name="ZOrder">1471</P>
+      <P Name="Dst">927#in:1</P>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">1470</P>
+      <P Name="Points">[0, 435]</P>
+      <P Name="Dst">466#in:2</P>
+    </Branch>
   </Line>
   <Line>
-    <P Name="Name">consumed total power</P>
+    <P Name="Name">total actual power</P>
     <P Name="ZOrder">35</P>
     <P Name="Labels">[0, 0]</P>
     <P Name="Src">449#out:1</P>
@@ -2029,9 +1911,8 @@ p, li { white-space: pre-wrap; }
 __MWOPC_PART_BEGIN__ /simulink/systems/system_555.xml
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[169, 23, 2405, 1305]</P>
+  <P Name="Location">[125, 23, 2361, 1305]</P>
   <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
-  <P Name="Open">on</P>
   <P Name="SetExecutionDomain">off</P>
   <P Name="ExecutionDomainType">Deduce</P>
   <P Name="ZoomFactor">125</P>
@@ -2473,9 +2354,8 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_565.xml
 __MWOPC_PART_BEGIN__ /simulink/systems/system_574.xml
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[169, 23, 2405, 1305]</P>
+  <P Name="Location">[125, 23, 2361, 1305]</P>
   <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
-  <P Name="Open">on</P>
   <P Name="SetExecutionDomain">off</P>
   <P Name="ExecutionDomainType">Deduce</P>
   <P Name="SimulinkSubDomain">Simulink</P>
@@ -2916,9 +2796,8 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_581.xml
 __MWOPC_PART_BEGIN__ /simulink/systems/system_589.xml
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[169, 23, 2405, 1305]</P>
+  <P Name="Location">[125, 23, 2361, 1305]</P>
   <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
-  <P Name="Open">on</P>
   <P Name="SetExecutionDomain">off</P>
   <P Name="ExecutionDomainType">Deduce</P>
   <P Name="ZoomFactor">175</P>
@@ -4243,181 +4122,142 @@ __MWOPC_PART_BEGIN__ /simulink/systems/system_629.xml
   </Line>
 </System>
 
-__MWOPC_PART_BEGIN__ /simulink/systems/system_911.xml
-<?xml version="1.0" encoding="utf-8"?>
-<System>
-  <P Name="Location">[480, 85, 980, 386]</P>
-  <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
-  <P Name="SetExecutionDomain">off</P>
-  <P Name="ExecutionDomainType">Deduce</P>
-  <P Name="SIDHighWatermark">24</P>
-  <P Name="SimulinkSubDomain">Simulink</P>
-  <Block BlockType="Demux" Name="Demux" SID="911:1">
-    <P Name="Tag">STV Demux</P>
-    <P Name="Ports">[1, 2]</P>
-    <P Name="Position">[150, 54, 160, 636]</P>
-    <P Name="ZOrder">-1</P>
-    <P Name="Outputs">2</P>
-    <P Name="DisplayOption">none</P>
-  </Block>
-  <Block BlockType="FromWorkspace" Name="FromWs" SID="911:2">
-    <P Name="Tag">STV FromWs</P>
-    <P Name="Position">[30, 300, 115, 350]</P>
-    <P Name="ZOrder">-2</P>
-    <P Name="VariableName">tuvar</P>
-    <P Name="SigBuilderData" Ref="bdmxdata:SigBuilderData_911_2"/>
-    <P Name="VnvData" Ref="bdmxdata:VnvData_911_2"/>
-  </Block>
-  <Block BlockType="Outport" Name="Imported_Signal 1" SID="911:22">
-    <P Name="Tag">STV Outport</P>
-    <P Name="Position">[280, 30, 300, 40]</P>
-    <P Name="ZOrder">12</P>
-  </Block>
-  <Block BlockType="Outport" Name="Imported_Signal 2" SID="911:24">
-    <P Name="Tag">STV Outport</P>
-    <P Name="Position">[320, 30, 340, 40]</P>
-    <P Name="ZOrder">14</P>
-    <P Name="Port">2</P>
-  </Block>
-  <Line>
-    <P Name="ZOrder">1</P>
-    <P Name="Src">911:1#out:2</P>
-    <P Name="Dst">911:24#in:1</P>
-  </Line>
-  <Line>
-    <P Name="ZOrder">2</P>
-    <P Name="Src">911:1#out:1</P>
-    <P Name="Points">[40, 0; 0, -165]</P>
-    <P Name="Dst">911:22#in:1</P>
-  </Line>
-  <Line>
-    <P Name="ZOrder">3</P>
-    <P Name="Src">911:2#out:1</P>
-    <P Name="Points">[8, 0; 0, 20]</P>
-    <P Name="Dst">911:1#in:1</P>
-  </Line>
-</System>
-
 __MWOPC_PART_BEGIN__ /simulink/systems/system_root.xml
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[169, 23, 2405, 1305]</P>
+  <P Name="Location">[124, 23, 2360, 1305]</P>
   <P Name="SystemRect">[0.000000, 0.000000, 0.000000, 0.000000]</P>
   <P Name="Open">on</P>
   <P Name="SetExecutionDomain">off</P>
   <P Name="ExecutionDomainType">Deduce</P>
   <P Name="ZoomFactor">150</P>
   <P Name="ReportName">simulink-default.rpt</P>
-  <P Name="SIDHighWatermark">915</P>
+  <P Name="SIDHighWatermark">930</P>
   <P Name="SimulinkSubDomain">Simulink</P>
+  <Block BlockType="FromWorkspace" Name="From&#xA;Workspace1" SID="929">
+    <P Name="Position">[1380, -202, 1510, -178]</P>
+    <P Name="ZOrder">492</P>
+    <P Name="VariableName">inputs.load_target</P>
+    <Port>
+      <P Name="PortNumber">1</P>
+      <P Name="Name">load_target</P>
+    </Port>
+  </Block>
   <Block BlockType="Scope" Name="Scope6" SID="112">
     <P Name="Ports">[2]</P>
-    <P Name="Position">[1985, -219, 2075, -101]</P>
+    <P Name="Position">[1980, -297, 2035, -228]</P>
     <P Name="ZOrder">463</P>
     <P Name="ScopeSpecificationString">Simulink.scopes.TimeScopeBlockCfg(&apos;CurrentConfiguration&apos;, extmgr.ConfigurationSet(extmgr.Configuration(&apos;Core&apos;,&apos;General UI&apos;,true),extmgr.Configuration(&apos;Core&apos;,&apos;Source UI&apos;,true),extmgr.Configuration(&apos;Sources&apos;,&apos;WiredSimulink&apos;,true,&apos;DataLoggingVariableName&apos;,&apos;RegretDiff&apos;,&apos;DataLogging&apos;,true,&apos;DataLoggingSaveFormat&apos;,&apos;StructureWithTime&apos;),extmgr.Configuration(&apos;Visuals&apos;,&apos;Time Domain&apos;,true,&apos;SerializedDisplays&apos;,{struct(&apos;MinYLimReal&apos;,&apos;533.27787&apos;,&apos;MaxYLimReal&apos;,&apos;2718.52468&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos;533.27787&apos;,&apos;MaxYLimMag&apos;,&apos;2718.52468&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[1 1 0.0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863],&apos;Title&apos;,&apos;Power Consumption&apos;,&apos;LinePropertiesCache&apos;,{{struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;on&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;off&apos;),struct(&apos;Visible&apos;,&apos;on&apos;)}},&apos;UserDefinedChannelNames&apos;,{{}},&apos;NumLines&apos;,2,&apos;LineNames&apos;,{{&apos;new target load&apos;,&apos;optimized load sharing power consumption&apos;}},&apos;ShowContent&apos;,true,&apos;Placement&apos;,1)},&apos;DisplayPropertyDefaults&apos;,struct(&apos;MinYLimReal&apos;,&apos;533.27787&apos;,&apos;MaxYLimReal&apos;,&apos;2718.52468&apos;,&apos;YLabelReal&apos;,&apos;&apos;,&apos;MinYLimMag&apos;,&apos;533.27787&apos;,&apos;MaxYLimMag&apos;,&apos;2718.52468&apos;,&apos;LegendVisibility&apos;,&apos;On&apos;,&apos;XGrid&apos;,true,&apos;YGrid&apos;,true,&apos;PlotMagPhase&apos;,false,&apos;AxesColor&apos;,[0 0 0],&apos;AxesTickColor&apos;,[0.686274509803922 0.686274509803922 0.686274509803922],&apos;ColorOrder&apos;,[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863],&apos;Title&apos;,&apos;Power Consumption&apos;)),extmgr.Configuration(&apos;Tools&apos;,&apos;Plot Navigation&apos;,true,&apos;OnceAtStop&apos;,false,&apos;PreviousAutoscale&apos;,&apos;XY&apos;),extmgr.Configuration(&apos;Tools&apos;,&apos;Measurements&apos;,true,&apos;Version&apos;,&apos;2021b&apos;)),&apos;Version&apos;,&apos;2021b&apos;,&apos;Position&apos;,[703 302 1512 807])</P>
     <P Name="NumInputPorts">2</P>
     <P Name="Floating">off</P>
   </Block>
-  <Block BlockType="Terminator" Name="Terminator" SID="915">
-    <P Name="Position">[1485, -180, 1505, -160]</P>
-    <P Name="ZOrder">479</P>
+  <Block BlockType="ToWorkspace" Name="To Workspace" SID="925">
+    <P Name="Ports">[1]</P>
+    <P Name="Position">[1980, -141, 2080, -119]</P>
+    <P Name="ZOrder">489</P>
+    <P Name="VariableName">total_power</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="FixptAsFi">on</P>
+    <P Name="SampleTime">-1</P>
   </Block>
-  <Block BlockType="SubSystem" Name="counter example1" SID="911">
-    <P Name="Tag">STV Subsys</P>
-    <P Name="Ports">[0, 2]</P>
-    <P Name="Position">[1320, -200, 1405, -160]</P>
-    <P Name="ZOrder">478</P>
-    <P Name="CopyFcn">sigbuilder_block(&apos;copy&apos;);</P>
-    <P Name="DeleteFcn">sigbuilder_block(&apos;delete&apos;);</P>
-    <P Name="LoadFcn">sigbuilder_block(&apos;load&apos;);</P>
-    <P Name="ModelCloseFcn">sigbuilder_block(&apos;modelClose&apos;);</P>
-    <P Name="PreSaveFcn">sigbuilder_block(&apos;preSave&apos;);</P>
-    <P Name="StartFcn">sigbuilder_block(&apos;start&apos;);</P>
-    <P Name="PauseFcn">sigbuilder_block(&apos;pause&apos;);</P>
-    <P Name="ContinueFcn">sigbuilder_block(&apos;continue&apos;);</P>
-    <P Name="StopFcn">sigbuilder_block(&apos;stop&apos;);</P>
-    <P Name="NameChangeFcn">sigbuilder_block(&apos;namechange&apos;);</P>
-    <P Name="ClipboardFcn">sigbuilder_block(&apos;clipboard&apos;);</P>
-    <P Name="OpenFcn">sigbuilder_block(&apos;open&apos;,[333 412 890 699 ]);</P>
-    <P Name="CloseFcn">sigbuilder_block(&apos;close&apos;);</P>
-    <P Name="RequestExecContextInheritance">off</P>
-    <P Name="MaskHideContents">on</P>
-    <P Name="ContentPreviewEnabled">on</P>
-    <Mask SelfModifiable="on">
-      <Type>Sigbuilder block</Type>
-      <Display IconOpaque="transparent" IconRotate="port">plot(0, 0, 100, 100,[2, 2, 32, 32, 2], [68, 8, 8, 68, 68],[32, 2], [38, 38], [32, 19, 2],[53, 60, 44], [32, 17, 17, 2],[16, 16, 31, 31]);txt = getActiveGroup(gcbh);text(2, 100, txt,&apos;verticalAlignment&apos;, &apos;top&apos;);</Display>
-      <Description>Simulink:masks:SigbuilderBlock_MD</Description>
-      <Initialization>if ~strcmp(get_param(bdroot(gcbh),&apos;SimulationStatus&apos;),&apos;stopped&apos;) tuvar = sigbuilder_block(&apos;maskInit&apos;); end</Initialization>
-      <Capabilities>slmaskedcaps(gcbh)</Capabilities>
-      <MaskParameter Name="tuvar" Type="edit" Visible="off">
-        <Value>[0:10]</Value>
-      </MaskParameter>
-      <DialogControl Type="Group" Name="DescGroupVar">
-        <Prompt>%&lt;MaskType&gt;</Prompt>
-        <DialogControl Type="Text" Name="DescTextVar">
-          <Prompt>%&lt;MaskDescription&gt;</Prompt>
-        </DialogControl>
-      </DialogControl>
-      <DialogControl Type="Group" Name="ParameterGroupVar">
-        <Prompt>Simulink:studio:ToolBarParametersMenu</Prompt>
-        <ControlOptions Visible="off"/>
-        <DialogControl Type="Edit" Name="tuvar"/>
-      </DialogControl>
-    </Mask>
-    <Port>
-      <P Name="PortNumber">1</P>
-      <P Name="Name">new target load</P>
-    </Port>
-    <Port>
-      <P Name="PortNumber">2</P>
-      <P Name="Name">new target load</P>
-    </Port>
-    <System Ref="system_911"/>
+  <Block BlockType="ToWorkspace" Name="To Workspace1" SID="926">
+    <P Name="Ports">[1]</P>
+    <P Name="Position">[1980, -201, 2080, -179]</P>
+    <P Name="ZOrder">490</P>
+    <P Name="VariableName">load_target</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="FixptAsFi">on</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace2" SID="928">
+    <P Name="Ports">[1]</P>
+    <P Name="Position">[1980, -171, 2080, -149]</P>
+    <P Name="ZOrder">491</P>
+    <P Name="VariableName">load_actual</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="FixptAsFi">on</P>
+    <P Name="SampleTime">-1</P>
   </Block>
   <Block BlockType="SubSystem" Name="optimized load sharing block" SID="446">
     <P Name="Tag">equal load sharing</P>
-    <P Name="Ports">[1, 1]</P>
-    <P Name="Position">[1655, -160, 1765, -100]</P>
+    <P Name="Ports">[1, 2]</P>
+    <P Name="Position">[1655, -175, 1765, -115]</P>
     <P Name="ZOrder">475</P>
     <P Name="RequestExecContextInheritance">off</P>
     <P Name="ContentPreviewEnabled">on</P>
     <Port>
       <P Name="PortNumber">1</P>
-      <P Name="Name">optimized load sharing power consumption</P>
-      <P Name="PropagatedSignals">consumed total power</P>
+      <P Name="Name">total actual load</P>
+      <P Name="PropagatedSignals">achieved total load</P>
+    </Port>
+    <Port>
+      <P Name="PortNumber">2</P>
+      <P Name="Name">total actual power</P>
+      <P Name="PropagatedSignals">total actual power</P>
     </Port>
     <System Ref="system_446"/>
   </Block>
   <Line>
-    <P Name="Name">new target load</P>
-    <P Name="ZOrder">651</P>
-    <P Name="Labels">[0, 0]</P>
-    <P Name="Src">911#out:1</P>
-    <P Name="Points">[123, 0]</P>
+    <P Name="Name">load_target</P>
+    <P Name="ZOrder">676</P>
+    <P Name="Labels">[1, 1]</P>
+    <P Name="Src">929#out:1</P>
+    <P Name="Points">[94, 0]</P>
     <Branch>
-      <P Name="ZOrder">650</P>
-      <P Name="Points">[0, 60]</P>
+      <P Name="ZOrder">665</P>
+      <P Name="Points">[273, 0]</P>
+      <Branch>
+        <P Name="ZOrder">669</P>
+        <P Name="Dst">926#in:1</P>
+      </Branch>
+      <Branch>
+        <P Name="ZOrder">666</P>
+        <P Name="Points">[0, -90]</P>
+        <P Name="Dst">112#in:1</P>
+      </Branch>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">662</P>
+      <P Name="Points">[0, 45]</P>
       <P Name="Dst">446#in:1</P>
     </Branch>
+  </Line>
+  <Line>
+    <P Name="Name">total actual power</P>
+    <P Name="ZOrder">663</P>
+    <P Name="Labels">[1, 1]</P>
+    <P Name="Src">446#out:2</P>
+    <P Name="Points">[153, 0]</P>
     <Branch>
-      <P Name="ZOrder">649</P>
-      <P Name="Dst">112#in:1</P>
+      <P Name="ZOrder">675</P>
+      <P Name="Points">[0, -115]</P>
+      <P Name="Dst">112#in:2</P>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">672</P>
+      <P Name="Dst">925#in:1</P>
     </Branch>
   </Line>
   <Line>
-    <P Name="Name">optimized load sharing power consumption</P>
-    <P Name="ZOrder">581</P>
-    <P Name="Labels">[0, 0]</P>
+    <P Name="Name">total actual load</P>
+    <P Name="ZOrder">674</P>
+    <P Name="Labels">[1, 1]</P>
     <P Name="Src">446#out:1</P>
-    <P Name="Dst">112#in:2</P>
+    <P Name="Dst">928#in:1</P>
   </Line>
-  <Line>
-    <P Name="Name">new target load</P>
-    <P Name="ZOrder">656</P>
-    <P Name="Labels">[0, 0]</P>
-    <P Name="Src">911#out:2</P>
-    <P Name="Dst">915#in:1</P>
-  </Line>
+  <Annotation SID="930">
+    <P Name="Name">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body align=&quot;left&quot; style=&quot; font-family:&apos;.AppleSystemUIFont&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;left&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo,Monaco,Consolas,Courier New,monospace&apos;; font-size:18px;&quot;&gt;inputs&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</P>
+    <P Name="Position">[1395, -196, 1443, -178]</P>
+    <P Name="InternalMargins">[0, 0, 0, 0]</P>
+    <P Name="Interpreter">rich</P>
+  </Annotation>
 </System>
 
 __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
@@ -4426,7 +4266,7 @@ __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
   <Object PropName="BdWindowsInfo" ObjectID="1" ClassName="Simulink.BDWindowsInfo">
     <Object PropName="WindowsInfo" ObjectID="2" ClassName="Simulink.WindowInfo">
       <P Name="IsActive" Class="logical">1</P>
-      <P Name="Location" Class="double">[169.0, 23.0, 2236.0, 1282.0]</P>
+      <P Name="Location" Class="double">[124.0, 23.0, 2236.0, 1282.0]</P>
       <Object PropName="ModelBrowserInfo" ObjectID="3" ClassName="Simulink.ModelBrowserInfo">
         <P Name="Visible" Class="logical">1</P>
         <P Name="DockPosition" Class="char">Left</P>
@@ -4440,38 +4280,38 @@ __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
       </Object>
       <Array PropName="EditorsInfo" Type="Simulink.EditorInfo" Dimension="1*22">
         <Object ObjectID="5">
-          <P Name="IsActive" Class="logical">0</P>
+          <P Name="IsActive" Class="logical">1</P>
           <P Name="IsTabbed" Class="logical">1</P>
           <P Name="ViewObjType" Class="char">SimulinkTopLevel</P>
           <P Name="LoadSaveID" Class="char">0</P>
           <P Name="Extents" Class="double">[2198.0, 1053.0]</P>
           <P Name="ZoomFactor" Class="double">1.5</P>
-          <P Name="Offset" Class="double">[1123.5771110140217, -499.16666666666663]</P>
-          <P Name="SceneRectInView" Class="double">[1123.5771110140217, -499.16666666666663, 1465.3333333333333, 702.0]</P>
+          <P Name="Offset" Class="double">[1173.9253456221204, -589.93241167434689]</P>
+          <P Name="SceneRectInView" Class="double">[1173.9253456221204, -589.93241167434689, 1465.3333333333333, 702.0]</P>
         </Object>
         <Object ObjectID="6">
-          <P Name="IsActive" Class="logical">1</P>
+          <P Name="IsActive" Class="logical">0</P>
           <P Name="IsTabbed" Class="logical">1</P>
           <P Name="ViewObjType" Class="char">SimulinkSubsys</P>
           <P Name="LoadSaveID" Class="char">446</P>
           <P Name="Extents" Class="double">[2198.0, 1053.0]</P>
-          <P Name="ZoomFactor" Class="double">1.0</P>
-          <P Name="Offset" Class="double">[3115.2174648316495, 183.17358635208984]</P>
-          <P Name="SceneRectInView" Class="double">[3115.2174648316495, 183.17358635208984, 2198.0, 1053.0]</P>
+          <P Name="ZoomFactor" Class="double">0.895332242321269</P>
+          <P Name="Offset" Class="double">[2582.5461413058019, 134.03693289738669]</P>
+          <P Name="SceneRectInView" Class="double">[2582.5461413058019, 134.03693289738669, 2454.9545923883966, 1176.0997205573165]</P>
         </Object>
         <Object ObjectID="7">
           <P Name="IsActive" Class="logical">0</P>
-          <P Name="IsTabbed" Class="logical">1</P>
+          <P Name="IsTabbed" Class="logical">0</P>
           <P Name="ViewObjType" Class="char">SimulinkSubsys</P>
-          <P Name="LoadSaveID" Class="char">555</P>
+          <P Name="LoadSaveID" Class="char">589</P>
           <P Name="Extents" Class="double">[2198.0, 1053.0]</P>
-          <P Name="ZoomFactor" Class="double">1.25</P>
-          <P Name="Offset" Class="double">[-405.57500000000005, -313.2]</P>
-          <P Name="SceneRectInView" Class="double">[-405.57500000000005, -313.2, 1758.4, 842.4]</P>
+          <P Name="ZoomFactor" Class="double">1.75</P>
+          <P Name="Offset" Class="double">[-154.375, -195.35714285714283]</P>
+          <P Name="SceneRectInView" Class="double">[-154.375, -195.35714285714283, 1256.0, 601.71428571428567]</P>
         </Object>
         <Object ObjectID="8">
           <P Name="IsActive" Class="logical">0</P>
-          <P Name="IsTabbed" Class="logical">1</P>
+          <P Name="IsTabbed" Class="logical">0</P>
           <P Name="ViewObjType" Class="char">SimulinkSubsys</P>
           <P Name="LoadSaveID" Class="char">574</P>
           <P Name="Extents" Class="double">[2198.0, 1053.0]</P>
@@ -4481,13 +4321,13 @@ __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
         </Object>
         <Object ObjectID="9">
           <P Name="IsActive" Class="logical">0</P>
-          <P Name="IsTabbed" Class="logical">1</P>
+          <P Name="IsTabbed" Class="logical">0</P>
           <P Name="ViewObjType" Class="char">SimulinkSubsys</P>
-          <P Name="LoadSaveID" Class="char">589</P>
+          <P Name="LoadSaveID" Class="char">555</P>
           <P Name="Extents" Class="double">[2198.0, 1053.0]</P>
-          <P Name="ZoomFactor" Class="double">1.75</P>
-          <P Name="Offset" Class="double">[-154.375, -195.35714285714283]</P>
-          <P Name="SceneRectInView" Class="double">[-154.375, -195.35714285714283, 1256.0, 601.71428571428567]</P>
+          <P Name="ZoomFactor" Class="double">1.25</P>
+          <P Name="Offset" Class="double">[-405.57500000000005, -313.2]</P>
+          <P Name="SceneRectInView" Class="double">[-405.57500000000005, -313.2, 1758.4, 842.4]</P>
         </Object>
         <Object ObjectID="10">
           <P Name="IsActive" Class="logical">0</P>
@@ -4662,18 +4502,6 @@ __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
       </Array>
       <Array PropName="DockComponentsInfo" Type="Simulink.DockComponentInfo" Dimension="1*3">
         <Object ObjectID="27">
-          <P Name="Type" Class="char">GLUE2:PropertyInspector</P>
-          <P Name="ID" Class="char">Property Inspector</P>
-          <P Name="Visible" Class="logical">0</P>
-          <P Name="CreateCallback" Class="char"/>
-          <P Name="UserData" Class="char"/>
-          <P Name="Floating" Class="logical">0</P>
-          <P Name="DockPosition" Class="char">Right</P>
-          <P Name="Width" Class="int32">640</P>
-          <P Name="Height" Class="int32">480</P>
-          <P Name="Minimized" Class="char">Unset</P>
-        </Object>
-        <Object ObjectID="28">
           <P Name="Type" Class="char">GLUE2:SpreadSheet</P>
           <P Name="ID" Class="char">ModelData</P>
           <P Name="Visible" Class="logical">0</P>
@@ -4681,6 +4509,18 @@ __MWOPC_PART_BEGIN__ /simulink/windowsInfo.xml
           <P Name="UserData" Class="char"/>
           <P Name="Floating" Class="logical">0</P>
           <P Name="DockPosition" Class="char">Bottom</P>
+          <P Name="Width" Class="int32">640</P>
+          <P Name="Height" Class="int32">480</P>
+          <P Name="Minimized" Class="char">Unset</P>
+        </Object>
+        <Object ObjectID="28">
+          <P Name="Type" Class="char">GLUE2:PropertyInspector</P>
+          <P Name="ID" Class="char">Property Inspector</P>
+          <P Name="Visible" Class="logical">0</P>
+          <P Name="CreateCallback" Class="char"/>
+          <P Name="UserData" Class="char"/>
+          <P Name="Floating" Class="logical">0</P>
+          <P Name="DockPosition" Class="char">Right</P>
           <P Name="Width" Class="int32">640</P>
           <P Name="Height" Class="int32">480</P>
           <P Name="Minimized" Class="char">Unset</P>

@@ -13,11 +13,13 @@ test_data_dir = "data";
 
 %% Test 'poly1' - linear model
 
-data = struct();
-data.Load = [50 100 150]';
-data.Power = [35.05 70.18 104.77]';
+Load = [50 100 150]';
+Power = [35.05 70.18 104.77]';
+data = table(Load, Power);
 
 params = struct();
+params.predictorNames = "Load";
+params.responseNames = "Power";
 params.significance = 0.1;
 params.fit.fitType = 'poly1';
 
@@ -45,11 +47,13 @@ assert(isequal(round(y_int, 4), [137.5938  141.8462]));
 
 %% Test 'poly2' - quadratic model
 
-data = struct();
-data.Load = [50 100 150]';
-data.Power = [35.05 70.18 104.77]';
+Load = [50 100 150]';
+Power = [35.05 70.18 104.77]';
+data = table(Load, Power);
 
 params = struct();
+params.predictorNames = "Load";
+params.responseNames = "Power";
 params.significance = 0.1;
 params.fit.fitType = 'poly2';
 
@@ -81,6 +85,15 @@ assert(isequaln(y_int, nan(1, 2)));
 filepath = fullfile(test_dir, test_data_dir, "test_config_fit.yaml");
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
+% Load training data from file
+training_data = struct();
+for machine = string(fieldnames(config.machines))'
+    filename = config.machines.(machine).trainingData;
+    training_data.(machine) = readtable(...
+        fullfile(test_dir, test_data_dir, filename) ...
+    );
+end
+
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct
 models = struct();
@@ -94,11 +107,6 @@ coeffs_chk = {
 
 % Construct a model for machine 1 with each model type
 machine = "machine_1";
-training_data = config.training.data.(machine);
-% TODO: Eliminate these transposes
-training_data.Load = training_data.Load';
-training_data.Power = training_data.Power';
-assert(numel(training_data.Load) == numel(training_data.Power))
 op_limits = config.machines.(machine).op_limits;
 
 model_names = {'model_1_poly1', 'model_1_poly2', ...
@@ -109,8 +117,8 @@ for i = 1:numel(model_names)
 
     % Run model setup script
     [model, vars] = feval( ...
-        model_config.setup_script, ...
-        training_data, ...
+        model_config.setupFcn, ...
+        training_data.(machine), ...
         model_config.params ...
     );
 
@@ -163,7 +171,7 @@ for i = 1:numel(model_names)
 end
 
 % More data points
-io_data = [
+io_data = array2table([
   145.0000  101.0839
   175.0000  122.2633
   140.0000   97.6366
@@ -174,11 +182,13 @@ io_data = [
    75.0000   58.6758
    95.0000   69.4629
   170.0000  118.7371
-];
+], 'VariableNames', {'Load', 'Power'});
 
 % Add one point to training data
-training_data.Load = [training_data.Load; io_data(9, 1)];
-training_data.Power = [training_data.Power; io_data(9, 2)];
+training_data.machine_1 = [
+    training_data.(machine);
+    io_data(9, :)
+];
 
 % Now include cubic polynomial (poly3)
 model_names = {'model_1_poly1', 'model_1_poly2', 'model_1_poly3', ...
@@ -191,8 +201,8 @@ for i = 1:numel(model_names)
 
     % Run model setup script
     [model, vars] = feval( ...
-        model_config.setup_script, ...
-        training_data, ...
+        model_config.setupFcn, ...
+        training_data.(machine), ...
         model_config.params ...
     );
     
@@ -227,9 +237,11 @@ for i = 1:numel(model_names)
 
 end
 
-% Add one more point to training data
-training_data.Load = [training_data.Load; io_data(8, 1)];
-training_data.Power = [training_data.Power; io_data(8, 2)];
+% Add one point to training data
+training_data.machine_1 = [
+    training_data.(machine);
+    io_data(8, :)
+];
 
 % Update models and re-do predictions
 for i = 1:numel(model_names)
@@ -237,10 +249,9 @@ for i = 1:numel(model_names)
     model_config = config.models.(model_name);
 
     % Test update function
-    [models.(model_name), model_vars.(model_name)] = ...
-        fit_model_update( ...
+    [models.(model_name), model_vars.(model_name)] = fit_model_update( ...
             models.(model_name), ...
-            training_data, ...
+            training_data.(machine), ...
             model_vars.(model_name), ...
             model_config.params ...
         );

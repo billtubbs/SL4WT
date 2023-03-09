@@ -7,84 +7,87 @@ block:
     NumSampleTimes: 1
     x0: []
     tss: [250, 0]
-simulation:
-    model:
-        filename: "multiple_generators_els_2021b.mdl"
-    params:
-        t_stop: 4000
-        PMax: 1580
 machines:
     machine_1:
         name: "Machine 1"
         op_limits: [56, 220]
         model: "model_1"
+        trainingData: "machine_1_data.csv"
     machine_2:
         name: "Machine 2"
         op_limits: [237, 537]
         model: "model_2"
+        trainingData: "machine_2_data.csv"
     machine_3:
         name: "Machine 3"
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_3_data.csv"
     machine_4:
         name: "Machine 4"
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_4_data.csv"
     machine_5:
         name: "Machine 5"
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_5_data.csv"
 models:
     model_1:
         name: "GP1"
-        setup_script: "gpr_model_setup"
-        predict_script: "gpr_model_predict"
-        update_script: "gpr_model_update"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
         params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
-                KernelFunction: "SquaredExponential"
-                KernelParameters: []  # [15.0; 95.7708]
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
             significance: 0.1
-            x_tol: 4
+            x_tol: 2
+            y_tol: 5
     model_2:
         name: "GP2"
-        setup_script: "gpr_model_setup"
-        predict_script: "gpr_model_predict"
-        update_script: "gpr_model_update"
-        params: 
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
-                KernelFunction: "SquaredExponential"
-                KernelParameters: []  # [15.0; 111.0653]
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15.0, 111.0653]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
             significance: 0.1
-            x_tol: 4
+            x_tol: 2
+            y_tol: 5
     model_3:
         name: "GP3"
-        setup_script: "gpr_model_setup"
-        predict_script: "gpr_model_predict"
-        update_script: "gpr_model_update"
-        params: 
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
-                KernelFunction: "SquaredExponential"
-                KernelParameters: []  # [15.1001;236.1767]
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15.1, 236.1767]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.2  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
             significance: 0.1
-            x_tol: 4
-training:
-    data:
-        machine_1:
-            Load: [56, 62.1555, 80]
-            Power: [49.0278, 52.2539, 61.2946]
-        machine_2:
-            Load: [237, 240.1964, 290]
-            Power: [183.6232, 184.8701, 203.7648]
-        machine_3:
-            Load: [194, 794.9977, 310]
-            Power: [173.6994, 497.5467, 228.7986]
-        machine_4:
-            Load: [194, 794.9977, 300]
-            Power: [173.6994, 497.5467, 223.8190]
-        machine_5:
-            Load: [194, 794.9977, 480]
-            Power: [173.6994, 497.5467, 322.7341]
+            x_tol: 2
+            y_tol: 5
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
@@ -100,3 +103,4 @@ optimizer:
         Display: "iter"
     params:
         z: 1000
+        PMax: 1580

@@ -7,101 +7,124 @@ block:
     NumSampleTimes: 1
     x0: []
     tss: [250, 0]
-simulation:
-    name: "test"
-    params:
-        t_stop: 4000
-        PMax: 1580
 machines:
     machine_1:
+        name: "Machine 1"
         op_limits: [56, 220]
         model: "model_1_poly3"
+        trainingData: "machine_1_data.csv"
     machine_2:
+        name: "Machine 2"
         op_limits: [237, 537]
         model: "model_2_poly3"
+        trainingData: "machine_2_data.csv"
     machine_3:
+        name: "Machine 3"
         op_limits: [194, 795]
         model: "model_3_poly3"
+        trainingData: "machine_3_data.csv"
     machine_4:
+        name: "Machine 4"
         op_limits: [194, 795]
-        model: "model_4_poly3"
+        model: "model_3_poly3"
+        trainingData: "machine_4_data.csv"
     machine_5:
+        name: "Machine 5"
         op_limits: [194, 795]
-        model: "model_5_poly3"
+        model: "model_3_poly3"
+        trainingData: "machine_5_data.csv"
 models:
     model_1_poly1:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+        name: "POLY1"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
         params:
-            significance: 0.1
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: 'poly1'
-    model_1_poly2:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
             significance: 0.1
+            x_tol: 2
+            y_tol: 5
+    model_1_poly2:
+        name: "POLY2"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: 'poly2'
-    model_1_poly3:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
             significance: 0.1
+            x_tol: 2
+            y_tol: 5
+    model_1_poly3:
+        name: "POLY3"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: 'poly3'
-    model_1_cubicinterp:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
             significance: 0.1
+            x_tol: 2
+            y_tol: 5
+    model_1_cubicinterp:
+        name: "CUBINT"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: "cubicinterp"
-    model_1_smoothingspline:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
-        params:
             significance: 0.1
+            x_tol: 2
+            y_tol: 5
+    model_1_smoothingspline:
+        name: "SSPLINE"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: "smoothingspline"
+            significance: 0.1
+            x_tol: 2
+            y_tol: 5
     model_2_poly3:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+        name: "POLY3"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
         params:
-            significance: 0.1
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: 'poly3'
+            significance: 0.1
+            x_tol: 2
+            y_tol: 5
     model_3_poly3:
-        setup_script: "fit_model_setup"
-        predict_script: "fit_model_predict"
-        update_script: "fit_model_update"
+        name: "POLY3"
+        setupFcn: "fit_model_setup"
+        predictFcn: "fit_model_predict"
+        updateFcn: "fit_model_update"
         params:
-            significance: 0.1
+            predictorNames: "Load"
+            responseNames: "Power"
             fit:
                 fitType: 'poly3'
-training:
-    data:
-        machine_1:
-            Load: [56, 62.1555, 80]
-            Power: [49.0278, 52.2539, 61.2946]
-        machine_2:
-            Load: [237, 240.1964, 290]
-            Power: [183.6232, 184.8701, 203.7648]
-        machine_3:
-            Load: [194, 794.9977, 310]
-            Power: [173.6994, 497.5467, 228.7986]
-        machine_4:
-            Load: [194, 794.9977, 300]
-            Power: [173.6994, 497.5467, 223.8190]
-        machine_5:
-            Load: [194, 794.9977, 480]
-            Power: [173.6994, 497.5467, 322.7341]
+            significance: 0.1
+            x_tol: 2
+            y_tol: 5
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
@@ -116,4 +139,6 @@ optimizer:
         MaxIterations: 500000
         Display: "iter"
     params:
+    params:
         z: 1000
+        PMax: 1580

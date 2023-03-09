@@ -75,21 +75,22 @@ for i = 1:n_machines
                 model_preds{j}{:, 'y_int_1'}, ...
                 model_preds{j}{:, 'y_int_2'}, ...
                 model_preds{j}{:, 'op_interval'}, ...
-                y_labels, line_label, area_label, x_label, y_lim)
+                x_label, y_labels, line_label, area_label, y_lim)
 
             % Index of current data point
             k = find(LOModelData.Machines.(machine).Time == t);
 
             % Add all previous training data points to plot
-            x = LOModelData.Machines.(machine).Load(1:k);
-            y = LOModelData.Machines.(machine).Power(1:k);
+            x = LOModelData.Machines.(machine).X(1:k);
+            y = LOModelData.Machines.(machine).Y(1:k);
             plot(x, y, 'k.', 'MarkerSize', 10)
             text(0.05, 0.9, compose("$t=%d$", t), 'Units', 'normalized', ...
                 'Interpreter', 'latex')
-            title(config.machines.(machine).name, 'Interpreter', 'latex')
+            title(escape_latex_chars(config.machines.(machine).name), ...
+                'Interpreter', 'latex')
             hLeg = findobj(gcf, 'Type', 'Legend');
             leg_labels = hLeg.String;
-            legend([leg_labels(1:2) {'data'}], 'Location', 'southeast')
+            hLeg = legend([leg_labels(1:2) {'data'}], 'Location', 'southeast');
             if j < n_times
                 set(hLeg, 'visible', 'off')
             end

@@ -8,6 +8,9 @@ function [model, vars] = lin_model_update(model, data, vars, params)
 %
 
     % Fit linear model
-    model = fitlm(data.Load, data.Power);
+    model = fitlm( ...
+        data{:, params.predictorNames}, ...
+        data{:, params.responseNames} ...
+    );
 
 end
