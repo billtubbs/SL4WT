@@ -1,35 +1,12 @@
 simulation:
     model:
         filename: "multiple_generators_els_2021b.mdl"
+    inputs:
+        filename: "load_sequence_1.mat"
     params:
         t_stop: 4000
-machines:
-    machine_1:
-        name: "Machine 1"
-        params:
-            coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
-            op_limits: [56, 220]
-    machine_2:
-        name: "Machine 2"
-        params:
-            coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
-                    1.88469092, -2.19952823]
-            op_limits: [237, 537]
-    machine_3:
-        name: "Machine 3"
-        params:
-            coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                    6.18821903e-01, 7.51758182e+01]
-            op_limits: [194, 795]
-    machine_4:
-        name: "Machine 4"
-        params:
-            coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                    6.18821903e-01, 7.51758182e+01]
-            op_limits: [194, 795]
-    machine_5:
-        name: "Machine 5"
-        params:
-            coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                    6.18821903e-01, 7.51758182e+01]
-            op_limits: [194, 795]
+        PMax: 1580
+system:
+    config_filename: "sys_config.yaml"
+optimizer:
+    config_filename: "opt_config.yaml"

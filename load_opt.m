@@ -51,32 +51,38 @@ tss = config.block.tss;	  % sample time: [period, offset].
 % all the state information as Simulink state variables)
 curr_iteration = 1;
 
+% Load initial training data from file
+training_data = struct();
+for machine = string(fieldnames(config.machines))'
+    filename = config.machines.(machine).trainingData;
+    filepath = fullfile("simulations", config.simulation.name, "data", filename);
+    training_data.(machine) = readtable(filepath);
+end
+
 % Create model objects by running the setup scripts with 
 % the pre-defined model data specified in the config struct 
 for machine = string(fieldnames(config.machines))'
     model_name = config.machines.(machine).model;
-    training_data = config.training.data.(machine);
-    %TODO: Better to get this data from CSV file not config
-    %      as yaml doesn't support arrays.
-    training_data.Load = training_data.Load';
-    training_data.Power = training_data.Power';
     model_config = config.models.(model_name);
 
     % Run model setup script
     [models.(machine), model_vars.(machine)] = feval( ...
-        model_config.setup_script, ...
-        training_data, ...
+        model_config.setupFcn, ...
+        training_data.(machine), ...
         model_config.params ...
     );
 
-    % Save pre-training data points
-    n_pre_train = size(training_data.Load, 1);
-    assert(size(training_data.Power, 1) == n_pre_train)
+    % Store pre-training data points in global simulation data arrays
+    n_pre_train = size(training_data.(machine), 1);
     LOModelData.Machines.(machine).Iteration = nan(n_pre_train, 1);
     LOModelData.Machines.(machine).Time = nan(n_pre_train, 1);
     LOModelData.Machines.(machine).Time(end) = 0;  % set time = 0 for last point
-    LOModelData.Machines.(machine).Load = training_data.Load;
-    LOModelData.Machines.(machine).Power = training_data.Power;
+    LOModelData.Machines.(machine).X = training_data.(machine){:, ...
+        model_config.params.predictorNames ...
+    };
+    LOModelData.Machines.(machine).Y = training_data.(machine){:, ...
+        model_config.params.responseNames ...
+    };
 
 end
 
@@ -89,8 +95,8 @@ LOData.ModelUpdates = [];
 LOData.TotalPower = [];
 LOData.TotalUncertainty = [];
 for machine = string(fieldnames(config.machines))'
-    LOData.Machines.(machine).Load = [];
-    LOData.Machines.(machine).Power = [];
+    LOData.Machines.(machine).X = [];
+    LOData.Machines.(machine).Y = [];
 end
 
 
@@ -115,10 +121,10 @@ machine_names = string(fieldnames(config.machines))';
 n_machines = numel(machine_names);
 for i = 1:n_machines
     machine = machine_names{i};
-    LOData.Machines.(machine).Load = ...
-        [LOData.Machines.(machine).Load; u(i+1)];
-    LOData.Machines.(machine).Power = ...
-        [LOData.Machines.(machine).Power; u(i+1+n_machines)];
+    LOData.Machines.(machine).X = ...
+        [LOData.Machines.(machine).X; u(i+1)];
+    LOData.Machines.(machine).Y = ...
+        [LOData.Machines.(machine).Y; u(i+1+n_machines)];
 end
 
 % Steady state detection for each machine
@@ -126,11 +132,11 @@ mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
 for i = 1:n_machines
     machine = machine_names{i};
-    if size(LOData.Machines.(machine).Load, 1) > 3  % > this many samples
+    if size(LOData.Machines.(machine).X, 1) > 3  % > this many samples
         mean_abs_Load_diffs(i) = ...
-            mean(abs(diff(LOData.Machines.(machine).Load(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).X(end-3:end))));
         mean_abs_Power_diffs(i) = ...
-            mean(abs(diff(LOData.Machines.(machine).Power(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).Y(end-3:end))));
     end
 end
 
@@ -150,34 +156,43 @@ if SteadyState == 1
 
     for i = 1:n_machines
         machine = machine_names{i};
+        model_name = config.machines.(machine).model;
+        model_config = config.models.(model_name);
 
         % Check if current load is close to previous training points
-        model = config.machines.(machine).model;
-        load_tol = config.models.(model).params.x_tol;
-        if min(abs(LOData.Machines.(machine).Load(end,1) ...
-                - LOModelData.Machines.(machine).Load)) >= load_tol
+        %TODO: The following is not setup for MIMO yet
+        if min(abs(LOData.Machines.(machine).X(end, :) ...
+                - LOModelData.Machines.(machine).X)) ...
+                    >= model_config.params.x_tol ...
+            && min(abs(LOData.Machines.(machine).Y(end, :) ...
+                - LOModelData.Machines.(machine).Y)) ...
+                    >= model_config.params.y_tol
 
             % Add current data to training history
-            LOModelData.Machines.(machine).Load = ...
-                [LOModelData.Machines.(machine).Load; 
-                 LOData.Machines.(machine).Load(end,:)];
-            LOModelData.Machines.(machine).Power = ...
-                [LOModelData.Machines.(machine).Power; 
-                 LOData.Machines.(machine).Power(end,:)];
+            LOModelData.Machines.(machine).X = ...
+                [LOModelData.Machines.(machine).X; 
+                 LOData.Machines.(machine).X(end,:)];
+            LOModelData.Machines.(machine).Y = ...
+                [LOModelData.Machines.(machine).Y; 
+                 LOData.Machines.(machine).Y(end,:)];
             LOModelData.Machines.(machine).Iteration = ...
                 [LOModelData.Machines.(machine).Iteration; curr_iteration];
             LOModelData.Machines.(machine).Time = [ ...
                 LOModelData.Machines.(machine).Time; t];
 
             % Update model
-            training_data = struct();
-            training_data.Load = LOModelData.Machines.(machine).Load;
-            training_data.Power = LOModelData.Machines.(machine).Power;
-            model_name = config.machines.(machine).model;
-            model_config = config.models.(model_name);
+            var_names = [
+                string(model_config.params.predictorNames) ...
+                string(model_config.params.responseNames)
+            ];
+            training_data = array2table( ...
+                [LOModelData.Machines.(machine).X ...
+                 LOModelData.Machines.(machine).Y], ...
+                "VariableNames", var_names ...
+            );
             [models.(machine), model_vars.(machine)] = builtin( ...
                 "feval", ...
-                model_config.update_script, ...
+                model_config.updateFcn, ...
                 models.(machine), ...
                 training_data, ...
                 model_vars.(machine), ...
@@ -211,7 +226,7 @@ for i = 1:n_machines
     % Predict model outputs
     [y_mean, y_sigma, y_int] = builtin( ...
         "feval", ...
-        model_config.predict_script, ...
+        model_config.predictFcn, ...
         models.(machine), ...
         op_interval, ...
         model_vars.(machine), ...
