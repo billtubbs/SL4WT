@@ -14,137 +14,151 @@ simulation:
         PMax: 1580
 machines:
     machine_1:
-        coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
         op_limits: [56, 220]
         model: "model_1"
+        trainingData: "machine_1_data4.csv"
     machine_2:
-        coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
-                1.88469092, -2.19952823]
         op_limits: [237, 537]
         model: "model_2"
+        trainingData: "machine_2_data4.csv"
     machine_3:
-        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_3_data4.csv"
     machine_4:
-        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_4_data4.csv"
     machine_5:
-        coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
-                6.18821903e-01, 7.51758182e+01]
         op_limits: [194, 795]
         model: "model_3"
+        trainingData: "machine_5_data4.csv"
 models:
     model_1:
-        setup_script: "ens_model_setup"
-        predict_script: "ens_model_predict"
-        update_script: "ens_model_update"
+        setupFcn: "ens_model_setup"
+        predictFcn: "ens_model_predict"
+        updateFcn: "ens_model_update"
         params:
             models:
                 model_11:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
                 model_12:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly2'
                 model_13:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
     model_2:
-        setup_script: "ens_model_setup"
-        predict_script: "ens_model_predict"
-        update_script: "ens_model_update"
+        setupFcn: "ens_model_setup"
+        predictFcn: "ens_model_predict"
+        updateFcn: "ens_model_update"
         params:
             models:
                 model_21:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
                 model_22:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly2'
                 model_23:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
     model_3:
-        setup_script: "ens_model_setup"
-        predict_script: "ens_model_predict"
-        update_script: "ens_model_update"
+        setupFcn: "ens_model_setup"
+        predictFcn: "ens_model_predict"
+        updateFcn: "ens_model_update"
         params:
             models:
                 model_31:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
                 model_32:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly2'
                 model_33:
-                    setup_script: "fit_model_setup"
-                    predict_script: "fit_model_predict"
-                    update_script: "fit_model_update"
+                    setupFcn: "fit_model_setup"
+                    predictFcn: "fit_model_predict"
+                    updateFcn: "fit_model_update"
                     params:
+                        predictorNames: "Load"
+                        responseNames: "Power"
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
-training:
-    data:
-        machine_1:
-            Load: [56, 62.1555, 80, 150]  # 4 pts is minimum for poly3
-            Power: [49.0278, 52.2539, 61.2946, 104.5735]
-        machine_2:
-            Load: [237, 240.1964, 290, 491.1867, 361.3231]
-            Power: [183.6232, 184.8701, 203.7648, 315.1296, 238.0637]
-        machine_3:
-            Load: [194, 794.9977, 310, 683.6181, 709.1794]
-            Power: [173.6994, 497.5467, 228.7986, 445.7213, 459.3991]
-        machine_4:
-            Load: [194, 794.9977, 300, 791.7562, 758.8359]
-            Power: [173.6994, 497.5467, 223.8190, 496.0398, 483.1362]
-        machine_5:
-            Load: [194, 794.9977, 480, 689.6880, 743.3961, 294.9379]
-            Power: [173.6994, 497.5467, 322.7341, 449.0247, 476.2714, 221.4149]
+# training:
+#     data:
+#         machine_1:
+#             Load: [56, 62.1555, 80, 150]  # 4 pts is minimum for poly3
+#             Power: [49.0278, 52.2539, 61.2946, 104.5735]
+#         machine_2:
+#             Load: [237, 240.1964, 290, 491.1867, 361.3231]
+#             Power: [183.6232, 184.8701, 203.7648, 315.1296, 238.0637]
+#         machine_3:
+#             Load: [194, 794.9977, 310, 683.6181, 709.1794]
+#             Power: [173.6994, 497.5467, 228.7986, 445.7213, 459.3991]
+#         machine_4:
+#             Load: [194, 794.9977, 300, 791.7562, 758.8359]
+#             Power: [173.6994, 497.5467, 223.8190, 496.0398, 483.1362]
+#         machine_5:
+#             Load: [194, 794.9977, 480, 689.6880, 743.3961, 294.9379]
+#             Power: [173.6994, 497.5467, 322.7341, 449.0247, 476.2714, 221.4149]
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]

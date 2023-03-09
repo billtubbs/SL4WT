@@ -18,6 +18,8 @@ Power = [35.05 70.18 104.77]';
 data = table(Load, Power);
 
 params = struct();
+params.predictorNames = "Load";
+params.responseNames = "Power";
 params.significance = 0.1;
 params.fit.fitType = 'poly1';
 
@@ -50,6 +52,8 @@ Power = [35.05 70.18 104.77]';
 data = table(Load, Power);
 
 params = struct();
+params.predictorNames = "Load";
+params.responseNames = "Power";
 params.significance = 0.1;
 params.fit.fitType = 'poly2';
 
