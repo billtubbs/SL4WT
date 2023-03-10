@@ -46,7 +46,7 @@ assert(isequal(y_int, [ ...
 ]))
 
 
-%% Test initialization with data
+%% Test initialization and prediction with data
 
 Load = [50 100 150]';
 Power = [35.05 70.18 104.77]';
