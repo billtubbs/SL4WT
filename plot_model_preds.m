@@ -8,19 +8,60 @@
 addpath("yaml")
 addpath("plot-utils")
 
+% Directory where config files are stored
+sim_spec_dir = "sim_specs";
+
 % Load configuration file
-filepath = fullfile("simulations", sim_name, "opt_config.yaml");
+filepath = fullfile("simulations", sim_name, sim_spec_dir, ...
+    "opt_config.yaml");
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
 config = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load simulation data mat file
+% Load optimizer output data file
 filespec = fullfile("simulations", sim_name, "results", ...
-        "load_opt.mat");
+        "load_opt_out.mat");
 load(filespec)
-n_max = 5;  % Max number of columns
-
 machine_names = string(fieldnames(config.machines))';
 n_machines = numel(machine_names);
+
+% Load simulation output data file
+filespec = fullfile("simulations", sim_name, "results", "sim_out.mat");
+load(filespec)
+
+fprintf("Plotting simulation results from '%s'\n", ...
+    fullfile("simulations", sim_name, "results"))
+
+%% Plot total load and power time series
+
+figure(1); clf
+
+ax1 = subplot(2, 1, 1);
+Y = [sim_out.load_target.Data sim_out.load_actual.Data];
+x = sim_out.load_actual.Time;
+x_label = "Time (s)";
+y_labels = ["Target" "Actual"];
+make_tsplot(Y, x, y_labels, x_label)
+ylabel("Total load (kW)")
+
+ax2 = subplot(2, 1, 2);
+Y = [
+    power_ideal ...
+    sim_out.total_power.Data ...
+    sim_config.simulation.params.PMax.*ones(size(sim_out.tout)) ...
+];
+x = sim_out.total_power.Time;
+x_label = "Time (s)";
+y_labels = ["Ideal" "Actual" "Maximum"];
+make_tsplot(Y, x, y_labels, x_label)
+ylabel("Total power (kW)")
+
+linkaxes([ax1 ax2], 'x')
+
+
+%% Plot model predictions over time
+
+% Max number of columns to include in figure
+n_max = 5;
 
 figure(10); clf
 for i = 1:n_machines
@@ -89,11 +130,13 @@ for i = 1:n_machines
             title(escape_latex_chars(config.machines.(machine).name), ...
                 'Interpreter', 'latex')
             hLeg = findobj(gcf, 'Type', 'Legend');
-            leg_labels = hLeg.String;
-            hLeg = legend([leg_labels(1:2) {'data'}], 'Location', 'southeast');
-            if j < n_times
-                set(hLeg, 'visible', 'off')
-            end
+%             leg_labels = hLeg.String;
+%             hLeg = legend([leg_labels(1:2) {'data'}], 'Location', 'southeast');
+%             if j < n_times
+%                 set(hLeg, 'visible', 'off')
+%             end
+            % Use this to turn legend off:
+            set(hLeg, 'visible', 'off')
         end
     end
 end

@@ -93,7 +93,6 @@ LOData.Time = [];
 LOData.LoadTarget = [];
 LOData.SteadyState = [];
 LOData.ModelUpdates = [];
-LOData.TotalPower = [];
 LOData.TotalUncertainty = [];
 for machine = string(fieldnames(config.machines))'
     LOData.Machines.(machine).X = [];
@@ -133,16 +132,18 @@ mean_abs_Load_diffs = nan(1, n_machines);
 mean_abs_Power_diffs = nan(1, n_machines);
 for i = 1:n_machines
     machine = machine_names{i};
-    if size(LOData.Machines.(machine).X, 1) > 3  % > this many samples
+    % Take average of this many previous samples
+    n_ss = config.machines.(machine).params.n_ss;
+    if size(LOData.Machines.(machine).X, 1) > n_ss
         mean_abs_Load_diffs(i) = ...
-            mean(abs(diff(LOData.Machines.(machine).X(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).X(end-n_ss:end))));
         mean_abs_Power_diffs(i) = ...
-            mean(abs(diff(LOData.Machines.(machine).Y(end-3:end))));
+            mean(abs(diff(LOData.Machines.(machine).Y(end-n_ss:end))));
     end
 end
 
-% Set steady state flag if load and power readings have 
-% not significantly changed
+% Set steady state flag if load and power readings of all
+% machines have not significantly changed
 if (all(mean_abs_Load_diffs <= 2) ...
         && all(mean_abs_Power_diffs <= 5))
     SteadyState = 1;
@@ -157,17 +158,18 @@ if SteadyState == 1
 
     for i = 1:n_machines
         machine = machine_names{i};
-        model_name = config.machines.(machine).model;
+        machine_config = config.machines.(machine);
+        model_name = machine_config.model;
         model_config = config.models.(model_name);
 
         % Check if current load is close to previous training points
         %TODO: The following is not setup for MIMO yet
         if min(abs(LOData.Machines.(machine).X(end, :) ...
                 - LOModelData.Machines.(machine).X)) ...
-                    >= model_config.params.x_tol ...
+                    >= machine_config.params.x_tol ...
             && min(abs(LOData.Machines.(machine).Y(end, :) ...
                 - LOModelData.Machines.(machine).Y)) ...
-                    >= model_config.params.y_tol
+                    >= machine_config.params.y_tol
 
             % Add current data to training history
             LOModelData.Machines.(machine).X = ...
@@ -216,11 +218,10 @@ y_sigmas = cell(1, n_machines);
 for i = 1:n_machines
     machine = machine_names{i};
     machine_config = config.machines.(machine);
+    op_limits = machine_config.params.op_limits;
 
     % Set prediction points over operating range of each machine.
-    op_interval = ( ...
-        machine_config.op_limits(1):machine_config.op_limits(2) ...
-    )';
+    op_interval = (op_limits(1):op_limits(2))';
     model_name = config.machines.(machine).model;
     model_config = config.models.(model_name);
 
@@ -254,7 +255,7 @@ LOData.TotalUncertainty = ...
 
 % Lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
-    cellfun(@(name) config.machines.(name).op_limits, ...
+    cellfun(@(name) config.machines.(name).params.op_limits, ...
         machine_names, 'UniformOutput', false)' ...
 );
 
@@ -303,11 +304,8 @@ gen_load_target = fmincon( ...
 curr_iteration = curr_iteration + 1;
 
 % Send outputs
-sys(1) = gen_load_target(1); 
-sys(2) = gen_load_target(2);      
-sys(3) = gen_load_target(3);
-sys(4) = gen_load_target(4);
-sys(5) = gen_load_target(5);
+assert(isequal(size(gen_load_target), [n_machines 1]))
+sys = gen_load_target;
 % end
 
 
@@ -327,7 +325,7 @@ function mdlTerminate(t,x,u,config)
 
     % Save variables from global workspace
     filespec = fullfile("simulations", sim_name, "results", ...
-        "load_opt.mat");
+        "load_opt_out.mat");
     save(filespec, 'curr_iteration', 'LOData', 'LOModelData', ...
         'model_vars', 'models')
 

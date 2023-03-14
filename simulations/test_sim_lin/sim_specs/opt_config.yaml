@@ -10,75 +10,77 @@ block:
 machines:
     machine_1:
         name: "Machine 1"
-        op_limits: [56, 220]
         model: "model_1"
         trainingData: "machine_1_data.csv"
+        params:
+            op_limits: [56, 220]
+            n_ss: 2
+            x_tol: 2
+            y_tol: 5
     machine_2:
         name: "Machine 2"
-        op_limits: [237, 537]
         model: "model_2"
         trainingData: "machine_2_data.csv"
+        params:
+            op_limits: [237, 537]
+            n_ss: 2
+            x_tol: 2
+            y_tol: 5
     machine_3:
         name: "Machine 3"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_3_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 2
+            x_tol: 2
+            y_tol: 5
     machine_4:
         name: "Machine 4"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_4_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 2
+            x_tol: 2
+            y_tol: 5
     machine_5:
         name: "Machine 5"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_5_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 2
+            x_tol: 2
+            y_tol: 5
 models:
     model_1:
-        name: "FP1"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "LIN1"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
             significance: 0.1
-            x_tol: 2
-            y_tol: 5
     model_2:
-        name: "FP2"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "LIN2"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
             significance: 0.1
-            x_tol: 2
-            y_tol: 5
     model_3:
-        name: "FP3"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "LIN3"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
             significance: 0.1
-            x_tol: 2
-            y_tol: 5
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
