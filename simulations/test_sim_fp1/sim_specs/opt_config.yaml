@@ -23,7 +23,7 @@ machines:
         trainingData: "machine_2_data.csv"
         params:
             op_limits: [237, 537]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_3:
@@ -32,7 +32,7 @@ machines:
         trainingData: "machine_3_data.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_4:
@@ -41,7 +41,7 @@ machines:
         trainingData: "machine_4_data.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_5:
@@ -50,7 +50,7 @@ machines:
         trainingData: "machine_5_data.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
 models:

@@ -31,6 +31,7 @@ load(filespec)
 fprintf("Plotting simulation results from '%s'\n", ...
     fullfile("simulations", sim_name, "results"))
 
+
 %% Plot total load and power time series
 
 figure(1); clf
@@ -73,8 +74,11 @@ for i = 1:n_machines
     % Times when model update was made
     times = LOData.Time(iters)';
 
-    % Include t=0 so that initial model predictions are plotted
-    times = [0 times];
+    % Add time t=0 if there was no model update then so that
+    % initial model predictions are plotted
+    if times(1) > 0
+        times = [0 times];
+    end
 
     % Only plot up to a maximum of n_max model updates
     n_times = min(length(times), n_max);

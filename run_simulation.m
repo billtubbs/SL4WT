@@ -12,8 +12,8 @@ sim_dir = "simulations";
 
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
-sim_name = "test_sim_gpr";  % Gaussian process models
-% sim_name = "test_sim_fp1";  % Simple first-principles model
+% sim_name = "test_sim_gpr";  % Gaussian process models
+sim_name = "test_sim_fp1";  % Simple first-principles model
 % sim_name = "test_sim_lin";  % Linear model
 % sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
 
