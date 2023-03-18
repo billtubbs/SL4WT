@@ -34,6 +34,9 @@ fprintf("Plotting simulation results from '%s'\n", ...
 
 %% Plot total load and power time series
 
+% Calculate ideal power at all simulation times
+power_ideal = opt_load(sim_out.load_actual.Data);
+
 figure(1); clf
 
 ax1 = subplot(2, 1, 1);
@@ -147,8 +150,10 @@ end
 
 grid on
 
-% Size figure appropriately
+% Resize figure appropriately
 s = get(gcf, 'Position');
 set(gcf, 'Position', [s(1:2) -30+210*5 -30+180*n_machines]);
+
+% Save as pdf
 filename = compose("model_preds_%.0f.pdf", t);
 save2pdf(fullfile("simulations", sim_name, "plots", filename))

@@ -11,16 +11,14 @@ machines:
     machine_1:
         name: "Machine 1"
         model: "model_1"
-        trainingData: "machine_1_data.csv"
         params:
             op_limits: [56, 220]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_2:
         name: "Machine 2"
         model: "model_2"
-        trainingData: "machine_2_data.csv"
         params:
             op_limits: [237, 537]
             n_ss: 1
@@ -29,7 +27,6 @@ machines:
     machine_3:
         name: "Machine 3"
         model: "model_3"
-        trainingData: "machine_3_data.csv"
         params:
             op_limits: [194, 795]
             n_ss: 1
@@ -38,7 +35,6 @@ machines:
     machine_4:
         name: "Machine 4"
         model: "model_3"
-        trainingData: "machine_4_data.csv"
         params:
             op_limits: [194, 795]
             n_ss: 1
@@ -47,7 +43,6 @@ machines:
     machine_5:
         name: "Machine 5"
         model: "model_3"
-        trainingData: "machine_5_data.csv"
         params:
             op_limits: [194, 795]
             n_ss: 1
@@ -55,44 +50,34 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "FP1"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "TRUE1"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_predict"
+        updateFcn: "fixed_poly_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
-            significance: 0.1
+            coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
     model_2:
-        name: "FP2"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "TRUE2"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_predict"
+        updateFcn: "fixed_poly_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
-            significance: 0.1
+            coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
+                    1.88469092, -2.19952823]
     model_3:
-        name: "FP3"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "TRUE3"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_predict"
+        updateFcn: "fixed_poly_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
-            significance: 0.1
+            coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
+                    6.18821903e-01, 7.51758182e+01]
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
@@ -104,9 +89,9 @@ optimizer:
     UB: [220, 537, 795, 795, 795]
     const_func: "MaxPowerConstraint"
     optimoptions:
-        MaxIterations: 2000
-        Display: "final-detailed"
+        MaxIterations: 500000
+        Display: "iter"
     params:
-        n_searches: 10
+    params:
         z: 1000
         PMax: 1580

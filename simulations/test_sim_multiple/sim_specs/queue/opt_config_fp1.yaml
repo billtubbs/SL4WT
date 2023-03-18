@@ -107,6 +107,7 @@ optimizer:
         MaxIterations: 2000
         Display: "final-detailed"
     params:
+    params:
         n_searches: 10
         z: 1000
         PMax: 1580

@@ -1,6 +1,13 @@
 function [sys,x0,str,tss] = load_opt(t,x,u,flag,config)
 
-addpath("plot-utils")
+% The following package is used to find random points
+% within the search space of loads.
+addpath("RandPtsInLinearConstraints")
+% See:
+% Cheng (2023). Generate Random Points in Multi-Dimensional Space 
+% subject to Linear Constraints, MATLAB Central File Exchange. 
+% Retrieved February 25, 2023.
+%
 
 switch flag
 
@@ -54,9 +61,13 @@ curr_iteration = 1;
 % Load initial training data from file
 training_data = struct();
 for machine = string(fieldnames(config.machines))'
-    filename = config.machines.(machine).trainingData;
-    filepath = fullfile("simulations", config.simulation.name, "data", filename);
-    training_data.(machine) = readtable(filepath);
+    if isfield(config.machines.(machine), "trainingData")
+        filename = config.machines.(machine).trainingData;
+        filepath = fullfile("simulations", config.simulation.name, "data", filename);
+        training_data.(machine) = readtable(filepath);
+    else
+        training_data.(machine) = table;  % empty table
+    end
 end
 
 % Create model objects by running the setup scripts with 
@@ -77,12 +88,19 @@ for machine = string(fieldnames(config.machines))'
     LOModelData.Machines.(machine).Iteration = nan(n_pre_train, 1);
     LOModelData.Machines.(machine).Time = nan(n_pre_train, 1);
     % TODO: Consider just saving all training data in one array/table
-    LOModelData.Machines.(machine).X = training_data.(machine){:, ...
-        model_config.params.predictorNames ...
-    };
-    LOModelData.Machines.(machine).Y = training_data.(machine){:, ...
-        model_config.params.responseNames ...
-    };
+    if n_pre_train > 0
+        LOModelData.Machines.(machine).X = training_data.(machine){:, ...
+            model_config.params.predictorNames ...
+        };
+        LOModelData.Machines.(machine).Y = training_data.(machine){:, ...
+            model_config.params.responseNames ...
+        };
+    else
+        LOModelData.Machines.(machine).X = ...
+            nan(n_pre_train, length(model_config.params.predictorNames));
+        LOModelData.Machines.(machine).Y = ...
+            nan(n_pre_train, length(model_config.params.responseNames));
+    end
 
 end
 
@@ -298,22 +316,75 @@ x0 = config.optimizer.X0';
 % J = obj_func(x0);
 % c = const_func(x0);
 
-% Run the optimizer
-gen_load_target = fmincon( ...
-    obj_func, ...
-    config.optimizer.X0', ...
-    [], [], [], [], ...
-    op_limits(:, 1), ...
-    op_limits(:, 2), ...
-    const_func, ...
-    options);
+% Do a random search of initial points, including the solution
+% from the previous iteration
+if isfield(config.optimizer.params, "n_searches")
+    n_searches = config.optimizer.params.n_searches;
+else
+    n_searches = 0;
+end
+
+% Initial point for solver
+X0 = config.optimizer.X0';
+
+if n_searches > 0
+    % Add random initialization points
+    % Start from a point inside operating limits
+    r = (CurrentLoadTarget - sum(op_limits(:, 1))) / sum(diff(op_limits, [], 2));
+    xr = op_limits(:, 1) + r .* diff(op_limits, [], 2);
+    X0_rand = RandPtsInLinearConstraints( ...
+            n_searches, ...
+            xr, ...
+            ones(1, 5), ...
+            CurrentLoadTarget, ...
+            op_limits(:, 2), ...
+            op_limits(:, 1), ...
+            [0 0 0 0 0], ...
+            0 ...
+        );
+    X0 = [X0 X0_rand];
+end
+n_sols = size(X0, 2);
+
+best_power = inf;
+opt_flags = nan(1, n_sols);
+for j = 1:n_sols
+
+    % Initial point
+    x0 = X0(:, j);
+
+    % Run the optimizer
+    [load_sol, power_sol, flag] = fmincon( ...
+        obj_func, ...
+        x0, ...
+        [], [], [], [], ...
+        op_limits(:, 1), ...
+        op_limits(:, 2), ...
+        const_func, ...
+        options);
+
+    opt_flags(j) = flag;
+    if flag < 1
+        warning(compose("optimizer flag is %d.", flag))
+    end
+
+    % Check constraints met
+    assert(all(load_sol - op_limits(:, 1) >= 0))
+    assert(all(op_limits(:, 2) - load_sol >= 0))
+
+    if power_sol < best_power
+        best_load = load_sol;
+        best_power = power_sol;
+    end
+end
+gen_load_targets = best_load;
 
 % Simulation iteration (not the model updates iteration)
 curr_iteration = curr_iteration + 1;
 
 % Send outputs
-assert(isequal(size(gen_load_target), [n_machines 1]))
-sys = gen_load_target;
+assert(isequal(size(gen_load_targets), [n_machines 1]))
+sys = gen_load_targets;
 % end
 
 
