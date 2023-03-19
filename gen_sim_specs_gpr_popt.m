@@ -3,7 +3,7 @@
 addpath("yaml")
 
 % Name of simulation and directory where sim specs and results are
-sim_name = "test_sim_gp1_popt";
+sim_name = "sim_gpr_popt";
 
 % Define directory where simulation spec files should be
 sims_dir = "simulations";
@@ -15,7 +15,7 @@ filepath = fullfile(sim_spec_dir, sim_config_filename);
 sim_config_base = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Load optimizer base configuration from file
-filepath = fullfile(sim_spec_dir, "opt_config_gpr1.yaml");
+filepath = fullfile(sim_spec_dir, "opt_config_gpr2.yaml");
 opt_config_base = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Create directory for new sim specs
@@ -36,7 +36,8 @@ for i = 1:n_sims
     sim_config.optimizer.config_filename = new_opt_config_filename;
 
     % Save new sim_spec file in queue directory
-    new_sim_spec_filename = replace(sim_config_filename, "base", compose("%02d", i));
+    new_sim_spec_filename = replace(sim_config_filename, "base", ...
+        compose("%02d", i));
     yaml.dumpFile(fullfile(sim_spec_dir, "queue", new_sim_spec_filename), ...
         sim_config, "block")
 
