@@ -69,6 +69,7 @@ runtests
 
 ## References
 
+ - Buse Sibel Korkmaz, Marta Zagórowska, Mehmet Mercangöz (2022), Safe Optimization of an Industrial Refrigeration Process Using an Adaptive and Explorative Framework, arXiv preprint arXiv:2211.13019, (https://arxiv.org/abs/2211.13019)
  - Cheng (2023). Generate Random Points in Multi-Dimensional Space subject to Linear Constraints 
    (https://www.mathworks.com/matlabcentral/fileexchange/36070-generate-random-points-in-multi-dimensional-space-subject-to-linear-constraints), 
    MATLAB Central File Exchange. Retrieved February 27, 2023.
