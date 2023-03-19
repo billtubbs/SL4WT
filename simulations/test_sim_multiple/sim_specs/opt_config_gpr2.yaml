@@ -1,0 +1,121 @@
+block:
+    NumContStates: 0
+    NumDiscStates: 0
+    NumOutputs: 5
+    NumInputs: 11
+    DirFeedthrough: 1
+    NumSampleTimes: 1
+    x0: []
+    tss: [250, 0]
+machines:
+    machine_1:
+        name: "Machine 1"
+        model: "model_1"
+        trainingData: "machine_1_data.csv"
+        params:
+            op_limits: [56, 220]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_2:
+        name: "Machine 2"
+        model: "model_2"
+        trainingData: "machine_2_data.csv"
+        params:
+            op_limits: [237, 537]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_3:
+        name: "Machine 3"
+        model: "model_3"
+        trainingData: "machine_3_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_4:
+        name: "Machine 4"
+        model: "model_3"
+        trainingData: "machine_4_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_5:
+        name: "Machine 5"
+        model: "model_3"
+        trainingData: "machine_5_data.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+models:
+    model_1:
+        name: "GP1"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15, 95]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.11  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
+            significance: 0.1
+    model_2:
+        name: "GP2"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15, 110]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.11  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
+            significance: 0.1
+    model_3:
+        name: "GP3"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [15, 220]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.11  # noise std. dev.
+                SigmaLowerBound: 0.1
+                #FitMethod: "none"
+            significance: 0.1
+optimizer:
+    obj_func: "LoadObjFun"
+    X0: [56.1, 237.1, 194.1, 194.1, 194.1]
+    A: []
+    B: []
+    Aeq: []
+    Beq: []
+    LB: [56, 237, 194, 194, 194]
+    UB: [220, 537, 795, 795, 795]
+    const_func: "MaxPowerConstraint"
+    optimoptions:
+        MaxIterations: 2000
+        Display: "none"
+    params:
+        n_searches: 10
+        z: 10000
+        PMax: 1580

@@ -1,0 +1,97 @@
+block:
+    NumContStates: 0
+    NumDiscStates: 0
+    NumOutputs: 5
+    NumInputs: 11
+    DirFeedthrough: 1
+    NumSampleTimes: 1
+    x0: []
+    tss: [250, 0]
+machines:
+    machine_1:
+        name: "Machine 1"
+        model: "model_1"
+        params:
+            op_limits: [56, 220]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_2:
+        name: "Machine 2"
+        model: "model_2"
+        params:
+            op_limits: [237, 537]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_3:
+        name: "Machine 3"
+        model: "model_3"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_4:
+        name: "Machine 4"
+        model: "model_3"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+    machine_5:
+        name: "Machine 5"
+        model: "model_3"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
+models:
+    model_1:
+        name: "TRUE1"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_model_predict"
+        updateFcn: "fixed_poly_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
+    model_2:
+        name: "TRUE2"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_model_predict"
+        updateFcn: "fixed_poly_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
+                    1.88469092, -2.19952823]
+    model_3:
+        name: "TRUE3"
+        setupFcn: "fixed_poly_model_setup"
+        predictFcn: "fixed_poly_model_predict"
+        updateFcn: "fixed_poly_model_update"
+        params:
+            predictorNames: "Load"
+            responseNames: "Power"
+            coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
+                    6.18821903e-01, 7.51758182e+01]
+optimizer:
+    obj_func: "LoadObjFun"
+    X0: [56.1, 237.1, 194.1, 194.1, 194.1]
+    A: []
+    B: []
+    Aeq: []
+    Beq: []
+    LB: [56, 237, 194, 194, 194]
+    UB: [220, 537, 795, 795, 795]
+    const_func: "MaxPowerConstraint"
+    optimoptions:
+        MaxIterations: 2000
+        Display: "final-detailed"
+    params:
+        n_searches: 10
+        z: 1000
+        PMax: 1580
