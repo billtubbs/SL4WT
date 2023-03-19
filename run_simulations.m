@@ -14,13 +14,15 @@ sims_dir = "simulations";
 % are located and results will be stored
 % sim_name = "test_sim_gpr";  % Gaussian process models
 % sim_name = "test_sim_fp1";  % Simple first-principles model
-sim_name = "test_sim_lin";  % Linear model
+% sim_name = "test_sim_lin";  % Linear model
+% TODO: For some reason the linear model simulation is very slow
 % sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
 % sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
+sim_name = "test_sim_gp1_popt";
 
 % Directory where config files are stored
-sim_spec_dir = fullfile("simulations", sim_name, "sim_specs");
+sim_spec_dir = fullfile(sims_dir, sim_name, "sim_specs");
 if ~exist(sim_spec_dir, 'dir')
     error(compose("Directory '%s' not found", sim_spec_dir))
 end
@@ -106,7 +108,10 @@ while true
     % Move completed sim_spec file to 'done' directory
     if n_sim_queue > 0
         move_from = fullfile(sim_spec_dir, sim_spec_filename);
-        move_to = fullfile(sim_spec_dir, to_folder);
+        move_to = fullfile(sim_spec_dir, to_folder, files_info(i_sim).name);
+        if ~exist(to_folder, 'dir')
+            mkdir(to_folder)
+        end
         movefile(move_from, move_to)
     end
 

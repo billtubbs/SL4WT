@@ -64,8 +64,7 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
+                KernelParameters: [15, 95]  # [sigmaL0, sigmaF0]
                 Sigma: 0.11  # noise std. dev.
                 SigmaLowerBound: 0.1
             significance: 0.1
@@ -79,8 +78,7 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 110.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
+                KernelParameters: [15, 110]  # [sigmaL0, sigmaF0]
                 Sigma: 0.11  # noise std. dev.
                 SigmaLowerBound: 0.1
             significance: 0.1
@@ -94,8 +92,7 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 220.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
+                KernelParameters: [15, 220]  # [sigmaL0, sigmaF0]
                 Sigma: 0.11  # noise std. dev.
                 SigmaLowerBound: 0.1
             significance: 0.1
@@ -111,7 +108,7 @@ optimizer:
     const_func: "MaxPowerConstraint"
     optimoptions:
         MaxIterations: 2000
-        Display: "final-detailed"
+        Display: "none"
     params:
         n_searches: 10
         z: 10000

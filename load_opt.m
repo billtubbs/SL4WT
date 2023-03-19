@@ -111,6 +111,7 @@ LOData.LoadTarget = [];
 LOData.SteadyState = [];
 LOData.ModelUpdates = [];
 LOData.TotalUncertainty = [];
+LOData.OptFails = [];
 for machine = string(fieldnames(config.machines))'
     LOData.Machines.(machine).X = [];
     LOData.Machines.(machine).Y = [];
@@ -238,8 +239,8 @@ end
 LOData.ModelUpdates = [LOData.ModelUpdates; ModelUpdates];
 
 % Model predictions - this is needed for calculation of 
-% total uncertainty and to save model predictions if the
-% models were updated.
+% prediction errors and total model uncertainty and to 
+% save model predictions if the models were updated.
 y_sigmas = cell(1, n_machines);
 for i = 1:n_machines
     machine = machine_names{i};
@@ -377,6 +378,8 @@ for j = 1:n_sols
         best_power = power_sol;
     end
 end
+n_opt_fails = sum(opt_flags == 0);
+LOData.OptFails = [LOData.OptFails; n_opt_fails];
 gen_load_targets = best_load;
 
 % Simulation iteration (not the model updates iteration)

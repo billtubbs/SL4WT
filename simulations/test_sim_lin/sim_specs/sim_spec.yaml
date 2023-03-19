@@ -5,9 +5,11 @@ simulation:
         filename: "load_sequence_11.mat"
     params:
         t_stop: 4000
-        PMax: 1580
+        seed: 0
     outputs:
         save_script: "sim_save_outputs.m"
+        summary:
+            filename: "sims_summary.csv"
 system:
     config_filename: "sys_config.yaml"
 optimizer:
