@@ -51,7 +51,7 @@ ax2 = subplot(2, 1, 2);
 Y = [
     power_ideal ...
     sim_out.total_power.Data ...
-    sim_config.simulation.params.PMax.*ones(size(sim_out.tout)) ...
+    opt_config.optimizer.params.PMax.*ones(size(sim_out.tout)) ...
 ];
 x = sim_out.total_power.Time;
 x_label = "Time (s)";
@@ -100,7 +100,13 @@ for i = 1:n_machines
         % limits for all plots in this row.
         y_lim = [inf -inf];
         for j = 1:n_times
-            t = times(j);
+
+            % Always plot the final plot - NOTE: see same below
+            if j == n_times
+                t = times(end);
+            else
+                t = times(j);
+            end
     
             % Load predictions
             filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
@@ -110,12 +116,18 @@ for i = 1:n_machines
             % Update min/max range
             y_lim(1) = min(min(model_preds{j}{:, 'y_int_1'}), y_lim(1));
             y_lim(2) = max(max(model_preds{j}{:, 'y_int_2'}), y_lim(2));
-            
+
         end
 
         for j = 1:n_times
-            t = times(j);
 
+            % Always plot the final plot
+            if j == n_times
+                t = times(end);
+            else
+                t = times(j);
+            end
+    
             % Plot predictions and training data points
             subplot(n_machines, 5, 5*(i-1)+j);
             make_statplot( ...
@@ -127,11 +139,21 @@ for i = 1:n_machines
 
             % Index of current data point
             k = find(LOModelData.Machines.(machine).Time == t);
+            if isempty(k)
+                % If there was no model update at t = 0, make
+                % plot with pre-training data
+                k_updates = find(~isnan(LOModelData.Machines.(machine).Time));
+                k = max(k_updates(1) - 1, 0);
+            end
 
             % Add all previous training data points to plot
-            x = LOModelData.Machines.(machine).X(1:k);
-            y = LOModelData.Machines.(machine).Y(1:k);
-            plot(x, y, 'k.', 'MarkerSize', 10)
+            if k > 0
+                x = LOModelData.Machines.(machine).X(1:k);
+                y = LOModelData.Machines.(machine).Y(1:k);
+                plot(x, y, 'k.', 'MarkerSize', 10)
+            end
+            xlim([min(model_preds{j}{:, 'op_interval'}) ...
+                  max(model_preds{j}{:, 'op_interval'})])
             text(0.05, 0.9, compose("$t=%d$", t), 'Units', 'normalized', ...
                 'Interpreter', 'latex')
             title(escape_latex_chars(config.machines.(machine).name), ...

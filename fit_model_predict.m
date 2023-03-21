@@ -12,11 +12,25 @@ function [y_mean, y_sigma, y_int] = fit_model_predict(model, x, vars, ...
 %   'cubicinterp': Piecewise cubic interpolation
 %   'smoothingspline': Smoothing spline (curve)
 %
+% Returns
+%   y_mean (n, ny) double
+%       Expected values of y at each x(i,:), i = 1, 2, ... n.
+%   y_sigma (n, ny) double
+%       Standard deviations of the uncertainty of the 
+%       predictions y_mean(i,:) at each x(i,:).
+%   y_int (n, 2*ny) double
+%       Lower and upper confidence intervals for each
+%       prediction y_mean(i,:). The first 1:n columns are
+%       the lower bounds, columns n+1:2*n are the upper
+%       bounds.
+%
+
 % TODO: Include multi-variable models:
 %   'poly11': Linear polynomial surface
 %   'lowess': Local linear regression (surface)
 %
 % TODO: Allow custom model types.
+%
 %
 
     % Make predictions using the model

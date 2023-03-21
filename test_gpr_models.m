@@ -10,7 +10,7 @@ test_dir = "tests";
 test_data_dir = "data";
 
 
-%% Test initialization with data
+%% Test basic initialization
 
 Load = [50 100 150]';
 Power = [35.05 70.18 104.77]';
@@ -19,8 +19,6 @@ data = table(Load, Power);
 params = struct();
 params.predictorNames = "Load";
 params.responseNames = "Power";
-params.fit.KernelFunction = "Matern32";
-params.fit.SigmaLowerBound = 0.1;
 params.significance = 0.1;
 
 % Initialize a linear model
@@ -29,17 +27,85 @@ params.significance = 0.1;
 assert(isa(model, 'RegressionGP'))
 assert(isequal(fieldnames(vars), {'significance'}'))
 assert(isequal(vars.significance, 0.1))
-assert(isequal(round(model.Beta, 4), 69.9195));
-assert(isequal(model.KernelFunction, "Matern32"))
-assert(round(model.LogLikelihood, 4) == -14.2484);
+assert(isequal(round(model.Beta, 4), 64.7764));
+assert(isequal(model.KernelFunction, "SquaredExponential"))
+assert(isequal( ...
+    round(model.KernelInformation.KernelParameters, 4), ...
+    [273.6183 112.5763]' ...
+))
+assert(round(model.LogLikelihood, 4) == -13.6423);
 
 % Test predictions with single point
 x = 200;
 [y_mean, y_sigma, y_int] = gpr_model_predict(model, x, vars, params);
 
-assert(round(y_mean, 4) == 94.1334);
-assert(isequal(round(y_sigma, 4), 25.4990));
-assert(isequal(round(y_int, 4), [52.1913  136.0755]));
+assert(round(y_mean, 4) == 135.4996);
+assert(isequal(round(y_sigma, 4), 2.1672));
+assert(isequal(round(y_int, 4), [131.9349  139.0643]));
+
+
+%% Test initialization with output transform and fit params
+
+Load = [50 100 150]';
+Power = [35.05 70.18 104.77]';
+data = table(Load, Power);
+
+params = struct();
+params.predictorNames = "Load";
+params.responseNames = "Power";
+params.outputTransform.y = "@(x, y) (y + 0.7).*x";
+params.outputTransform.y_inv = "@(x, y) y./x - 0.7";
+params.fit.KernelFunction = "SquaredExponential";
+params.fit.KernelParameters = [30 0.1];
+params.fit.FitMethod = "none";
+params.fit.Sigma = 0.02;
+params.significance = 0.1;
+
+% Initialize a linear model
+[model, vars] = gpr_model_setup(data, params);
+
+assert(isa(model, 'RegressionGP'))
+assert(isequal(fieldnames(vars), {'significance', 'outputTransform'}'))
+assert(isequal(vars.significance, 0.1))
+assert(isequal(round(model.Sigma, 4), params.fit.Sigma));
+assert(isequal(round(model.Beta, 6), 0));
+assert(isequal(model.KernelFunction, "SquaredExponential"))
+assert(all(abs( ...
+    model.KernelInformation.KernelParameters ...
+    - params.fit.KernelParameters' ...
+    ) < 1e-13 ...
+))
+assert(isempty(model.LogLikelihood));  % empty if model is not fit
+
+% Test predictions at multiple points
+op_limits = [50 400];
+x = linspace(op_limits(1), op_limits(2), 176)';
+[y_mean, y_sigma, y_int] = gpr_model_predict(model, x, vars, params);
+
+% Plot predictions and data
+% figure(1); clf
+% make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, ...
+%     data.Power, data.Load, "Load", "Power")
+% p = get(gcf, 'Position');
+% set(gcf, 'Position', [p(1:2) 320 210])
+
+assert(isequal( ...
+    round(y_mean(1:50:end), 4), ...
+    [   35.0491  104.7819  174.9981  245.0000]' ...
+));
+assert(isequal( ...
+    round(y_sigma(1:50:end), 4), ...
+    [   36.3997  109.1990  200.4949  280.6931]' ...
+));
+assert(isequal( ...
+    round(y_int(1:50:end, :), 4), ...
+    [ ...
+       32.7468   37.3513
+       97.8751  111.6886
+      133.0627  216.9335
+      186.2900  303.7100
+    ] ...
+));
 
 
 %% Test with config file
@@ -113,7 +179,7 @@ x = linspace(op_limits(1), op_limits(2), 101)';
 );
 
 % % Plot predictions and data
-% figure(1); clf
+% figure(2); clf
 % make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, ...
 %     training_data.(machine){:, "Power"}, ...
 %     training_data.(machine){:, "Load"}, ...
@@ -232,7 +298,7 @@ training_data.machine_1 = [
 );
 
 % Plot predictions and data
-% figure(2); clf
+% figure(3); clf
 % make_statdplot(y_mean, y_int(:, 1), y_int(:, 2), x, ...
 %     training_data.(machine){:, "Power"}, ...
 %     training_data.(machine){:, "Load"}, ...
