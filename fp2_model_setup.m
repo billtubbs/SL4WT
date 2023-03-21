@@ -11,19 +11,23 @@ function [model, vars] = fp2_model_setup(data, params)
 
     % Prepare variables struct
     vars = struct();
-    vars.inputTransform = struct();
-    % Construct functions for input transformation
-    vars.inputTransform.x = str2func(params.inputTransform.x);
-    vars.inputTransform.x_inv = str2func(params.inputTransform.x_inv);
-    vars.outputTransform = struct();
-    % Construct functions for output transformation
-    vars.outputTransform.y = str2func(params.outputTransform.y);
-    vars.outputTransform.y_inv = str2func(params.outputTransform.y_inv);
+
+    % Create functions for input and output transformations
+    if isfield(params, "inputTransform")
+        vars.inputTransform = create_input_transform(params);
+    end
+    if isfield(params, "outputTransform")
+        vars.outputTransform = create_output_transform(params);
+    end
+
+    % These variables will be assigned by the update function below
     vars.prior.y = nan;
     vars.prior.y_sigma = nan;
     vars.prior.y_int1 = nan;
     vars.prior.y_int2 = nan;
     vars.use_fitted_model = false;
+
+    % Significance level used for confidence intervals
     vars.significance = params.significance;
 
     % Fit model

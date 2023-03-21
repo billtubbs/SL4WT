@@ -8,33 +8,37 @@ function [y_mean, y_sigma, y_int] = fp2_model_predict(model, x, vars, ...
 %
 
     % Transform inputs
-    xT = vars.inputTransform.x(x);
+    if isfield(vars, "inputTransform")
+        x = vars.inputTransform.x(x);
+    end
 
     if vars.use_fitted_model
 
         % Make predictions using model
-        [yT_mean, yT_int] = predict(model, xT, 'Alpha', vars.significance);
+        [y_mean, y_int] = predict(model, x, 'Alpha', vars.significance);
 
         % Standard deviation of residuals. This is calculated:
         % residuals = model.Residuals{:, "Raw"};
         % n = model.NumObservations;
         % p = model.NumCoefficients;
         % RMSE = sqrt(sum(residuals.^2) ./ (n - p))
-        yT_sigma = model.RMSE .* ones(size(x));
+        y_sigma = model.RMSE .* ones(size(x));
 
     else
 
         % Use prior model
-        yT_mean = vars.prior.y(xT);
-        yT_sigma = vars.prior.y_sigma(xT);
-        yT_int = [vars.prior.y_int1(xT) vars.prior.y_int2(xT)];
+        y_mean = vars.prior.y(x);
+        y_sigma = vars.prior.y_sigma(x);
+        y_int = [vars.prior.y_int1(x) vars.prior.y_int2(x)];
 
     end
 
     % Transform outputs
-    y_mean = vars.outputTransform.y(xT, yT_mean);
-    y_sigma = vars.outputTransform.y(xT, yT_sigma);  % TODO: is this correct?
-    y_int = [vars.outputTransform.y(xT, yT_int(:,1)) ...
-             vars.outputTransform.y(xT, yT_int(:,2))];
+    if isfield(vars, "outputTransform")
+        y_mean = vars.outputTransform.y(x, y_mean);
+        y_sigma = vars.outputTransform.y(x, y_sigma);  % TODO: is this correct?
+        y_int = [vars.outputTransform.y(x, y_int(:,1)) ...
+                 vars.outputTransform.y(x, y_int(:,2))];
+    end
 
 end

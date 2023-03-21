@@ -22,9 +22,13 @@ function [model, vars] = fp2_model_update(model, data, vars, params)
     vars.use_fitted_model = false;
     if n > 0
 
-        % Transform inputs
-        X = vars.inputTransform.x(X);
-        Y = vars.outputTransform.y_inv(X, Y);
+        % Transform inputs and outputs to model input-output space
+        if isfield(vars, "inputTransform")
+            X = vars.inputTransform.x(X);
+        end
+        if isfield(vars, "outputTransform")
+            Y = vars.outputTransform.y_inv(X, Y);
+        end
 
         % Horizontal line (zero order) prior
         y_mean = mean(Y);
