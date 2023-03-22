@@ -19,162 +19,238 @@ if ~exist(plot_dir, 'dir')
     mkdir(plot_dir)
 end
 
+% Number of total load points to find optimum solution
+n_pts = 501;
+
+% Number of random searches to do for optimizer initial
+% point
+n_searches = 50;
+
+%% Load configuration file
+
 % Load simulation config file with machine parameters
-filename = "test_sim_config.yaml";
-sim_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
+filename = "test_sys_config.yaml";
+sys_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
     "ConvertToArray", true);
 
-machine_names = fieldnames(sim_config.machines);
+machine_names = fieldnames(sys_config.equipment);
 n_machines = numel(machine_names);
 
 % Constraints: lower and upper bounds of load for each machine
 op_limits = cell2mat( ...
-    cellfun(@(name) sim_config.machines.(name).params.op_limits, ...
+    cellfun(@(name) sys_config.equipment.(name).params.op_limits, ...
         machine_names, 'UniformOutput', false) ...
 );
-
-% Test function to calculate power of one machine
-machine = machine_names{1};
-sigma_M = 0;  % no noise
-params = sim_config.machines.(machine).params;
-load = 500;
-power = sample_op_pts_poly(load, params, sigma_M);
-assert(round(power, 4) == 149.9006)
 
 % Total load range
 min_load = sum(op_limits(:, 1));
 max_load = sum(op_limits(:, 2));
 
 % Test function to calculate total power of all machines
-min_power = calc_total_power(op_limits(:, 1), sim_config.machines);
+min_power = calc_total_power(op_limits(:, 1), sys_config.equipment);
 assert(round(min_power, 4) ==  753.4969)
-max_power = calc_total_power(op_limits(:, 2), sim_config.machines);
+max_power = calc_total_power(op_limits(:, 2), sys_config.equipment);
 assert(round(max_power, 4) ==  1978.7627)
-load_targets = linspace(min_load+50, max_load-50, 101)';
 
-% Create function to calculate total power given loads
-% of machines 1-4 and total power target
-calc_total_power2 = @(loads, load_target) calc_total_power( ...
-    [loads(1:n_machines-1); ...
-     load_target-sum(loads(1:n_machines-1))], ...
-    sim_config.machines ...
-);
+% Leave a gap between lower and upper limit because 
+% optimizing in this space is tricky (very few solutions)
+load_targets = linspace(min_load+50, max_load-50, n_pts)';
 
-n_sols = numel(load_targets);
-load_sols = nan(n_sols, n_machines - 1);
-total_powers = nan(n_sols, 1);
-opt_flags = nan(n_sols, 1);
-n_unique = nan(n_sols, 1);
 
-% Choose an initial point
-best_load = [56 237 194 194]';
-for i = 1:numel(load_targets)
-    load_target = load_targets(i);
-    
-    ObjFun = @(loads) calc_total_power2(loads, load_target);
+%% If results already exist load them from file
 
-    % Optimizer options
-    options = optimoptions('fmincon', ...
-        'SubproblemAlgorithm', "cg", ...
-        'MaxIterations', 10000, ...
-        'MaxFunctionEvaluations', 10000, ...
-        'OptimalityTolerance', 1e-6, ...
-        'ConstraintTolerance', 1e-6, ...
-        'Display', 'final-detailed' ...
+filename = compose("min_power_load_solutions_opt%d_%d.csv", ...
+    n_searches, n_pts);
+
+if exist(fullfile(results_dir, filename), 'file')
+
+    results = readtable(fullfile(results_dir, filename));
+    fprintf("Existing results laoded from file '%s'\n", filename)
+    load_targets_before = load_targets;
+    load_targets = results.TotalLoadTarget;
+    assert(max(abs(load_targets_before - load_targets(2:end-1))) < 1e-12);
+
+    load_targets = results.TotalLoadTarget;
+    loads = results{:, {'MachineLoad1', 'MachineLoad2', ...
+            'MachineLoad3', 'MachineLoad4', 'MachineLoad5'}};
+    total_powers = results.TotalPower;
+
+else
+
+    % Test function to calculate power of one machine
+    machine = machine_names{1};
+    sigma_M = 0;  % no noise
+    params = sys_config.equipment.(machine).params;
+    load = 500;
+    power = sample_op_pts_poly(load, params, sigma_M);
+    assert(round(power, 4) == 149.9006)
+
+    % Create function to calculate total power given loads
+    % of machines 1-4 and total power target
+    calc_total_power2 = @(loads, load_target) calc_total_power( ...
+        [loads(1:n_machines-1); ...
+         load_target-sum(loads(1:n_machines-1))], ...
+        sys_config.equipment ...
     );
 
-    % Do a random search of initial points, including the solution
-    % from the previous iteration
-    n_searches = 50;
-    % Choose initial condition for solver
-    x0 = best_load;  % best solution from previous iteration
-    %x0 = [60 240 200 200]';
-    %x0 = [220 537 795 194]';
-    if n_searches > 0
-        % Add random initialization points
-        % Start from a point inside operating limits
-        r = (load_target - sum(op_limits(:, 1))) / sum(diff(op_limits, [], 2));
-        xr = op_limits(:, 1) + r .* diff(op_limits, [], 2);
-        X0 = RandPtsInLinearConstraints( ...
-                n_searches, ...
-                xr, ...
-                ones(1, 5), ...
-                load_target, ...
-                op_limits(:, 2), ...
-                op_limits(:, 1), ...
-                [0 0 0 0 0], ...
-                0 ...
-            );
-        X0 = [x0(1:4)'; X0(1:4, :)'];  % remove final machine loads
-    end
-
-    best_power = inf;
-    unique_sols = double.empty(0, n_machines-1);
-    for j = 1:size(X0,1)
-
-        % Initial point
-        x0 = X0(j, :)';
-
-        % Run the optimizer
-        A = [ones(1,4); -ones(1,4)];
-        B = [load_target-op_limits(5,1);
-             op_limits(5,2)-load_target];
-        [load_sol, power_sol, flag] = fmincon( ...
-            ObjFun, ...
-            x0, ...
-            A, B, ...  % A*X <= B
-            [], [], ...  % Aeq, Beq: Aeq*X = Beq
-            op_limits(1:4, 1), ...
-            op_limits(1:4, 2), ...
-            [], ...
-            options ...
+    n_sols = numel(load_targets);
+    load_sols = nan(n_sols, n_machines - 1);
+    total_powers = nan(n_sols, 1);
+    opt_flags = nan(n_sols, 1);
+    n_unique = nan(n_sols, 1);
+    
+    % Choose an initial point
+    best_load = [56 237 194 194]';
+    for i = 1:length(load_targets)
+        load_target = load_targets(i);
+        
+        ObjFun = @(loads) calc_total_power2(loads, load_target);
+    
+        % Optimizer options
+        options = optimoptions('fmincon', ...
+            'SubproblemAlgorithm', "cg", ...
+            'MaxIterations', 10000, ...
+            'MaxFunctionEvaluations', 10000, ...
+            'OptimalityTolerance', 1e-6, ...
+            'ConstraintTolerance', 1e-6, ...
+            'Display', 'final-detailed' ...
         );
-        opt_flags(j) = flag;
-        if flag < 1
-            warning(compose("optimizer flag is %d.", flag))
+    
+        % Do random search of initial points, including the solution
+        % from the previous iteration
+        % Choose initial condition for solver
+        x0 = best_load;  % best solution from previous iteration
+        %x0 = [60 240 200 200]';
+        %x0 = [220 537 795 194]';
+        if n_searches > 0
+            % Add random initialization points
+            % Start from a point inside operating limits
+            r = (load_target - sum(op_limits(:, 1))) / sum(diff(op_limits, [], 2));
+            xr = op_limits(:, 1) + r .* diff(op_limits, [], 2);
+            X0 = RandPtsInLinearConstraints( ...
+                    n_searches, ...
+                    xr, ...
+                    ones(1, 5), ...
+                    load_target, ...
+                    op_limits(:, 2), ...
+                    op_limits(:, 1), ...
+                    [0 0 0 0 0], ...
+                    0 ...
+                );
+            X0 = [x0(1:4)'; X0(1:4, :)'];  % remove final machine loads
         end
-
-        % Check constraints met
-        assert(load_target - sum(load_sol) >= op_limits(n_machines, 1))
-        assert(load_target - sum(load_sol) <= op_limits(n_machines, 2))
-
-        if ~ismember(round(load_sol', 2), unique_sols, 'rows')
-            unique_sols = [unique_sols; round(load_sol', 2)];
+    
+        best_power = inf;
+        unique_sols = double.empty(0, n_machines-1);
+        for j = 1:size(X0,1)
+    
+            % Initial point
+            x0 = X0(j, :)';
+    
+            % Run the optimizer
+            A = [ones(1,4); -ones(1,4)];
+            B = [load_target-op_limits(5,1);
+                 op_limits(5,2)-load_target];
+            [load_sol, power_sol, flag] = fmincon( ...
+                ObjFun, ...
+                x0, ...
+                A, B, ...  % A*X <= B
+                [], [], ...  % Aeq, Beq: Aeq*X = Beq
+                op_limits(1:4, 1), ...
+                op_limits(1:4, 2), ...
+                [], ...
+                options ...
+            );
+            opt_flags(j) = flag;
+            if flag < 1
+                warning(compose("optimizer flag is %d.", flag))
+            end
+    
+            % Check constraints met
+            assert(load_target - sum(load_sol) >= op_limits(n_machines, 1))
+            assert(load_target - sum(load_sol) <= op_limits(n_machines, 2))
+    
+            if ~ismember(round(load_sol', 2), unique_sols, 'rows')
+                unique_sols = [unique_sols; round(load_sol', 2)];
+            end
+    
+            if power_sol < best_power
+                best_load = load_sol;
+                best_power = power_sol;
+            end
         end
-
-        if power_sol < best_power
-            best_load = load_sol;
-            best_power = power_sol;
-        end
+        n_unique(i) = size(unique_sols, 1);
+        load_sols(i, :) = best_load;
+        total_powers(i) = best_power;
+    
     end
-    n_unique(i) = size(unique_sols, 1);
-    load_sols(i, :) = best_load;
-    total_powers(i) = best_power;
+    loads = [load_sols load_targets-sum(load_sols, 2)];
+
+    % print total power
+    fprintf("Cumulative power: %g\n", sum(total_powers));
+
+    % Save results
+    var_names = {'TotalLoadTarget', 'MachineLoad1', 'MachineLoad2', ...
+            'MachineLoad3', 'MachineLoad4', 'MachineLoad5', 'TotalPower'};
+
+    % Add the lower and upper limits to the data before plotting
+    results = [ ...
+        min_load      op_limits(:,1)'  min_power;
+        load_targets  loads            total_powers;
+        max_load      op_limits(:,2)'  max_power ...
+    ];
+    results = array2table(results, 'VariableNames', var_names);
+
+    writetable(results, fullfile(results_dir, filename))
+    fprintf("Results saved to file '%s'\n", filename)
+
+    figure(1); clf
+
+    % Make histogram of number of unique solutions
+    bar(load_targets, n_unique, 'LineStyle', 'none')
+    ylabel("No. of unique solutions")
+    grid on
+    title("Number of unique solutions")
+    p = get(gcf, 'Position');
+    set(gcf, 'Position', [p(1:2) 420 160])
+    xlabel("Load target (kW)")
+
+    filename = "optimum_loads_n_unique.pdf";
+    save2pdf(fullfile(plot_dir, filename))
 
 end
-loads = [load_sols load_targets-sum(load_sols, 2)];
 
-% print total power
-fprintf("Cumulative power: %g\n", sum(total_powers));
+% Calculate a benchmark for comparison
+% E.g. Assume all 5 machines are adjusted linearly in
+% proportion to the total load target.
 
-%% Save results
-results = array2table([load_targets loads total_powers], ...
-    'VariableNames', {'TotalLoadTarget', 'MachineLoad1', 'MachineLoad2', ...
-        'MachineLoad3', 'MachineLoad4', 'MachineLoad5', 'TotalPower'});
-filename = "min_power_load_solutions.csv";
-writetable(results, fullfile(results_dir, filename))
-fprintf("Results saved to file '%s'\n", filename)
+load_target_ratios = (load_targets - min_load) ./ (max_load - min_load);
+loads_prop = op_limits(:, 1)' + diff(op_limits, [], 2)' .* load_target_ratios;
+assert(max(abs(sum(loads_prop, 2) - load_targets)) <  1e-10)
+total_powers_prop = nan(size(load_targets));
+for i = 1:length(load_targets)
+    total_powers_prop(i) = calc_total_power( ...
+        loads_prop(i, :)', ...
+        sys_config.equipment ...
+    );
+end
+assert(all(min(total_powers_prop - total_powers) > -1e-12))
+
+% Calculate maximum energy saving from optimization
+[max_diff, i_max] = max(total_powers_prop - total_powers);
+fprintf("Largest difference: %.1f kW at %.1f kW\n", ...
+    max_diff, load_targets(i_max))
 
 
-%% Make plot
-
-y_lims = axes_limits_with_margin(reshape(op_limits, [], 1), 0.05);
+%% Make plots
 
 loads_sorted = [loads(:, 1:2) sort(loads(:, 3:5), 2)];
 
-figure(1); clf
+% Line plot of loads of each machine
+figure(2); clf
 subplot(2, 1, 1)
-plot(load_targets, loads_sorted, '.-')
+y_lims = axes_limits_with_margin(reshape(op_limits, [], 1), 0.05);
+plot(load_targets, loads_sorted, 'Linewidth', 2)
 xlim(load_targets([1 end]))
 ylim(y_lims)
 xlabel("Load target (kW)", 'Interpreter', 'latex')
@@ -197,15 +273,49 @@ title("Overall Specific Energy Consumption", 'Interpreter', 'latex')
 filename = "optimum_loads_plot.pdf";
 save2pdf(fullfile(plot_dir, filename))
 
-figure(2); clf
+% Area plot of loads of each machine - for published paper
+figure(3); clf
 
-bar(load_targets, n_unique, 'LineStyle', 'none')
-ylabel("No. of unique solutions")
+ax1 = subplot(2, 1, 1);
+area(load_targets, loads_sorted)
+xlim(load_targets([1 end]))
+%xlabel("Load target (kW)", 'Interpreter', 'latex')
+ylabel("Load (kW)", 'Interpreter', 'latex')
+set(gca, 'TickLabelInterpreter', 'latex')
+labels = compose("%d", 1:5);
+lh = legend(labels, 'Location', 'northwest', 'Interpreter', 'latex', 'NumColumns', 4);
+lp = get(lh, 'Position');
+set(lh, 'Position', [0.16 0.83 0.5 0.08])
 grid on
-title("Number of unique solutions")
-p = get(gcf, 'Position');
-set(gcf, 'Position', [p(1:2) 420 160])
-xlabel("Load target (kW)")
+title("(a) Optimum machine loads", 'Interpreter', 'latex')
+set(gca,'fontsize', 8)
 
-filename = "optimum_loads_n_unique.pdf";
+ax2 = subplot(2, 1, 2);
+plot(load_targets, total_powers_prop ./ load_targets, 'Linewidth', 1)
+hold on
+plot(load_targets, total_powers ./ load_targets, 'Linewidth', 1)
+xlim(load_targets([1 end]))
+xlabel("Total load target (kW)", 'Interpreter', 'latex')
+ylabel("Sp. energy (kW/kW)", 'Interpreter', 'latex')
+set(gca, 'TickLabelInterpreter', 'latex')
+grid on
+title("(b) Overall specific energy", 'Interpreter', 'latex')
+legend({'Prop. loads', 'Optimum loads'}, ...
+    'Location', 'northeast', 'Interpreter', 'latex')
+set(gca,'fontsize', 8)
+
+linkaxes([ax1 ax2], 'x')
+
+% Resize
+p = get(gcf, 'Position');
+
+set(gcf, 'Units', 'inches', ...
+    'Position', [3, 4, 3.5, 3.5], ...
+    'PaperUnits', 'inches', ...
+    'PaperSize', [3.5, 3.5] ...
+)
+
+filename = "optimum_loads_plot_area_3-5in.pdf";
 save2pdf(fullfile(plot_dir, filename))
+
+

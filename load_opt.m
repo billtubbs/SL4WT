@@ -286,21 +286,15 @@ op_limits = cell2mat( ...
         machine_names, 'UniformOutput', false)' ...
 );
 
-% options = optimoptions('fmincon', ...
-%   'MaxIterations', 500000, 
-%   'ConstraintTolerance', 1e-14,
-%   "EnableFeasibilityMode", true,
-%   "SubproblemAlgorithm", "cg",
-%   "StepTolerance", 1e-10, 
-%   "MaxFunctionEvaluations", 5000);
-%  , "StepTolerance",1e-14, "OptimalityTolerance",1e-14);
-options = optimoptions("fmincon", ...
-    "SubproblemAlgorithm", "cg", ...
-    "MaxIterations", config.optimizer.optimoptions.MaxIterations, ...
-    "Display", config.optimizer.optimoptions.Display ...
-);
+% Get optimizer (fmincon) parameters from config file
+if isfield(config.optimizer, "optimoptions")
+    opt_args = namedargs2cell(config.optimizer.optimoptions);
+else
+    opt_args = {};
+end
+options = optimoptions("fmincon", opt_args{:});
 
-% Partial functions to pass config parameters to
+% Create partial functions to pass config parameters to
 % optimization functions
 
 % Objective function to be miminized
@@ -310,8 +304,6 @@ obj_func = @(x) feval(obj_func_name, x, config);
 % Constraint function (nonlinear)
 const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
-
-x0 = config.optimizer.X0';
 
 % Test functions before starting optimizer (for debugging only)
 % J = obj_func(x0);

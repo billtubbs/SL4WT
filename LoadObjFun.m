@@ -4,7 +4,7 @@ function f = LoadObjFun(x, config)
 
 global models model_vars CurrentLoadTarget
 
-    % Compute model predictions
+    % Compute all model predictions
     machine_names = string(fieldnames(config.machines))';
     n_machines = numel(machine_names);
     y_means = nan(n_machines, 1);
@@ -23,8 +23,9 @@ global models model_vars CurrentLoadTarget
         );
     end
 
-    % Weight on model uncertainty
-    z = config.optimizer.params.z;
+    % Weights for cost function
+    w = config.optimizer.params.w;  % load error vs target
+    z = config.optimizer.params.z;  % model uncertainty
 
     % Compute objective function
-    f = sum(y_means).^2 + 1000 * (sum(x) - CurrentLoadTarget).^2 - z * sum(y_sigmas);
+    f = sum(y_means).^2 + w .* (sum(x) - CurrentLoadTarget).^2 - z .* sum(y_sigmas);
