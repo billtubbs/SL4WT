@@ -241,6 +241,28 @@ assert(all(min(total_powers_prop - total_powers) > -1e-12))
 fprintf("Largest difference: %.1f kW at %.1f kW\n", ...
     max_diff, load_targets(i_max))
 
+% Calculate maximum load that does not exceed the power limit
+PMax = 1580;
+
+% With proportional load allocation
+i_ex = find(total_powers_prop > 1580);
+load_max_prop = interp1( ...
+    total_powers_prop(i_ex(1)-1:i_ex(1)), ...
+    load_targets(i_ex(1)-1:i_ex(1)), ...
+    PMax ...
+);
+fprintf("Highest possible load, prop.: %.1f kW\n", load_max_prop)
+
+% With optimized load allocation
+i_ex = find(total_powers > 1580);
+load_max_opt = interp1( ...
+    total_powers(i_ex(1)-1:i_ex(1)), ...
+    load_targets(i_ex(1)-1:i_ex(1)), ...
+    PMax ...
+);
+fprintf("Highest possible load, optimized: %.1f kW\n", load_max_opt)
+fprintf("Difference: %.1f kW\n", load_max_opt - load_max_prop)
+
 
 %% Make plots
 
@@ -273,7 +295,8 @@ title("Overall Specific Energy Consumption", 'Interpreter', 'latex')
 filename = "optimum_loads_plot.pdf";
 save2pdf(fullfile(plot_dir, filename))
 
-% Area plot of loads of each machine - for published paper
+
+%% Area plot of loads of each machine - for published paper
 figure(3); clf
 
 ax1 = subplot(2, 1, 1);
@@ -294,13 +317,41 @@ ax2 = subplot(2, 1, 2);
 plot(load_targets, total_powers_prop ./ load_targets, 'Linewidth', 1)
 hold on
 plot(load_targets, total_powers ./ load_targets, 'Linewidth', 1)
+colors = get(gca, 'ColorOrder');
+load_minmax = load_targets([1 end]);
+
+% Draw power limit curve
+plot(load_targets, PMax ./ load_targets, 'Color', [0.4 0.4 0.4])
+
+% Add points at intersections
+%plot(load_max_prop, PMax/load_max_prop, '.', 'Color', colors(1, :))
+%plot(load_max_opt, PMax/load_max_opt, '.', 'Color', colors(2, :))
+
+% Add annotated arrow
+% se_pt = 0.75;
+% load_intersect = interp1(PMax ./ load_targets, load_targets, se_pt);
+% ar = annotation('textarrow');
+% ar.Parent = gca;
+% ar.X = load_intersect-[220 0];
+% ar.Y = [se_pt se_pt];
+% ar.String = "Power limit";
+% ar.Interpreter = 'latex';
+% ar.HeadLength = 5;
+% ar.HeadWidth = 5;
+% ar.FontSize = 8;
+% This doesn't work:
+% annotation('textarrow', ...
+%     load_max_prop-[100 0], [0.74 0.68], ...
+%     'String','Max. loads', ...
+%     'Units',)
 xlim(load_targets([1 end]))
+ylim([0.6 0.9])
 xlabel("Total load target (kW)", 'Interpreter', 'latex')
 ylabel("Sp. energy (kW/kW)", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 grid on
 title("(b) Overall specific energy", 'Interpreter', 'latex')
-legend({'Prop. loads', 'Optimum loads'}, ...
+legend({'Prop. loads', 'Opt. loads', 'Power limit'}, ...
     'Location', 'northeast', 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
 
