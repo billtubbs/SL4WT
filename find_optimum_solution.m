@@ -281,16 +281,16 @@ set(gca, 'TickLabelInterpreter', 'latex')
 labels = compose("machine %d", 1:5);
 legend(labels, 'Location', 'best', 'Interpreter', 'latex')
 grid on
-title("Optimum Machine Loads", 'Interpreter', 'latex')
+title("(a) Optimum machine loads", 'Interpreter', 'latex')
 
 subplot(2, 1, 2)
 plot(load_targets, total_powers ./ load_targets, 'Linewidth', 2)
 xlim(load_targets([1 end]))
 xlabel("Load target (kW)", 'Interpreter', 'latex')
-ylabel("Specific energy (kW/kW)", 'Interpreter', 'latex')
+ylabel("Specific power (kW/kW)", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 grid on
-title("Overall Specific Energy Consumption", 'Interpreter', 'latex')
+title("(b) Overall specific power consumption", 'Interpreter', 'latex')
 
 filename = "optimum_loads_plot.pdf";
 save2pdf(fullfile(plot_dir, filename))
@@ -350,7 +350,7 @@ xlabel("Total load target (kW)", 'Interpreter', 'latex')
 ylabel("Sp. energy (kW/kW)", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 grid on
-title("(b) Overall specific energy", 'Interpreter', 'latex')
+title("(b) Overall specific power consumption", 'Interpreter', 'latex')
 legend({'Prop. loads', 'Opt. loads', 'Power limit'}, ...
     'Location', 'northeast', 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
@@ -359,7 +359,6 @@ linkaxes([ax1 ax2], 'x')
 
 % Resize
 p = get(gcf, 'Position');
-
 set(gcf, 'Units', 'inches', ...
     'Position', [3, 4, 3.5, 3.5], ...
     'PaperUnits', 'inches', ...
