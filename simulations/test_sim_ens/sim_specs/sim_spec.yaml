@@ -8,6 +8,9 @@ simulation:
         seed: 0
     outputs:
         save_script: "sim_save_outputs.m"
+        min_power_data: "min_power_load_solutions_opt50_501.csv"
+        summary:
+            filename: "sims_summary.csv"
 system:
     config_filename: "sys_config.yaml"
 optimizer:

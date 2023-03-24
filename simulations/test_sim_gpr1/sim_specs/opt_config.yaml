@@ -66,8 +66,8 @@ models:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
                 BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
     model_2:
         name: "GP2"
@@ -81,8 +81,8 @@ models:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.0, 110.0]  # [sigmaL0, sigmaF0]
                 BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
     model_3:
         name: "GP3"
@@ -96,8 +96,8 @@ models:
                 KernelFunction: "squaredexponential"
                 KernelParameters: [15.0, 220.0]  # [sigmaL0, sigmaF0]
                 BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"
@@ -114,5 +114,6 @@ optimizer:
         Display: "final-detailed"
     params:
         n_searches: 10
+        w: 1000
         z: 10000
         PMax: 1580

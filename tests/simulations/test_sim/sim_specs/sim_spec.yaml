@@ -3,6 +3,11 @@ simulation:
         filename: "multiple_generators_els_2021b.mdl"
     inputs:
         filename: "load_sequence_1.mat"
+    outputs:
+        save_script: "sim_save_outputs.m"
+        min_power_data: "min_power_load_solutions_opt50_501.csv"
+        summary:
+            filename: "sims_summary.csv"
     params:
         t_stop: 4000
         PMax: 1580

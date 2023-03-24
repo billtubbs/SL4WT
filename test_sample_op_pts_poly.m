@@ -7,11 +7,12 @@ addpath("yaml")
 rng(0)
 
 % Load system configuration from file
-test_dir = "tests";
-test_data_dir = "data";
-filename = "test_sys_config.yaml";
-sys_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
-    "ConvertToArray", true);
+sims_dir = "tests/simulations";
+sim_name = "test_sim";
+sim_spec_dir = "sim_specs";
+filename = "sys_config.yaml";
+filespec = fullfile(sims_dir, sim_name, sim_spec_dir, filename);
+sys_config = yaml.loadFile(filespec, "ConvertToArray", true);
 
 % First test with no measurement noise
 X = 100;

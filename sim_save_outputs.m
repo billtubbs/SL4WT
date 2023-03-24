@@ -29,7 +29,7 @@ load_actual = sim_out.load_actual.Data(i_sample);
 power_actual = sim_out.total_power.Data(i_sample);
 
 % Load optimum power results file
-filename = "min_power_load_solutions_opt50.csv";
+filename = sim_config.simulation.outputs.min_power_data;
 power_opt = readtable(fullfile("results", filename));
 
 % Set up linear interpolation function

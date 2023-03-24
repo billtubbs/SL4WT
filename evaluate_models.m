@@ -10,6 +10,10 @@ rng(0)
 
 test_dir = "tests";
 test_data_dir = "data";
+plot_dir = "plots";
+if ~exist(plot_dir, 'dir')
+    mkdir(plot_dir)
+end
 
 % Load system config file with machine parameters
 filename = "test_sys_config.yaml";
@@ -17,15 +21,16 @@ sys_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
     "ConvertToArray", true);
 
 % Choose machines to make plots for
-machines = ["machine_1", "machine_2", "machine_3"];
+machines = ["machine_2"];
 n_machines = numel(machines);
 
-% Choose model config file
+% Choose locaation of config files
 % filename = "test_config_fp1.yaml";
 % filename = "test_config_lin.yaml";
 % filename = "test_config_fit.yaml";
-filename = "test_config_gpr.yaml";
-opt_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
+filepath = "simulations/test_sim_gpr1/sim_specs";
+filename = "opt_config.yaml";
+opt_config = yaml.loadFile(fullfile(filepath, filename), ...
     "ConvertToArray", true);
 
 % Choose where to sample points (in % of full operating range)
@@ -42,8 +47,8 @@ y_lims.machine_3 = [100 600];
 for i = 1:n_machines
     machine = machines{i};
 
-    % Get machine performance model parameters
-    params = sys_config.equipment.(machine).params;
+    % Get machine configuration
+    machine_config = sys_config.equipment.(machine);
 
     % Measurement noise level
     sigma_M = sys_config.equipment.(machine).params.sigma_M;
@@ -65,12 +70,12 @@ for i = 1:n_machines
 %                 .* diff(params.op_limits);
 
         % Option 2: evenly spaced linear points
-        X_sample = params.op_limits(1) + (x_sample_range(1) ...
+        X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
             + linspace(0, 1, n_samples)' .* diff(x_sample_range)) ...
-                .* diff(params.op_limits);
+                .* diff(machine_config.params.op_limits);
 
         % Sample from machine load-power models (with measurement noise)
-        Y_sample = sample_op_pts_poly(X_sample, params, sigma_M);
+        Y_sample = sample_op_pts_poly(X_sample, machine_config.params, sigma_M);
 
         training_data{j} = array2table( ...
             [X_sample Y_sample], ...
@@ -83,9 +88,13 @@ for i = 1:n_machines
     n_samples_val = 101;
 
     % Generate validation data set (without noise)
-    X = linspace(params.op_limits(1), params.op_limits(2), n_samples_val)';
+    X = linspace( ...
+        machine_config.params.op_limits(1), ...
+        machine_config.params.op_limits(2), ...
+        n_samples_val ...
+    )';
     validation_data = array2table( ...
-        [X sample_op_pts_poly(X, params, 0)], ...
+        [X sample_op_pts_poly(X, machine_config.params, 0)], ...
         "VariableNames", {'Load', 'Power'} ...
     );
 
@@ -124,15 +133,26 @@ for i = 1:n_machines
 
     end
 
-    xlim(params.op_limits)
+    xlim(machine_config.params.op_limits)
     ylim(y_lims.(machine))
-    xlabel('Load')
-    ylabel('Power')
+    xlabel('Load (kW)', 'Interpreter', 'latex')
+    ylabel('Power (kW)', 'Interpreter', 'latex')
     grid on
-    title(escape_latex_chars(machine))
-    legend({'true', 'training data', 'predictions'}, 'location', 'best')
+    set(gca, 'TickLabelInterpreter', 'latex')
+    title(escape_latex_chars(machine_config.name), 'Interpreter', 'latex')
+    legend({'true', 'training data', 'predictions'}, ...
+        'location', 'northwest', 'Interpreter', 'latex')
+
+    % Resize plot and save as pdf
+    set(gcf, 'Units', 'inches');
     p = get(gcf, 'Position');
-    set(gcf, 'Position', [p(1:2) 420 315])
+    figsize = [3.5 2.5];
+    set(gcf, ...
+        'Position', [p(1:2) figsize] ...
+    )
+    p = get(gcf, 'Position');
+    filename = sprintf("eval_plot_%s_m%d.pdf", model_config.name, i);
+    save2pdf(fullfile(plot_dir, filename))
 
 end
 

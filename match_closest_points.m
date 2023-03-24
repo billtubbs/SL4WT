@@ -3,7 +3,15 @@ function [iq, pn] = match_closest_points(P, Q, p)
 % Returns a column vector of indices of the rows
 % in matrix P which, if used to sort matrix Q, would 
 % result in the values in the rows in Q most-closely 
-% matching those of the rows in P.
+% matching those of the rows in P. By default (p = 2),
+% the sum of the distances between the points is 
+% minimized (i.e. the 2-norm). For the 1-norm use
+% p = 1.
+%
+% Note:
+%   - this function is only designed for matching
+%     in low dimensions - no more than 10 rows in P
+%     and Q.
 %
 % Example:
 % >> P = [1 2 3 4]';

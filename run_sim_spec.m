@@ -35,8 +35,9 @@ opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
 % Note: make sure the struct opt_config is provided to the 
 % optimizer block as a parameter in the Simulink model.
 
-% Add simulation name to optimizer config - so that optimizer
-% can save data to the simulation sub-directory
+% Add simulation directory names to optimizer config - so that 
+% optimizer can save data to the simulation sub-directory
+opt_config.simulation.sims_dir = sims_dir;
 opt_config.simulation.name = sim_name;
 
 % Load simulation input data from file

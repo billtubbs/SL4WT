@@ -107,7 +107,7 @@ coeffs_chk = {
 
 % Construct a model for machine 1 with each model type
 machine = "machine_1";
-op_limits = config.machines.(machine).op_limits;
+op_limits = config.machines.(machine).params.op_limits;
 
 model_names = {'model_1_poly1', 'model_1_poly2', ...
     'model_1_cubicinterp', 'model_1_smoothingspline'};

@@ -15,29 +15,49 @@ simulation:
 machines:
     machine_1:
         name: "Machine 1"
-        op_limits: [56, 220]
         model: "model_1"
         trainingData: "machine_1_data4.csv"
+        params:
+            op_limits: [56, 220]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
     machine_2:
         name: "Machine 2"
-        op_limits: [237, 537]
         model: "model_2"
         trainingData: "machine_2_data4.csv"
+        params:
+            op_limits: [237, 537]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
     machine_3:
         name: "Machine 3"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_3_data4.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
     machine_4:
         name: "Machine 4"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_4_data4.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
     machine_5:
         name: "Machine 5"
-        op_limits: [194, 795]
         model: "model_3"
         trainingData: "machine_5_data4.csv"
+        params:
+            op_limits: [194, 795]
+            n_ss: 1
+            x_tol: 2
+            y_tol: 5
 models:
     model_1:
         setupFcn: "ens_model_setup"
@@ -161,6 +181,6 @@ optimizer:
         MaxIterations: 500000
         Display: "iter"
     params:
-    params:
-        z: 1000
+        w: 1000
+        z: 10000
         PMax: 1580

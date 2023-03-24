@@ -14,7 +14,7 @@ machines:
         trainingData: "machine_1_data.csv"
         params:
             op_limits: [56, 220]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_2:
@@ -109,5 +109,6 @@ optimizer:
     params:
     params:
         n_searches: 10
+        w: 1000
         z: 1000
         PMax: 1580

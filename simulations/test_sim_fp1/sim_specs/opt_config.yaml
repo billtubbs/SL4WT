@@ -108,5 +108,6 @@ optimizer:
         Display: "final-detailed"
     params:
         n_searches: 10
+        w: 1000
         z: 1000
         PMax: 1580

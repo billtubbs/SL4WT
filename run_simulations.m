@@ -111,8 +111,8 @@ while true
     if n_sim_queue > 0
         move_from = fullfile(sim_spec_dir, sim_spec_filename);
         move_to = fullfile(sim_spec_dir, to_folder, files_info(i_sim).name);
-        if ~exist(to_folder, 'dir')
-            mkdir(to_folder)
+        if ~exist(fullfile(sim_spec_dir, to_folder), 'dir')
+            mkdir(fullfile(sim_spec_dir, to_folder))
         end
         movefile(move_from, move_to)
     end

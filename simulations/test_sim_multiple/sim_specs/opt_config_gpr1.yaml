@@ -111,5 +111,6 @@ optimizer:
         Display: "none"
     params:
         n_searches: 10
+        w: 1000
         z: 10000
         PMax: 1580

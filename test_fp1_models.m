@@ -157,7 +157,7 @@ end
 
 % Make predictions with one model
 machine = "machine_1";
-op_limits = config.machines.(machine).op_limits;
+op_limits = config.machines.(machine).params.op_limits;
 model = config.machines.(machine).model;
 model_config = config.models.(model);
 x = linspace(op_limits(1), op_limits(2), 101)';

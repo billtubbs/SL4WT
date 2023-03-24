@@ -97,4 +97,5 @@ optimizer:
     params:
         n_searches: 10
         z: 1000
+        w: 1000
         PMax: 1580
