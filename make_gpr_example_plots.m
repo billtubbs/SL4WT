@@ -37,12 +37,12 @@ machine = machine_names{m};
 sim_specs = [
     "test_sim_gpr" ...
     "test_sim_gpr1" ...
-    "test_sim_gpr2"
+    "test_sim_gpr2" ...
 ];
 title_texts = [
     "Uninformed prior" ...
     "Fitted basis function" ...
-    "Explicit basis function" ...
+    "Fixed basis function" ...
 ];
 n_plots = length(sim_specs);
 
@@ -57,8 +57,8 @@ n_samples = 3;
 
 % Choose where to sample points (in % of full operating range)
 %x_sample_range = [0 1];
-%x_sample_range = [0.0 0.2];
-x_sample_range = [0.05 0.15];
+x_sample_range = [0.0 0.2];
+%x_sample_range = [0.05 0.15];
 %x_sample_range = [0.4 0.6];
 %x_sample_range = [0.8 1];
 
@@ -99,6 +99,10 @@ tiledlayout(1, n_plots);
 
 % No. of points to sample for validation data set
 n_samples_val = 101;
+
+% Choose which training data sample to use
+j_ex = 7;
+fprintf("Sample selected: %d\n", j_ex)
 
 % Generate validation data set (without noise)
 X = linspace( ...
@@ -142,10 +146,6 @@ for i = 1:n_plots
     
     predictions = struct();
     predictions.y_mean = nan(n_samples_val, n_samples);
-
-    % Choose which training data sample to use
-    j_ex = 7;
-    fprintf("Sample plotted: %d\n", j_ex)
 
     % Initialize and fit model
     [model, vars] = builtin("feval", ...
