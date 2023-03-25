@@ -1,6 +1,6 @@
-function make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
-    y_labels, line_label, area_label, y_lim)
-% make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
+function ax = make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, ...
+    x_label, y_labels, line_label, area_label, y_lim)
+% ax = make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
 %     y_labels, line_label, area_label, y_lim)
 % Plots a curve of the mean, lower and upper bound of a 
 % variable y = f(x) and a set of data points.
@@ -35,7 +35,7 @@ function make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
     end
     ny = size(Y_line, 2);
     if nargin < 8
-        if n == 1
+        if ny == 1
             y_labels = "$y(t)$";
         else
             y_labels = compose("$y_{%d}(t)$", 1:ny);
@@ -49,8 +49,8 @@ function make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
         x_label = string(x_label);
     end
 
-    make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
-        line_label, area_label, y_lim)
+    ax = make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
+        line_label, area_label, y_lim);
     
     % Add data points to existing plot
     plot(x_d, y_d, 'k.', 'MarkerSize', 12)
@@ -61,7 +61,6 @@ function make_statdplot(Y_line, Y_lower, Y_upper, x, y_d, x_d, x_label, ...
     ylim([min(y_lims(:, 1)) max(y_lims(:, 2))])
 
     % Change existing legend label
-    hLeg = findobj(gcf, 'Type', 'Legend');
-    hLeg.String{end} = 'data';
+    ax.Legend.String{end} = 'data';
 
 end

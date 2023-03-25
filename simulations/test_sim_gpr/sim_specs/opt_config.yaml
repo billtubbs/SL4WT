@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GP1"
+        name: "GPR_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -64,13 +64,10 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
+                SigmaLowerBound: 0.5
             significance: 0.1
     model_2:
-        name: "GP2"
+        name: "GPR_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -79,13 +76,9 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 110.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
             significance: 0.1
     model_3:
-        name: "GP3"
+        name: "GPR_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -94,10 +87,6 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 220.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.11  # noise std. dev.
-                SigmaLowerBound: 0.1
             significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"
@@ -114,5 +103,6 @@ optimizer:
         Display: "final-detailed"
     params:
         n_searches: 10
+        w: 1000
         z: 10000
         PMax: 1580

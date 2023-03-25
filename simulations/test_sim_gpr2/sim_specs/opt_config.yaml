@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GP2_1"
+        name: "GPR2_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -67,13 +67,13 @@ models:
                 y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [50.0, 0.1]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
-                Sigma: 0.02  # noise std. dev.
+                Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"
             significance: 0.1
     model_2:
-        name: "GP2_2"
+        name: "GPR2_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -85,13 +85,13 @@ models:
                 y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [90.0, 0.1]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
-                Sigma: 0.02  # noise std. dev.
+                Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"
             significance: 0.1
     model_3:
-        name: "GP2_3"
+        name: "GPR2_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -103,9 +103,9 @@ models:
                 y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [120.0, 0.1]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
-                Sigma: 0.02  # noise std. dev.
+                Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"
             significance: 0.1
 optimizer:

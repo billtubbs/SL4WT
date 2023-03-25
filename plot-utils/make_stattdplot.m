@@ -1,6 +1,6 @@
-function make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
+function ax = make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
     x_d, x_label, y_labels, line_label, area_label, y_lim)
-% make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
+% ax = make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
 %     x_d, x_label, y_labels, line_label, area_label, y_lim)
 % Plots a curve of the mean, lower and upper bound of a 
 % variable y = f(x) and the true values.
@@ -51,8 +51,8 @@ function make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
         x_label = string(x_label);
     end
 
-    make_stattplot(Y_line, Y_lower, Y_upper, y_true, x, x_label, ...
-        y_labels, line_label, area_label, y_lim)
+    ax = make_stattplot(Y_line, Y_lower, Y_upper, y_true, x, x_label, ...
+        y_labels, line_label, area_label, y_lim);
 
     % Add data points to existing plot
     plot(x_d, y_d, 'k.', 'MarkerSize', 12)
@@ -63,7 +63,6 @@ function make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
     ylim([min(y_lims(:, 1)) max(y_lims(:, 2))])
 
     % Change existing legend label
-    hLeg = findobj(gcf, 'Type', 'Legend');
-    hLeg.String{end} = 'data';
+    ax.Legend.String{end} = 'data';
 
 end
