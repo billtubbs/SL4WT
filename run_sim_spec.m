@@ -68,6 +68,6 @@ if isfield(sim_config.simulation.outputs, "plot_script")
     run(sim_config.simulation.outputs.plot_script)
 else
     % Announcement
-    fprintf("Run 'plot_model_preds.m' to make plots.\n")
+    fprintf("Run 'plot_model_preds' to make plots.\n")
 end
 

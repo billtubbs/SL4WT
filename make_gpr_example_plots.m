@@ -30,7 +30,7 @@ sys_config = yaml.loadFile(filespec, "ConvertToArray", true);
 machine_names = fieldnames(sys_config.equipment)';
 
 % Choose one machine to make plots for
-m = 3;
+m = 1;
 machine = machine_names{m};
 
 % Choose simulations to get optimizer config files from
@@ -57,8 +57,8 @@ n_samples = 3;
 
 % Choose where to sample points (in % of full operating range)
 %x_sample_range = [0 1];
-x_sample_range = [0.0 0.2];
-%x_sample_range = [0.05 0.15];
+%x_sample_range = [0.0 0.2];
+x_sample_range = [0.05 0.15];
 %x_sample_range = [0.4 0.6];
 %x_sample_range = [0.8 1];
 
@@ -68,6 +68,7 @@ machine_config = sys_config.equipment.(machine);
 % Measurement noise level
 sigma_M = sys_config.equipment.(machine).params.sigma_M;
 
+training_data = cell(1, n);
 for j = 1:n
 
     % Generate training data sets
@@ -84,7 +85,7 @@ for j = 1:n
     
     % Sample from machine load-power models (with measurement noise)
     Y_sample = sample_op_pts_poly(X_sample, machine_config.params, sigma_M);
-    
+
     training_data{j} = array2table( ...
         [X_sample Y_sample], ...
         "VariableNames", {'Load', 'Power'}  ...
@@ -100,9 +101,17 @@ tiledlayout(1, n_plots);
 % No. of points to sample for validation data set
 n_samples_val = 101;
 
-% Choose which training data sample to use
-j_ex = 7;
-fprintf("Sample selected: %d\n", j_ex)
+% Choose training data samples to use for each machine
+td_ex_selections = struct();
+td_ex_selections.machine_1 = 2;
+td_ex_selections.machine_2 = 6;
+td_ex_selections.machine_3 = 7;
+td_ex_selections.machine_4 = 8;
+td_ex_selections.machine_5 = 9;
+
+td_ex = td_ex_selections.(machine);
+fprintf("Sample points selected: %d\n", td_ex)
+disp(sortrows(training_data{td_ex}))
 
 % Generate validation data set (without noise)
 X = linspace( ...
@@ -131,26 +140,28 @@ for i = 1:n_plots
     filename = "opt_config.yaml";
     opt_config = yaml.loadFile(fullfile(filepath, filename), ...
         "ConvertToArray", true);
-    
+
     % Number of random experiments
     n = 100;
-    
+
     % Choose limits for y-axes of plots
     y_lims = struct;
     y_lims.machine_1 = [20 180];
     y_lims.machine_2 = [160 380];
     y_lims.machine_3 = [100 600];
+    y_lims.machine_4 = y_lims.machine_3;
+    y_lims.machine_5 = y_lims.machine_3;
 
     model_name = opt_config.machines.(machine).model;
     model_config = opt_config.models.(model_name);
-    
+
     predictions = struct();
     predictions.y_mean = nan(n_samples_val, n_samples);
 
     % Initialize and fit model
     [model, vars] = builtin("feval", ...
         model_config.setupFcn, ...
-        training_data{j_ex}, ...
+        training_data{j}, ...
         model_config.params ...
     );
 
@@ -169,8 +180,8 @@ for i = 1:n_plots
         ci(:,2), ...
         ci(:,1), ...
         x, ...
-        training_data{j_ex}.Power, ...
-        training_data{j_ex}.Load, ...
+        training_data{td_ex}.Power, ...
+        training_data{td_ex}.Load, ...
         'Load (kW)', ...
         {''}, ...
         "prediction", ...

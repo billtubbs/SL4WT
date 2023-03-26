@@ -35,7 +35,7 @@ fprintf("Plotting simulation results from '%s'\n", ...
 %% Plot total load and power time series
 
 % Calculate ideal power at all simulation times
-power_ideal = opt_load(sim_out.load_actual.Data);
+power_ideal = power_opt_func(sim_out.load_actual.Data);
 
 figure(1); clf
 
@@ -44,7 +44,7 @@ Y = [sim_out.load_target.Data sim_out.load_actual.Data];
 x = sim_out.load_actual.Time;
 x_label = "Time (s)";
 y_labels = ["Target" "Actual"];
-make_tsplot(Y, x, y_labels, x_label)
+make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total load (kW)")
 
 ax2 = subplot(2, 1, 2);
@@ -56,10 +56,66 @@ Y = [
 x = sim_out.total_power.Time;
 x_label = "Time (s)";
 y_labels = ["Ideal" "Actual" "Maximum"];
-make_tsplot(Y, x, y_labels, x_label)
+make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total power (kW)")
 
 linkaxes([ax1 ax2], 'x')
+
+
+%% Plot key metrics over time
+
+filename = sprintf("%s_metrics.csv", sim_name);
+metrics_summary = readtable(fullfile(results_dir, filename));
+t = metrics_summary.t;
+
+figure(2); clf
+line_style = '.-';
+marker_size = 12;
+
+ax1 = subplot(4,1,1);
+plot(t, metrics_summary.power_limit_exceedances, line_style, ...
+    'Linewidth', 2, 'MarkerSize', marker_size);
+set(gca, 'TickLabelInterpreter', 'latex')
+ylabel('Metric', 'Interpreter', 'latex')
+title("(a) Power limit exceedances (kW)", 'Interpreter', 'latex')
+grid on
+
+ax2 = subplot(4,1,2);
+plot(t, metrics_summary.load_shortfalls_vs_max, line_style, ...
+    'Linewidth', 2, 'MarkerSize', marker_size); 
+set(gca, 'TickLabelInterpreter', 'latex')
+ylabel('Metric', 'Interpreter', 'latex')
+title("(b) Load shortfalls (kW)", 'Interpreter', 'latex')
+grid on
+
+ax3 = subplot(4,1,3);
+plot(t, metrics_summary.excess_power_used, line_style, ...
+    'Linewidth', 2, 'MarkerSize', marker_size);
+set(gca, 'TickLabelInterpreter', 'latex')
+ylabel('Metric', 'Interpreter', 'latex')
+title("(c) Excess power used (kW)", 'Interpreter', 'latex')
+grid on
+
+ax4 = subplot(4,1,4);
+plot(t, metrics_summary.total_model_uncertainty, line_style, ...
+    'Linewidth', 2, 'MarkerSize', marker_size);
+set(gca, 'TickLabelInterpreter', 'latex')
+xlabel('Time (s)', 'Interpreter', 'latex')
+ylabel('Metric', 'Interpreter', 'latex')
+title("(d) Total model uncertainty", 'Interpreter', 'latex')
+grid on
+
+% Resize plot and save as pdf
+set(gcf, 'Units', 'inches');
+p = get(gcf, 'Position');
+figsize = [3.5 4];
+set(gcf, ...
+    'Position', [p(1:2) figsize] ...
+)
+p = get(gcf, 'Position');
+filename = sprintf("%s_metrics_plot.pdf", sim_name);
+save2pdf(fullfile(plot_dir, filename))
+
 
 
 %% Plot model predictions over time
@@ -135,7 +191,7 @@ for i = 1:n_machines
                 model_preds{j}{:, 'y_int_1'}, ...
                 model_preds{j}{:, 'y_int_2'}, ...
                 model_preds{j}{:, 'op_interval'}, ...
-                x_label, y_labels, line_label, area_label, y_lim)
+                x_label, y_labels, line_label, area_label, y_lim);
 
             % Index of current data point
             k = find(LOModelData.Machines.(machine).Time == t);

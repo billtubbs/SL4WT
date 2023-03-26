@@ -15,7 +15,8 @@ addpath("data-utils")
 
 
 % Load simulation data output variables
-filename = "load_opt_out.mat";
+% TODO: Add sim_name here
+filename = sprintf("load_opt_out.mat", sim_name);
 load(fullfile(results_dir, filename))
 
 % Get sample times when optimizer made predictions
@@ -30,15 +31,20 @@ power_actual = sim_out.total_power.Data(i_sample);
 
 % Load optimum power results file
 filename = sim_config.simulation.outputs.min_power_data;
-power_opt = readtable(fullfile("results", filename));
+power_opt_table = readtable(fullfile("results", filename));
 
 % Set up linear interpolation function
-opt_load = @(load) interp1(power_opt.TotalLoadTarget, ...
-    power_opt.TotalPower, load);
+power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
+    power_opt_table.TotalPower, load);
+
+% Find maximum load at power limit
+PMax = opt_config.optimizer.params.PMax;
+max_load = fzero(@(x) power_opt_func(x) - PMax, 2500);
 
 % Calculate ideal power consumption based on actual load
 % (at steady-state points only)
-power_ideal = opt_load(load_actual);
+power_ideal = power_opt_func(load_actual);
+
 
 % Load final model predictions from csv file for each machine
 model_errors = struct();
@@ -73,20 +79,35 @@ model_errors.RMSE_overall = sqrt(mean(cell2mat(all_sq_errors')));
 
 %% Calculate main evaluation metrics
 
-power_limit_exceedances = max(0, power_actual - opt_config.optimizer.params.PMax);
+power_limit_exceedances = max(0, power_actual(2:end) - opt_config.optimizer.params.PMax);
 % Note: Load target is set at the beginning of each sample 
 % period so actual load should be compared to the target set
 % in the previous period.
-load_losses_vs_target = load_target(1:end-1) - load_actual(2:end);
+load_shortfalls_vs_target = load_target(1:end-1) - load_actual(2:end);
+load_shortfalls_vs_max = min(load_target(1:end-1), max_load) - load_actual(2:end);
 excess_power_used = power_actual(2:end) - power_ideal(2:end);
+total_model_uncertainty = LOData.TotalUncertainty(2:end);
+
+t = LOData.Time(2:end);
+metrics_summary = table( ...
+    t, ...
+    power_limit_exceedances, ...
+    load_shortfalls_vs_max, ...
+    excess_power_used, ...
+    total_model_uncertainty ...
+);
+
+% Save simulation metrics to csv file
+filename = sprintf("%s_metrics.csv", sim_name);
+writetable(metrics_summary, fullfile(results_dir, filename))
 
 max_power_limit_exceedance = max(power_limit_exceedances);
 mean_power_limit_exceedance = mean(power_limit_exceedances);
-mean_load_losses_vs_target = mean(load_losses_vs_target);
+mean_load_shortfalls_vs_max = mean(load_shortfalls_vs_max);
 mean_excess_power_used = mean(excess_power_used);
 mean_excess_power_used_pct = 100 * mean_excess_power_used / ...
     mean(power_actual);
-total_model_uncertainty = LOData.TotalUncertainty(end);
+final_total_model_uncertainty = total_model_uncertainty(end);
 final_model_RMSE = model_errors.RMSE_overall;
 
 
@@ -94,14 +115,14 @@ fprintf("Max. power limit exceedance: %.0f kW\n", ...
     max_power_limit_exceedance)
 fprintf("Avg. power limit exceedance: %.0f kW\n", ...
     mean_power_limit_exceedance)
-fprintf("Avg. load losses vs target: %.0f kW\n", ...
-    mean_load_losses_vs_target)
+fprintf("Avg. load shortfalls: %.0f kW\n", ...
+    mean_load_shortfalls_vs_max)
 fprintf("Avg. excess power used: %g kW\n", ...
     mean_excess_power_used)
 fprintf("Avg. excess power used: %.1f%% (of total)\n", ...
     mean_excess_power_used_pct)
 fprintf("Final total model uncertainty: %.1f\n", ...
-    total_model_uncertainty)
+    final_total_model_uncertainty)
 fprintf("Final overall model prediction error (RMSE): %.1f kW\n", ...
     final_model_RMSE)
 
@@ -112,10 +133,10 @@ fprintf("Final overall model prediction error (RMSE): %.1f kW\n", ...
 eval_metrics = struct();
 eval_metrics.max_power_limit_exceedance = max_power_limit_exceedance;
 eval_metrics.mean_power_limit_exceedance = mean_power_limit_exceedance;
-eval_metrics.mean_load_losses_vs_target = mean_load_losses_vs_target;
+eval_metrics.mean_load_losses_vs_target = mean_load_shortfalls_vs_max;
 eval_metrics.mean_excess_power_used = mean_excess_power_used;
 eval_metrics.mean_excess_power_used_pct = mean_excess_power_used_pct;
-eval_metrics.total_model_uncertainty = total_model_uncertainty;
+eval_metrics.final_total_model_uncertainty = final_total_model_uncertainty;
 eval_metrics.final_model_RMSE = final_model_RMSE;
 eval_metrics = objects2tablerow( ...
     containers.Map("eval_metrics", eval_metrics) ...
@@ -126,6 +147,7 @@ sim_params = objects2tablerow( ...
     containers.Map("sim_params", sim_config.simulation.params) ...
 );
 
+% Config filenames
 config_files = array2table( ...
     [sim_config.system.config_filename ...
      sim_config.optimizer.config_filename], ...
@@ -181,6 +203,7 @@ end
 % Save combined results back to same csv file
 writetable(results_table, fullfile(results_dir, filename));
 fprintf("Summary saved to file:\n%s\n", fullfile(results_dir, filename))
+
 
 %% Display evaluation metrics summary table
 var_names = results_table.Properties.VariableNames( ...

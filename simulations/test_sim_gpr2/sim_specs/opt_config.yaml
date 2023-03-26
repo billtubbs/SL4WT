@@ -120,9 +120,9 @@ optimizer:
     const_func: "MaxPowerConstraint"
     optimoptions:
         MaxIterations: 2000
-        Display: "final-detailed"
+        Display: "none"
     params:
         n_searches: 10
         w: 1000
-        z: 1000000
+        z: 10000
         PMax: 1580
