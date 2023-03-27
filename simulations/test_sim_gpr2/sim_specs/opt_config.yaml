@@ -63,11 +63,11 @@ models:
             predictorNames: "Load"
             responseNames: "Power"
             outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
+                y: "@(x, y) x./(y + 1.4)"
+                y_inv: "@(x, y) x./y - 1.4"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [30.0, 0.15]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
                 Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"
@@ -81,11 +81,11 @@ models:
             predictorNames: "Load"
             responseNames: "Power"
             outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
+                y: "@(x, y) x./(y + 1.4)"
+                y_inv: "@(x, y) x./y - 1.4"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [90.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [90.0, 0.15]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
                 Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"
@@ -99,11 +99,11 @@ models:
             predictorNames: "Load"
             responseNames: "Power"
             outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
+                y: "@(x, y) x./(y + 1.4)"
+                y_inv: "@(x, y) x./y - 1.4"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [120.0, 0.1]  # [sigmaL0, sigmaF0]
+                KernelParameters: [120.0, 0.15]  # [sigmaL0, sigmaF0]
                 BasisFunction: "none"
                 Sigma: 0.01  # noise std. dev.
                 FitMethod: "none"

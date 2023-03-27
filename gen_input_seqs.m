@@ -1,5 +1,6 @@
-% Generate load target input sequences for simulations and associated
-% 'seed' data for model training.
+% Generate load target input sequences for simulations
+% TODO: generate 'seed' data points for model training.
+%
 
 clear all
 
@@ -32,17 +33,15 @@ assert(isequal(full_op_limit, [875 3142]))
 
 % Simulation scenarios:
 %
-% 1-5. 5 different constant load targets between 1000 and 2600 kW 
-%    with training points around same levels.
-% 6-10. Initial load and training points between 900 and 1100 kW with 1 step 
-%    change to 2500 kW at t = 2000 s
-% 11-20. Initial load and training points around 830 kW with 6 
-%    pseudo-random step-changes (one every 1000 seconds) according 
-%    to a bounded random walk between 830 and 2500 kW.
+% 1-10. Small variations around constant load targets between 1000 
+%    and 2600 kW.
+% 11-20. Initial load around 830 kW with 6 pseudo-random step-changes 
+%    (one every 1000 seconds) according to a bounded random walk 
+%    between 830 and 2500 kW.
 %
 
 % Time sequence
-t = (0:1000:7000)';
+t = (0:1000:8000)';
 
 % Number scenarios
 scenario = 1;
@@ -51,23 +50,27 @@ scenario = 1;
 
 % Define range of operating targets
 load_targets = 1000:500:3000;
+nT = length(t) - 1;
+n_seqs = length(load_targets);
 assert(all(load_targets < full_op_limit(2)))
 assert(all(load_targets > full_op_limit(1)))
+load_seqs = nan(nT+1, n_seqs);
 
-for i = 1:numel(load_targets)
+for i = 1:n_seqs
     load_target = load_targets(i) .* ones(size(t));
 
     % Store input signals as struct containing time series
     inputs = struct();
-
     ts = timeseries(load_target, t);
     name = "load_target";
     ts.name = name;
     ts.TimeInfo.Units = 'seconds';
     ts.DataInfo.Interpolation.Name = 'zoh';
     ts.DataInfo.Units = 'kW';
-
     inputs.(name) = ts;
+
+    % Save all sequences
+    load_seqs(:, i) = load_target;
 
     % Store time series in a Simulink dataset
     % TODO: Couldn't get this working. Was planning to use
@@ -84,6 +87,7 @@ for i = 1:numel(load_targets)
 
     scenario = scenario + 1;
 end
+
 
 %% Scenarios 6 to 10 - one step change
 for i = 1:numel(load_targets)
@@ -119,8 +123,6 @@ end
 
 %% Scenarios 11 to 20 - bounded random walk
 
-figure(1); clf
-
 % Bounded random walk parameters
 beta = -15;  % note beta is k from Nicolau paper
 alpha1 = 3;
@@ -150,6 +152,7 @@ for i = 1:10
 
     load_target = load0 .* ones(size(t));
     load_target(2:end) = (brw(1:10:end) - tau) ./ 5 .* (load_targets(end) - load_mid) + load_mid;
+
     figure(2); clf
     plot(990 + (1:n_steps)' .* 100, (brw - tau) ./ 5 .* (load_targets(end) - load_mid) + load_mid, '.-'); hold on
     stairs(t, load_target, 'LineWidth', 2);
@@ -159,14 +162,12 @@ for i = 1:10
 
     % Store input signals as struct containing time series
     inputs = struct();
-
     ts = timeseries(load_target .* ones(size(t)), t);
     name = "load_target";
     ts.name = name;
     ts.TimeInfo.Units = 'seconds';
     ts.DataInfo.Interpolation.Name = 'zoh';
     ts.DataInfo.Units = 'kW';
-
     inputs.(name) = ts;
 
     % Save simulation data file
@@ -177,4 +178,9 @@ for i = 1:10
     scenario = scenario + 1;
 end
 
+% Make summary plot of all sequences
+figure(1); clf
+stairs(t, load_seqs, 'LineWidth', 2);
+yline(full_op_limit, '--')
+ylim([700 3400])
 grid on

@@ -30,19 +30,21 @@ sys_config = yaml.loadFile(filespec, "ConvertToArray", true);
 machine_names = fieldnames(sys_config.equipment)';
 
 % Choose one machine to make plots for
-m = 1;
+m = 3;
 machine = machine_names{m};
 
 % Choose simulations to get optimizer config files from
 sim_specs = [
+    "test_sim_lin" ...
     "test_sim_gpr" ...
     "test_sim_gpr1" ...
     "test_sim_gpr2" ...
 ];
 title_texts = [
-    "Uninformed prior" ...
-    "Fitted basis function" ...
-    "Fixed basis function" ...
+    "LR" ...
+    "GPR 1" ...
+    "GPR 2" ...
+    "GPR 3" ...
 ];
 n_plots = length(sim_specs);
 
@@ -96,7 +98,7 @@ end
 %% Make figure with subplots
 
 figure(1); clf
-tiledlayout(1, n_plots);
+tiledlayout(1, n_plots, 'Padding', 'none');
 
 % No. of points to sample for validation data set
 n_samples_val = 101;
@@ -188,9 +190,12 @@ for i = 1:n_plots
         "CI", ...
         y_lims.(machine) ...
         );
-    ylabel('Power (kW)', 'Interpreter', 'latex')
-    xlim(machine_config.params.op_limits)
     if i == 1
+        ylabel('Power (kW)', 'Interpreter', 'latex')
+    end
+    xlim(machine_config.params.op_limits)
+    %ylim(y_lims(m, :))
+    if i == 2
         legend({'true', 'CI', 'prediction', 'data'})
     else
         set(ax.Legend, 'visible', 'off')
@@ -206,12 +211,13 @@ linkaxes(axs, 'y')
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
-figsize = [9 2.5];
+figsize = [10.5 2.5];
 set(gcf, ...
     'Position', [p(1:2) figsize] ...
 )
 p = get(gcf, 'Position');
 filename = sprintf("eval_plot_%s_m%d_%d.pdf", ...
     model_config.name, m, n_plots);
-save2pdf(fullfile(plot_dir, filename))
+exportgraphics(gcf, fullfile(plot_dir, filename))
+%save2pdf(fullfile(plot_dir, filename))
 

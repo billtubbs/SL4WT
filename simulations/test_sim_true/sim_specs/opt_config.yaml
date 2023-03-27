@@ -92,7 +92,7 @@ optimizer:
         MaxIterations: 2000
         Display: "none"
     params:
-        n_searches: 10
+        n_searches: 50
         w: 1000
         z: 1000
         PMax: 1580

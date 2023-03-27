@@ -97,12 +97,12 @@ title("(c) Excess power used (kW)", 'Interpreter', 'latex')
 grid on
 
 ax4 = subplot(4,1,4);
-plot(t, metrics_summary.total_model_uncertainty, line_style, ...
+plot(t, overall_model_RMSE, line_style, ...
     'Linewidth', 2, 'MarkerSize', marker_size);
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel('Time (s)', 'Interpreter', 'latex')
 ylabel('Metric', 'Interpreter', 'latex')
-title("(d) Total model uncertainty", 'Interpreter', 'latex')
+title("(d) Overall model error (RMSE)", 'Interpreter', 'latex')
 grid on
 
 % Resize plot and save as pdf

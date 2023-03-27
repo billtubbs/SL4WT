@@ -13,7 +13,6 @@
 
 addpath("data-utils")
 
-
 % Load simulation data output variables
 % TODO: Add sim_name here
 filename = sprintf("load_opt_out.mat", sim_name);
@@ -45,36 +44,59 @@ max_load = fzero(@(x) power_opt_func(x) - PMax, 2500);
 % (at steady-state points only)
 power_ideal = power_opt_func(load_actual);
 
-
-% Load final model predictions from csv file for each machine
-model_errors = struct();
-machine_names = fieldnames(opt_config.machines);
+% Load model predictions from csv file for each machine
+% and calculate prediction errors for every time sample
+% (not only when models were updated)
+t_sim = LOData.Time;
+nT = length(t_sim);
+machine_names = string(fieldnames(opt_config.machines));
 n_machines = length(machine_names);
-all_sq_errors = cell(1, n_machines);
-for i = 1:n_machines
-    machine = machine_names{i};
 
-    % Get time of last model update
-    t_last = LOModelData.Machines.(machine).Time(end);
-
-    % Load model predictions from simulation output file 
-    % (see load_opt.m)
-    filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t_last);
-    predictions = readtable(fullfile(results_dir, filename));
-    X = predictions.op_interval;
-    Y_pred = predictions.y_mean;
-
-    % Calculate true values from true machine model 
-    machine_params = sys_config.equipment.(machine).params;
-    Y_true = sample_op_pts_poly(X, machine_params, 0);
-
-    % Calculate model errors
-    sq_errors = (Y_true - Y_pred).^2;
-    model_errors.(machine).RMSE = sqrt(mean(sq_errors));
-    model_errors.(machine).max = max(abs(Y_true - Y_pred));
-    all_sq_errors{i} = sq_errors;
+sq_errors = struct();
+model_errors = struct();
+for machine = machine_names'
+    model_errors.(machine).RMSE = nan(size(t_sim));
+    model_errors.(machine).max = nan(size(t_sim));
 end
-model_errors.RMSE_overall = sqrt(mean(cell2mat(all_sq_errors')));
+model_errors.overall_RMSE = nan(size(t_sim));
+all_sq_errors = cell(1, n_machines);
+
+for k = 1:nT
+
+    t = t_sim(k);
+
+    for i = 1:n_machines
+        machine = machine_names{i};
+
+        t_model = LOModelData.Machines.(machine).Time;
+
+        if ismember(t, [0; t_model])
+            % Load model predictions from simulation output file 
+            % (see load_opt.m)
+            filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
+            predictions = readtable(fullfile(results_dir, filename));
+            X = predictions.op_interval;
+            Y_pred = predictions.y_mean;
+
+            % Calculate true values from true machine model 
+            machine_params = sys_config.equipment.(machine).params;
+            Y_true = sample_op_pts_poly(X, machine_params, 0);
+
+            % Calculate model errors
+            sq_errors.(machine) = (Y_true - Y_pred).^2;
+            model_errors.(machine).RMSE(k) = sqrt(mean(sq_errors.(machine)));
+            model_errors.(machine).max(k) = max(abs(Y_true - Y_pred));
+        else
+            model_errors.(machine).RMSE(k) = ...
+                model_errors.(machine).RMSE(k - 1);
+            model_errors.(machine).max(k) = ...
+                model_errors.(machine).max(k - 1);
+        end
+        all_sq_errors{i} = sq_errors.(machine);
+    end
+    model_errors.overall_RMSE(k) = sqrt(mean(cell2mat(all_sq_errors')));
+
+end
 
 
 %% Calculate main evaluation metrics
@@ -87,6 +109,7 @@ load_shortfalls_vs_target = load_target(1:end-1) - load_actual(2:end);
 load_shortfalls_vs_max = min(load_target(1:end-1), max_load) - load_actual(2:end);
 excess_power_used = power_actual(2:end) - power_ideal(2:end);
 total_model_uncertainty = LOData.TotalUncertainty(2:end);
+overall_model_RMSE = model_errors.overall_RMSE(2:end);
 
 t = LOData.Time(2:end);
 metrics_summary = table( ...
@@ -94,7 +117,8 @@ metrics_summary = table( ...
     power_limit_exceedances, ...
     load_shortfalls_vs_max, ...
     excess_power_used, ...
-    total_model_uncertainty ...
+    total_model_uncertainty, ...
+    overall_model_RMSE ...
 );
 
 % Save simulation metrics to csv file
@@ -108,8 +132,7 @@ mean_excess_power_used = mean(excess_power_used);
 mean_excess_power_used_pct = 100 * mean_excess_power_used / ...
     mean(power_actual);
 final_total_model_uncertainty = total_model_uncertainty(end);
-final_model_RMSE = model_errors.RMSE_overall;
-
+final_model_RMSE = overall_model_RMSE(end);
 
 fprintf("Max. power limit exceedance: %.0f kW\n", ...
     max_power_limit_exceedance)

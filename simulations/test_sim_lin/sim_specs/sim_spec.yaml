@@ -2,7 +2,7 @@ simulation:
     model:
         filename: "multiple_generators_els_2021b.mdl"
     inputs:
-        filename: "load_sequence_11.mat"
+        filename: "load_sequence_12.mat"
     params:
         t_stop: 4000
         seed: 0
