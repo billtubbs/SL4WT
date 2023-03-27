@@ -211,7 +211,7 @@ linkaxes(axs, 'y')
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
-figsize = [10.5 2.5];
+figsize = [n_plots*2+2.5 2.5];
 set(gcf, ...
     'Position', [p(1:2) figsize] ...
 )
