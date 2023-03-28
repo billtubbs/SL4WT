@@ -435,6 +435,10 @@ f3 = -z .* sum(y_sigmas);
 f = f1 + f2 + f3;
 fprintf("%5.0f %10.3e %+10.3e %+10.3e = %10.3e\n", t, f1, f2, f3, f)
 
+% if t == 2500
+%     disp('stop for debugging')
+% end
+
 % Simulation iteration (not the model updates iteration)
 curr_iteration = curr_iteration + 1;
 

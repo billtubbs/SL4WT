@@ -125,7 +125,8 @@ else
         if n_searches > 0
             % Add random initialization points
             % Start from a point inside operating limits
-            r = (load_target - sum(op_limits(:, 1))) / sum(diff(op_limits, [], 2));
+            r = (load_target - sum(op_limits(:, 1))) ...
+                / sum(diff(op_limits, [], 2));
             xr = op_limits(:, 1) + r .* diff(op_limits, [], 2);
             X0 = RandPtsInLinearConstraints( ...
                     n_searches, ...

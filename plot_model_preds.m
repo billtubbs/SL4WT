@@ -66,53 +66,11 @@ linkaxes([ax1 ax2], 'x')
 
 filename = sprintf("%s_metrics.csv", sim_name);
 metrics_summary = readtable(fullfile(results_dir, filename));
-t = metrics_summary.t;
 
 figure(2); clf
-line_style = '.-';
-marker_size = 12;
 
-ax1 = subplot(4,1,1);
-plot(t, metrics_summary.power_limit_exceedances, line_style, ...
-    'Linewidth', 2, 'MarkerSize', marker_size);
-set(gca, 'TickLabelInterpreter', 'latex')
-ylabel('Metric', 'Interpreter', 'latex')
-title("(a) Power limit exceedances (kW)", 'Interpreter', 'latex')
-grid on
+make_metrics_plot(metrics_summary);
 
-ax2 = subplot(4,1,2);
-plot(t, metrics_summary.load_shortfalls_vs_max, line_style, ...
-    'Linewidth', 2, 'MarkerSize', marker_size); 
-set(gca, 'TickLabelInterpreter', 'latex')
-ylabel('Metric', 'Interpreter', 'latex')
-title("(b) Load shortfalls (kW)", 'Interpreter', 'latex')
-grid on
-
-ax3 = subplot(4,1,3);
-plot(t, metrics_summary.excess_power_used, line_style, ...
-    'Linewidth', 2, 'MarkerSize', marker_size);
-set(gca, 'TickLabelInterpreter', 'latex')
-ylabel('Metric', 'Interpreter', 'latex')
-title("(c) Excess power used (kW)", 'Interpreter', 'latex')
-grid on
-
-ax4 = subplot(4,1,4);
-plot(t, overall_model_RMSE, line_style, ...
-    'Linewidth', 2, 'MarkerSize', marker_size);
-set(gca, 'TickLabelInterpreter', 'latex')
-xlabel('Time (s)', 'Interpreter', 'latex')
-ylabel('Metric', 'Interpreter', 'latex')
-title("(d) Overall model error (RMSE)", 'Interpreter', 'latex')
-grid on
-
-% Resize plot and save as pdf
-set(gcf, 'Units', 'inches');
-p = get(gcf, 'Position');
-figsize = [3.5 4];
-set(gcf, ...
-    'Position', [p(1:2) figsize] ...
-)
-p = get(gcf, 'Position');
 filename = sprintf("%s_metrics_plot.pdf", sim_name);
 save2pdf(fullfile(plot_dir, filename))
 
