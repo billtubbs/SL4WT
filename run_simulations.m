@@ -13,7 +13,7 @@ sims_dir = "simulations";
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
 % sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted linear basis func
-% sim_name = "test_sim_gpr2";  % Gaussian process models - unfitted basis func
+sim_name = "test_sim_gpr2";  % Gaussian process models - unfitted basis func
 % sim_name = "test_sim_fp1";  % First-principles model (zero order)
 % sim_name = "test_sim_fp2";  % First-principles model (adaptive 0/1st order)
 % sim_name = "test_sim_lin";  % Linear model
@@ -21,8 +21,9 @@ sims_dir = "simulations";
 % sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
 % sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
-% sim_name = "sim_gpr_popt";
-sim_name = "sim_true_popt_w";  % param optimization for w parameter
+% sim_name = "sim_true_popt_w";  % param optimization for w parameter
+% sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
+% sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
 
 % Directory where config files are stored
 sim_spec_dir = fullfile(sims_dir, sim_name, "sim_specs");

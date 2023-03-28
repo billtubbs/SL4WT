@@ -109,7 +109,7 @@ models:
                 FitMethod: "none"
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun"
+    obj_func: "LoadObjFun2"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -124,5 +124,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 10000
+        z: 10
         PMax: 1580

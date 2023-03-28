@@ -55,7 +55,7 @@ Y = [
 ];
 x = sim_out.total_power.Time;
 x_label = "Time (s)";
-y_labels = ["Ideal" "Actual" "Maximum"];
+y_labels = ["Ideal" "Actual" "Limit"];
 make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total power (kW)")
 

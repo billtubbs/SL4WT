@@ -1,5 +1,8 @@
 % Run a test simulation
-
+%
+% Note: This fails when run as a 'runtests' unit test
+% Have to run it seperately.
+%
 
 clear all
 addpath("yaml")

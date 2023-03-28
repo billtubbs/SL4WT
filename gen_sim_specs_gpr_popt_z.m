@@ -3,7 +3,11 @@
 addpath("yaml")
 
 % Name of simulation and directory where sim specs and results are
-sim_name = "sim_gpr_popt";
+sim_name = "sim_gpr_popt_z";
+
+% Base optimizer config file to use
+%opt_config_filename = "opt_config_gpr1.yaml";
+opt_config_filename = "opt_config_gpr2.yaml";
 
 % Define directory where simulation spec files should be
 sims_dir = "simulations";
@@ -15,7 +19,7 @@ filepath = fullfile(sim_spec_dir, sim_config_filename);
 sim_config_base = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Load optimizer base configuration from file
-filepath = fullfile(sim_spec_dir, "opt_config_gpr2.yaml");
+filepath = fullfile(sim_spec_dir, opt_config_filename);
 opt_config_base = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Create directory for new sim specs
@@ -29,7 +33,8 @@ for i = 1:n_sims
 
     % Create new sim_spec.yaml file 
     sim_config = sim_config_base;  % make a copy
-    opt_config_filename = sim_config.optimizer.config_filename;
+    % Change opt config filename
+    sim_config.optimizer.config_filename = opt_config_filename;
     [~, name, ext] = fileparts(opt_config_filename);
     name = compose("%s_%03d", name, i);
     new_opt_config_filename = strjoin([name ext], '');
@@ -48,5 +53,8 @@ for i = 1:n_sims
     opt_config.optimizer.params.z = z_values(i);
     yaml.dumpFile(fullfile(sim_spec_dir, new_opt_config_filename), ...
         opt_config, "block")
+
+    fprintf("sim_spec file '%s' created\n", new_sim_spec_filename)
+    fprintf("opt_config file '%s' created\n", new_opt_config_filename)
 
 end
