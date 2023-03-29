@@ -41,6 +41,8 @@ eval_metrics = sims_summary(selection, eval_metric_names);
 eval_metrics.Properties.VariableNames = ...
     cellfun(@(x) x(14:end), eval_metrics.Properties.VariableNames, 'UniformOutput', false);
 eval_metrics.Properties.RowNames = string(z');
+eval_metrics = sortrows(eval_metrics, 'RowNames');
+z = double(string(eval_metrics.Properties.RowNames));
 disp(eval_metrics)
 
 

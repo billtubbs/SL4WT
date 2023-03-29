@@ -2,7 +2,7 @@ simulation:
   model:
     filename: multiple_generators_els_2021b.mdl
   inputs:
-    filename: load_sequence_22.mat
+    filename: load_sequence_12.mat
   params:
     t_stop: 4000.0
     seed: 0.0
@@ -14,4 +14,4 @@ simulation:
 system:
   config_filename: sys_config.yaml
 optimizer:
-  config_filename: opt_config_true.yaml
+  config_filename: opt_config_gpr2_008.yaml

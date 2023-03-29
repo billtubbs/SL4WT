@@ -3,7 +3,7 @@
 addpath("yaml")
 
 % Name of simulation and directory where sim specs and results are
-sim_name = "sim_gpr_popt_z2";
+sim_name = "sim_gpr_popt_z";
 
 % Base optimizer config file to use
 %opt_config_filename = "opt_config_gpr1.yaml";
@@ -27,7 +27,7 @@ if ~exist(fullfile(sim_spec_dir, "queue"), 'dir')
     mkdir(fullfile(sim_spec_dir, "queue"))
 end
 
-z_values = [1e-3 0.01 0.1 1 10 100 1000];
+z_values = [1e-3 0.01 0.1 1 10 100 1000 1e4 1e5 1e6];
 n_sims = length(z_values);
 for i = 1:n_sims
 

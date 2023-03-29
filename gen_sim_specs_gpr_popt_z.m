@@ -27,7 +27,7 @@ if ~exist(fullfile(sim_spec_dir, "queue"), 'dir')
     mkdir(fullfile(sim_spec_dir, "queue"))
 end
 
-z_values = [10 100 1000 10000 100000 1e6 1e7 1e8];
+z_values = [10 100 1000 10000 100000 1e6 1e7 1e8 1e9 1e10];
 n_sims = length(z_values);
 for i = 1:n_sims
 

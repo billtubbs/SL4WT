@@ -23,9 +23,9 @@ filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
 sim_spec = yaml.loadFile(filepath, "ConvertToArray", true);
 
-% Load configuration file
+% Load optimizer configuration file
 filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
-    "opt_config.yaml");
+    sim_spec.optimizer.config_filename);
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
 opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
 
