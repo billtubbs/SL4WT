@@ -6,7 +6,7 @@ clear
 
 addpath("plot-utils")
 
-sim_name = "sim_gpr_popt_z2";
+sim_name = "sim_gpr_popt_z";
 results_dir = sprintf("simulations/%s/results", sim_name);
 plot_dir = "plots";
 filename = "sims_summary.csv";
@@ -18,8 +18,8 @@ disp(sims_summary)
 selection = startsWith(sims_summary.opt_config, "opt_config_gpr2");
 
 % Results to drop
-to_drop = strcmp(sims_summary.opt_config(selection), "opt_config_gpr2_007.yaml");
-selection(to_drop) = false;
+%to_drop = strcmp(sims_summary.opt_config(selection), "opt_config_gpr2_007.yaml");
+%selection(to_drop) = false;
 
 % Parameter values
 z = sims_summary.opt_params_z(selection);
@@ -33,7 +33,7 @@ eval_metric_names = [ ...
     "eval_metrics_max_power_limit_exceedance" ...
     "eval_metrics_mean_excess_power_used" ...
     "eval_metrics_mean_excess_power_used_pct" ...
-    "eval_metrics_mean_load_losses_vs_target" ...
+    "eval_metrics_mean_load_shortfalls_vs_target" ...
     "eval_metrics_mean_power_limit_exceedance" ...
 ];
 eval_metrics = sims_summary(selection, eval_metric_names);
@@ -47,7 +47,7 @@ disp(eval_metrics)
 %% Make plot
 
 y_data = [
-    eval_metrics.mean_load_losses_vs_target ...
+    eval_metrics.mean_load_shortfalls_vs_target ...
     eval_metrics.max_power_limit_exceedance ...
     eval_metrics.mean_excess_power_used ...
     eval_metrics.final_model_RMSE ...
@@ -72,8 +72,8 @@ ylabel("Metric", 'Interpreter', 'latex')
 
 xlim(z([1 end]))
 y_lims = axes_limits_with_margin(y_data, 0.2);
-ylim(y_lims + [-diff(y_lims)/2 0])
-legend(labels, 'Interpreter', 'latex', 'location', 'south')
+ylim(y_lims + [0 diff(y_lims)/2])
+legend(labels, 'Interpreter', 'latex', 'location', 'north')
 
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');

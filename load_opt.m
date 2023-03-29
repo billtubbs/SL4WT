@@ -372,11 +372,12 @@ for j = 1:n_sols
 
     opt_flags(j) = flag;
 
-    % Check constraints met
+    % Check machine constraints met
     assert(all(load_sol - op_limits(:, 1) >= 0))
     assert(all(op_limits(:, 2) - load_sol >= 0))
 
-    if power_sol < best_power
+    % Record best solution
+    if (power_sol < best_power) && (flag >= 0)
         best_load = load_sol;
         best_power = power_sol;
     end
@@ -433,7 +434,8 @@ f1 = sum(y_means).^2;
 f2 = w.* (sum(x) - CurrentLoadTarget).^2;
 f3 = -z .* sum(y_sigmas);
 f = f1 + f2 + f3;
-fprintf("%5.0f %10.3e %+10.3e %+10.3e = %10.3e\n", t, f1, f2, f3, f)
+fprintf("%5.0f %10.3e %+10.3e %+10.3e = %10.3e ", t, f1, f2, f3, f)
+fprintf("[%5.0f %5.0f %5.0f %5.0f %5.0f]\n", gen_load_targets')
 
 % if t == 2500
 %     disp('stop for debugging')

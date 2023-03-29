@@ -1,8 +1,11 @@
 % Plots model predictions for last simulation
 %
-% Make sure that sim_name is set to the name of the simulation
+% Make sure that sim_name and sims_dir are set to the 
+% name of the simulation directory.
 %
-%sim_name = "test_sim"
+% E.g.
+% sim_name = "test_sim"
+% sims_dir = "simulations";
 %
 
 addpath("yaml")
@@ -11,25 +14,42 @@ addpath("plot-utils")
 % Directory where config files are stored
 sim_spec_dir = "sim_specs";
 
+% Directory where simulation results files are stored
+results_dir = fullfile(sims_dir, sim_name, "results");
+
+% Load sim_spec file
+filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
+    "sim_spec.yaml");
+fprintf("Loading optimizer configuration from '%s'\n", filepath)
+sim_spec = yaml.loadFile(filepath, "ConvertToArray", true);
+
 % Load configuration file
-filepath = fullfile("simulations", sim_name, sim_spec_dir, ...
+filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
     "opt_config.yaml");
 fprintf("Loading optimizer configuration from '%s'\n", filepath)
-config = yaml.loadFile(filepath, "ConvertToArray", true);
+opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Load optimizer output data file
-filespec = fullfile("simulations", sim_name, "results", ...
+filespec = fullfile(sims_dir, sim_name, "results", ...
         "load_opt_out.mat");
 load(filespec)
-machine_names = string(fieldnames(config.machines))';
+machine_names = string(fieldnames(opt_config.machines))';
 n_machines = numel(machine_names);
 
 % Load simulation output data file
-filespec = fullfile("simulations", sim_name, "results", "sim_out.mat");
+filespec = fullfile(sims_dir, sim_name, "results", "sim_out.mat");
 load(filespec)
 
 fprintf("Plotting simulation results from '%s'\n", ...
-    fullfile("simulations", sim_name, "results"))
+    fullfile(sims_dir, sim_name, "results"))
+
+% Load optimum power results file
+filename = sim_spec.simulation.outputs.min_power_data;
+power_opt_table = readtable(fullfile("results", filename));
+
+% Set up linear interpolation function
+power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
+    power_opt_table.TotalPower, load);
 
 
 %% Plot total load and power time series
@@ -60,6 +80,14 @@ make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total power (kW)")
 
 linkaxes([ax1 ax2], 'x')
+
+% Resize plot and save as pdf
+set(gcf, 'Units', 'inches');
+p = get(gcf, 'Position');
+figsize = [3.5 3.5];
+set(gcf, 'Position', [p(1:2) figsize])
+filename = "input_seqs_1.pdf";
+exportgraphics(gcf, fullfile(plot_dir, filename))
 
 
 %% Plot key metrics over time
@@ -124,7 +152,7 @@ for i = 1:n_machines
     
             % Load predictions
             filename = compose("%s_%s_preds_%.0f.csv", sim_name, machine, t);
-            model_preds{j} = readtable(fullfile("simulations", sim_name, ...
+            model_preds{j} = readtable(fullfile(sims_dir, sim_name, ...
                         "results", filename));
 
             % Update min/max range
@@ -170,7 +198,7 @@ for i = 1:n_machines
                   max(model_preds{j}{:, 'op_interval'})])
             text(0.05, 0.9, compose("$t=%d$", t), 'Units', 'normalized', ...
                 'Interpreter', 'latex')
-            title(escape_latex_chars(config.machines.(machine).name), ...
+            title(escape_latex_chars(opt_config.machines.(machine).name), ...
                 'Interpreter', 'latex')
             hLeg = findobj(gcf, 'Type', 'Legend');
 %             leg_labels = hLeg.String;
@@ -192,4 +220,4 @@ set(gcf, 'Position', [s(1:2) -30+210*5 -30+180*n_machines]);
 
 % Save as pdf
 filename = compose("model_preds_%.0f.pdf", t);
-save2pdf(fullfile("simulations", sim_name, "plots", filename))
+save2pdf(fullfile(sims_dir, sim_name, "plots", filename))

@@ -9,6 +9,7 @@
 %  - sim_name - name of directory where current simulation is saved
 %  - sim_out - Simulink.SimulationOutput object
 %  - results_dir - name of directory where optimum results saved
+%  - sim_spec - struct containing all simulation setup information
 %
 
 addpath("data-utils")
@@ -29,7 +30,7 @@ load_actual = sim_out.load_actual.Data(i_sample);
 power_actual = sim_out.total_power.Data(i_sample);
 
 % Load optimum power results file
-filename = sim_config.simulation.outputs.min_power_data;
+filename = sim_spec.simulation.outputs.min_power_data;
 power_opt_table = readtable(fullfile("results", filename));
 
 % Set up linear interpolation function
@@ -122,12 +123,14 @@ metrics_summary = table( ...
     overall_model_RMSE ...
 );
 
-% Save simulation metrics to csv file
-filename = sprintf("%s_metrics.csv", sim_name);
+% Save simulation metrics to csv file - one for each simulation
+% if multiple simulations being run
+filename = sprintf("%s_metrics_%03d.csv", sim_name, i_sim);
 writetable(metrics_summary, fullfile(results_dir, filename))
 
 max_power_limit_exceedance = max(power_limit_exceedances);
 mean_power_limit_exceedance = mean(power_limit_exceedances);
+mean_load_shortfalls_vs_target = mean(load_shortfalls_vs_target);
 mean_load_shortfalls_vs_max = mean(load_shortfalls_vs_max);
 mean_excess_power_used = mean(excess_power_used);
 mean_excess_power_used_pct = 100 * mean_excess_power_used / ...
@@ -139,7 +142,9 @@ fprintf("Max. power limit exceedance: %.0f kW\n", ...
     max_power_limit_exceedance)
 fprintf("Avg. power limit exceedance: %.0f kW\n", ...
     mean_power_limit_exceedance)
-fprintf("Avg. load shortfalls: %.0f kW\n", ...
+fprintf("Avg. load shortfalls vs. target: %.0f kW\n", ...
+    mean_load_shortfalls_vs_target)
+fprintf("Avg. load shortfalls vs. max.: %.0f kW\n", ...
     mean_load_shortfalls_vs_max)
 fprintf("Avg. excess power used: %g kW\n", ...
     mean_excess_power_used)
@@ -157,7 +162,8 @@ fprintf("Final overall model prediction error (RMSE): %.1f kW\n", ...
 eval_metrics = struct();
 eval_metrics.max_power_limit_exceedance = max_power_limit_exceedance;
 eval_metrics.mean_power_limit_exceedance = mean_power_limit_exceedance;
-eval_metrics.mean_load_losses_vs_target = mean_load_shortfalls_vs_max;
+eval_metrics.mean_load_shortfalls_vs_target = mean_load_shortfalls_vs_target;
+eval_metrics.mean_load_shortfalls_vs_max = mean_load_shortfalls_vs_max;
 eval_metrics.mean_excess_power_used = mean_excess_power_used;
 eval_metrics.mean_excess_power_used_pct = mean_excess_power_used_pct;
 eval_metrics.final_total_model_uncertainty = final_total_model_uncertainty;
@@ -168,25 +174,25 @@ eval_metrics = objects2tablerow( ...
 
 % Simulation parameters
 sim_params = objects2tablerow( ...
-    containers.Map("sim_params", sim_config.simulation.params) ...
+    containers.Map("sim_params", sim_spec.simulation.params) ...
 );
 
 % Config filenames
 config_files = array2table( ...
-    [sim_config.system.config_filename ...
-     sim_config.optimizer.config_filename], ...
+    [sim_spec.system.config_filename ...
+     sim_spec.optimizer.config_filename], ...
     'VariableNames', ["sys_config" "opt_config"] ...
 );
 
 % Determine name of sim_spec file (depends if multiple sims being run)
 if n_sim_queue > 0
-    sim_spec = string(files_info(i_sim).name);
+    sim_spec_name = string(files_info(i_sim).name);
 else
-    sim_spec = sim_spec_filename;
+    sim_spec_name = sim_spec_filename;
 end
 
 % Inputs
-input_filename = sim_config.simulation.inputs.filename;
+input_filename = sim_spec.simulation.inputs.filename;
 
 % Optimizer parameters
 opt_params = objects2tablerow( ...
@@ -203,7 +209,7 @@ opt_config_models = objects2tablerow( ...
 % Combine selected results into one row
 results_table = [ ...
     array2tablerow(datetime(), 'Time') ...
-    table(i_sim, sim_name, sim_spec) ...
+    table(i_sim, sim_name, sim_spec_name) ...
     config_files ...
     table(input_filename) ...
     sim_params ...
@@ -214,7 +220,7 @@ results_table = [ ...
 ];
 
 % Save summary results to csv file
-filename = sim_config.simulation.outputs.summary.filename;
+filename = sim_spec.simulation.outputs.summary.filename;
 if isfile(fullfile(results_dir, filename))
     % Load existing results and combine
     existing_results = readtable(fullfile(results_dir, filename), ...
