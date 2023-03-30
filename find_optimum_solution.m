@@ -25,6 +25,7 @@ n_pts = 501;
 % point
 n_searches = 50;
 
+
 %% Load configuration file
 
 % Load simulation config file with machine parameters
