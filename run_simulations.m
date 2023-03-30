@@ -28,7 +28,7 @@ sims_dir = "simulations";
 % sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
 
 % WARNING: The following simulations take a long time! ~5 hrs
-% sim_name = "sim_all_eval";  % run all optimizer evaluation simulations
+sim_name = "sim_all_eval";  % run all optimizer evaluation simulations
 
 % Directory where config files are stored
 sim_spec_dir = fullfile(sims_dir, sim_name, "sim_specs");

@@ -60,7 +60,7 @@ for i_opt = 1:length(opt_config_filenames)
             assert(opt_config.optimizer.params.w == 1000)
         end
         if isfield(opt_config.optimizer.params, "z")
-            assert(opt_config.optimizer.params.z == 10)
+            assert(opt_config.optimizer.params.z == 10000)
         end
         if isfield(opt_config.models.model_1.params, "significance")
             assert(opt_config.models.model_1.params.significance == 0.1)
@@ -68,7 +68,7 @@ for i_opt = 1:length(opt_config_filenames)
             assert(opt_config.models.model_3.params.significance == 0.1)
         end
         assert(strcmp(opt_config.optimizer.obj_func, ...
-            "LoadObjFun2"))
+            "LoadObjFun"))
         assert(strcmp(opt_config.optimizer.const_func, ...
             "MaxPowerConstraint"))
     
@@ -77,7 +77,7 @@ for i_opt = 1:length(opt_config_filenames)
     
         % Change input sequence filename
         sim_spec.simulation.inputs.filename = ...
-            sprintf("load_sequence_%d.mat", i_seq);
+            sprintf("load_sequence_%02d.mat", i_seq);
 
         % Change initial training data for models
         machine_names = string(fieldnames(opt_config.machines));
@@ -88,6 +88,16 @@ for i_opt = 1:length(opt_config_filenames)
             opt_config.machines.(machine).trainingData = ...
                 new_td_filename;
         end
+
+        % Save new opt_config file in sim_spec directory
+        [~, name, ext] = fileparts(opt_config_filename);
+        name = compose("%s_%d_%03d", name, i_opt, i_seq);
+        new_opt_config_filename = strjoin([name ext], '');
+        yaml.dumpFile(fullfile(sim_spec_dir, new_opt_config_filename), ...
+            opt_config, "block")
+
+        % Change input sequence filename
+        sim_spec.optimizer.config_filename = new_opt_config_filename;
 
         % Save new sim_spec file in queue directory
         [~, name, ext] = fileparts(sim_spec_filename);

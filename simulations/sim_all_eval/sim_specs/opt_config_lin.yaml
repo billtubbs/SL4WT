@@ -82,7 +82,7 @@ models:
             responseNames: "Power"
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun2"
+    obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
