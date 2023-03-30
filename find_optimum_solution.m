@@ -8,7 +8,9 @@ addpath("RandPtsInLinearConstraints")
 
 rng(0)
 
-sim_spec_dir = "tests/simulations/test_sim/sim_specs";
+test_dir = "tests";
+sims_dir = "simulations";
+sim_name = "test_sim";
 results_dir = "results";
 plot_dir = "plots";
 if ~exist(results_dir, 'dir')
@@ -30,6 +32,7 @@ n_searches = 50;
 
 % Load simulation config file with machine parameters
 filename = "sys_config.yaml";
+sim_spec_dir = fullfile(test_dir, sims_dir, sim_name, "sim_specs");
 sys_config = yaml.loadFile(fullfile(sim_spec_dir, filename), ...
     "ConvertToArray", true);
 
@@ -113,7 +116,7 @@ else
             'MaxFunctionEvaluations', 10000, ...
             'OptimalityTolerance', 1e-6, ...
             'ConstraintTolerance', 1e-6, ...
-            'Display', 'final-detailed' ...
+            'Display', 'final' ...
         );
     
         % Do random search of initial points, including the solution
