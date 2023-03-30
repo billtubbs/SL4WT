@@ -47,17 +47,44 @@ sim_name = "test_sim_true";  % test optimizer with true system models
 The 'sim_name' variable refers to a sub-directory in the 'simulations' directory which contains a config file that defines the 
 simulation and load optimizer setup.
 
-Evaluation metrics for each simulation include:
+If you run the above simulation, you should get the following output:
 ```lang-none
-Max. power limit exceedance: 0 kW
+Starting single simulation...
+      Start time: 11:18:55
+Loading simulation configuration from 'simulations/test_sim_true/sim_specs/sim_spec.yaml'
+Loading system configuration from 'simulations/test_sim_true/sim_specs/sys_config.yaml'
+Loading optimizer configuration from 'simulations/test_sim_true/sim_specs/opt_config.yaml'
+Starting simulation...
+    0  2.128e+06 +6.637e+02 -0.000e+00 =  2.128e+06 [   93   537   403   795   403]
+  250  2.128e+06 +6.637e+02 -0.000e+00 =  2.128e+06 [   93   537   403   795   403]
+  500  2.128e+06 +6.637e+02 -0.000e+00 =  2.128e+06 [   93   537   403   795   403]
+  750  2.128e+06 +6.637e+02 -0.000e+00 =  2.128e+06 [   93   537   403   403   795]
+ 1000  2.071e+06 +6.232e+02 -0.000e+00 =  2.071e+06 [   89   537   387   387   795]
+ 1250  2.071e+06 +6.232e+02 -0.000e+00 =  2.071e+06 [   89   537   795   387   387]
+ 1500  2.071e+06 +6.232e+02 -0.000e+00 =  2.071e+06 [   89   537   387   795   387]
+ 1750  2.071e+06 +6.232e+02 -0.000e+00 =  2.071e+06 [   89   537   387   387   795]
+ 2000  2.496e+06 +1.461e+08 -0.000e+00 =  1.486e+08 [   92   367   399   795   795]
+ 2250  2.496e+06 +1.461e+08 -0.000e+00 =  1.486e+08 [   92   367   399   795   795]
+ 2500  2.496e+06 +1.461e+08 -0.000e+00 =  1.486e+08 [   92   367   399   795   795]
+ 2750  2.496e+06 +1.461e+08 -0.000e+00 =  1.486e+08 [   92   367   795   795   399]
+ 3000  1.935e+06 +6.277e+02 -0.000e+00 =  1.935e+06 [   98   376   421   421   795]
+ 3250  1.935e+06 +6.277e+02 -0.000e+00 =  1.935e+06 [   98   376   421   421   795]
+ 3500  1.935e+06 +6.277e+02 -0.000e+00 =  1.935e+06 [   98   376   421   421   795]
+ 3750  1.935e+06 +6.277e+02 -0.000e+00 =  1.935e+06 [   98   376   795   421   421]
+ 4000  2.049e+06 +6.081e+02 -0.000e+00 =  2.050e+06 [   88   537   381   795   381]
+Simulation finished.
+Simulation results saved to 'simulations/test_sim_true/results/sim_out.mat'.
+Max. power limit exceedance: 1 kW
 Avg. power limit exceedance: 0 kW
-Avg. load tracking errors vs. target: 1 kW
+Avg. load tracking errors vs. target: 97 kW
 Avg. load tracking errors vs. max.: 1 kW
-Avg. excess power used: 3.992 kW
-Avg. excess power used: 0.3% (of total)
-Final total model uncertainty: 2.5
-Final overall model prediction error (RMSE): 2.0 kW
+Avg. excess power used: 0.523976 kW
+Avg. excess power used: 0.0% (of total)
+Final total model uncertainty: 0.0
+Final overall model prediction error (RMSE): 0.0 kW
 Number of times optimizer failed: 0
+Summary saved to file:
+simulations/test_sim_true/results/sims_summary.csv
 ```
 
 After running [run_simulations.m](run_simulations.m), you may run [plot_model_preds.m](plot_model_preds.m) to make various plots of the simulation results and the fitted models.
