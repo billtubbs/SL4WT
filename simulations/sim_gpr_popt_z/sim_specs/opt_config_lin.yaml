@@ -55,37 +55,31 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GPR1_1"
-        setupFcn: "gpr_model_setup"
-        predictFcn: "gpr_model_predict"
-        updateFcn: "gpr_model_update"
+        name: "LIN_1"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            fit:
-                KernelFunction: "squaredexponential"
             significance: 0.1
     model_2:
-        name: "GPR1_2"
-        setupFcn: "gpr_model_setup"
-        predictFcn: "gpr_model_predict"
-        updateFcn: "gpr_model_update"
+        name: "LIN_2"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            fit:
-                KernelFunction: "squaredexponential"
             significance: 0.1
     model_3:
-        name: "GPR1_3"
-        setupFcn: "gpr_model_setup"
-        predictFcn: "gpr_model_predict"
-        updateFcn: "gpr_model_update"
+        name: "LIN_3"
+        setupFcn: "lin_model_setup"
+        predictFcn: "lin_model_predict"
+        updateFcn: "lin_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            fit:
-                KernelFunction: "squaredexponential"
             significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"

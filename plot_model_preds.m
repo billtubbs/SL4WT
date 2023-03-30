@@ -92,7 +92,7 @@ exportgraphics(gcf, fullfile(plot_dir, filename))
 
 %% Plot key metrics over time
 
-filename = sprintf("%s_metrics.csv", sim_name);
+filename = sprintf("%s_metrics_%03d.csv", sim_name, i_sim);
 metrics_summary = readtable(fullfile(results_dir, filename));
 
 figure(2); clf

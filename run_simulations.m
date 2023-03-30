@@ -12,9 +12,10 @@ sims_dir = "simulations";
 
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
-% sim_name = "test_sim_gpr";  % Gaussian process regression - fitted, MATLAB defaults
-% sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted linear basis func
-% sim_name = "test_sim_gpr2";  % Gaussian process models - unfitted basis func
+% sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted, MATLAB defaults
+% sim_name = "test_sim_gpr2";  % Gaussian process regression - fitted linear basis func
+% sim_name = "test_sim_gpr3";  % Gaussian process models - unfitted basis func
+% sim_name = "test_sim_gpr4";  % Gaussian process models - unfitted basis func2
 % sim_name = "test_sim_fp1";  % First-principles model (zero order)
 % sim_name = "test_sim_fp2";  % First-principles model (adaptive 0/1st order)
 % sim_name = "test_sim_lin";  % Linear model

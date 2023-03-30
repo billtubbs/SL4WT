@@ -8,8 +8,7 @@ addpath("RandPtsInLinearConstraints")
 
 rng(0)
 
-test_dir = "tests";
-test_data_dir = "data";
+sim_spec_dir = "tests/simulations/test_sim/sim_specs";
 results_dir = "results";
 plot_dir = "plots";
 if ~exist(results_dir, 'dir')
@@ -29,8 +28,8 @@ n_searches = 50;
 %% Load configuration file
 
 % Load simulation config file with machine parameters
-filename = "test_sys_config.yaml";
-sys_config = yaml.loadFile(fullfile(test_dir, test_data_dir, filename), ...
+filename = "sys_config.yaml";
+sys_config = yaml.loadFile(fullfile(sim_spec_dir, filename), ...
     "ConvertToArray", true);
 
 machine_names = fieldnames(sys_config.equipment);
@@ -309,7 +308,7 @@ set(gca, 'TickLabelInterpreter', 'latex')
 labels = compose("%d", 1:5);
 lh = legend(labels, 'Location', 'northwest', 'Interpreter', 'latex', 'NumColumns', 4);
 lp = get(lh, 'Position');
-set(lh, 'Position', [0.16 0.83 0.5 0.08])
+set(lh, 'Position', [0.28 0.83 0.25 0.08])
 grid on
 title("(a) Optimum machine loads", 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
@@ -348,7 +347,7 @@ plot(load_targets, PMax ./ load_targets, 'Color', [0.4 0.4 0.4])
 xlim(load_targets([1 end]))
 ylim([0.6 0.9])
 xlabel("Total load target (kW)", 'Interpreter', 'latex')
-ylabel("Sp. energy (kW/kW)", 'Interpreter', 'latex')
+ylabel("Specific power", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 grid on
 title("(b) Overall specific power consumption", 'Interpreter', 'latex')

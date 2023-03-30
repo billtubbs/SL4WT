@@ -62,15 +62,12 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
-                BasisFunction: "none"
-                Sigma: 0.01  # noise std. dev.
-                FitMethod: "none"
+                KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
     model_2:
         name: "GPR2_2"
@@ -80,15 +77,12 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [90.0, 0.1]  # [sigmaL0, sigmaF0]
-                BasisFunction: "none"
-                Sigma: 0.01  # noise std. dev.
-                FitMethod: "none"
+                KernelParameters: [15.0, 110.0]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
     model_3:
         name: "GPR2_3"
@@ -98,15 +92,12 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            outputTransform:
-                y: "@(x, y) (y + 0.7).*x"
-                y_inv: "@(x, y) y./x - 0.7"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [120.0, 0.1]  # [sigmaL0, sigmaF0]
-                BasisFunction: "none"
-                Sigma: 0.01  # noise std. dev.
-                FitMethod: "none"
+                KernelParameters: [15.0, 220.0]  # [sigmaL0, sigmaF0]
+                BasisFunction: "linear"
+                Sigma: 0.51  # noise std. dev.
+                SigmaLowerBound: 0.5
             significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"

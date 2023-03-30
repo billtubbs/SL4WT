@@ -15,7 +15,10 @@ sims_summary = readtable(fullfile(results_dir, filename));
 disp(sims_summary)
 
 % Choose which results to show plot for
-selection = startsWith(sims_summary.opt_config, "opt_config_gpr2");
+selection = startsWith(sims_summary.opt_config, "opt_config_lin");
+%selection = startsWith(sims_summary.opt_config, "opt_config_gpr1");
+%selection = startsWith(sims_summary.opt_config, "opt_config_gpr2");
+%selection = startsWith(sims_summary.opt_config, "opt_config_gpr3");
 
 % Results to drop
 %to_drop = strcmp(sims_summary.opt_config(selection), "opt_config_gpr2_007.yaml");

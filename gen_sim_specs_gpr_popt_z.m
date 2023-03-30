@@ -6,8 +6,10 @@ addpath("yaml")
 sim_name = "sim_gpr_popt_z";
 
 % Base optimizer config file to use
-%opt_config_filename = "opt_config_gpr1.yaml";
-opt_config_filename = "opt_config_gpr2.yaml";
+opt_config_filename = "opt_config_lin.yaml";  % unfitted prior
+%opt_config_filename = "opt_config_gpr1.yaml";  % defaults
+%opt_config_filename = "opt_config_gpr2.yaml";  % fitted linear basis func
+%opt_config_filename = "opt_config_gpr3.yaml";  % unfitted prior
 
 % Define directory where simulation spec files should be
 sims_dir = "simulations";
@@ -27,7 +29,7 @@ if ~exist(fullfile(sim_spec_dir, "queue"), 'dir')
     mkdir(fullfile(sim_spec_dir, "queue"))
 end
 
-z_values = [10 100 1000 10000 100000 1e6 1e7 1e8 1e9 1e10];
+z_values = [100 1000 10000 100000 1e6 1e7 1e8 1e9 1e10 1e11];
 n_sims = length(z_values);
 for i = 1:n_sims
 

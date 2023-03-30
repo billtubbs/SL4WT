@@ -121,7 +121,7 @@ for i = 1:n_seqs
     %ds = addElement(ds, ts);
 
     % Save simulation data file
-    filename = compose("load_sequence_%d.mat", scenario);
+    filename = compose("load_sequence_%02d.mat", scenario);
     save(fullfile(data_dir, filename), "inputs")
     fprintf("Input data file '%s' saved\n", filename)
 
@@ -133,14 +133,28 @@ end
 % Summary plot of all sequences
 figure(1); clf
 cols = get(gca, 'ColorOrder');
-stairs(t_step, load_seqs, 'LineWidth', 1);
+for i = 1:size(load_seqs, 2)
+    switch i
+        case 1
+            lw = 2;
+            c = 1;
+        otherwise
+            lw = 1;
+            c = 2;
+    end
+    % Unfortunately, transparency doesn't work with stair plots
+    stairs(t_step, load_seqs(:, i), 'LineWidth', lw, ...
+        'Color', [cols(c, :) 0.1]); hold on
+end
+text(100, full_op_limit(2)+110, "Op. limits", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')
 ylabel("Target Load (kW)", 'Interpreter', 'latex')
 yline(full_op_limit, '--')
 ylim([700 3400])
 grid on
-title("Target load sequences 1 to 11", 'Interpreter', 'latex')
+legend("seq. 1", 'Interpreter', 'latex')
+title("Sequences 1 to 11", 'Interpreter', 'latex')
 
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
@@ -245,7 +259,7 @@ for i = 1:n_seqs
     %ds = addElement(ds, ts);
 
     % Save simulation data file
-    filename = compose("load_sequence_%d.mat", scenario);
+    filename = compose("load_sequence_%02d.mat", scenario);
     save(fullfile(data_dir, filename), "inputs")
     fprintf("Input data file '%s' saved\n", filename)
 
@@ -257,14 +271,29 @@ end
 % Make summary plot of all sequences
 figure(2); clf
 cols = get(gca, 'ColorOrder');
-stairs(t_step, load_seqs, 'LineWidth', 1);
+%stairs(t_step, load_seqs, 'LineWidth', 1);
+for i = 1:size(load_seqs, 2)
+    % Unfortunately, transparency doesn't work with stair plots
+    switch i
+        case 1
+            lw = 2;
+            c = 1;
+        otherwise
+            lw = 1;
+            c = 2;
+    end
+    stairs(t_step, load_seqs(:, i), 'LineWidth', lw, ...
+        'Color', [cols(c, :) 0.1]); hold on
+end
+text(100, full_op_limit(2)+110, "Op. limits", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')
 ylabel("Target Load (kW)", 'Interpreter', 'latex')
 yline(full_op_limit, '--')
 ylim([700 3400])
 grid on
-title("Target load sequences 12 to 22", 'Interpreter', 'latex')
+legend("seq. 12", 'Interpreter', 'latex')
+title("Sequences 12 to 22", 'Interpreter', 'latex')
 
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
