@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GP1"
+        name: "GP1_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -69,7 +69,7 @@ models:
                 SigmaLowerBound: 0.1
             significance: 0.1
     model_2:
-        name: "GP2"
+        name: "GP1_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -83,7 +83,7 @@ models:
                 SigmaLowerBound: 0.1
             significance: 0.1
     model_3:
-        name: "GP3"
+        name: "GP1_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"

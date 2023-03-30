@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "FP1"
+        name: "FP1_1"
         setupFcn: "fp1_model_setup"
         predictFcn: "fp1_model_predict"
         updateFcn: "fp1_model_update"
@@ -68,7 +68,7 @@ models:
                 se_int: [0.4, 1.0]
             significance: 0.1
     model_2:
-        name: "FP2"
+        name: "FP1_2"
         setupFcn: "fp1_model_setup"
         predictFcn: "fp1_model_predict"
         updateFcn: "fp1_model_update"
@@ -81,7 +81,7 @@ models:
                 se_int: [0.4, 1.0]
             significance: 0.1
     model_3:
-        name: "FP3"
+        name: "FP1_3"
         setupFcn: "fp1_model_setup"
         predictFcn: "fp1_model_predict"
         updateFcn: "fp1_model_update"
@@ -110,5 +110,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 1000
+        z: 10000
         PMax: 1580

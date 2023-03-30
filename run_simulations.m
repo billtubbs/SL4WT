@@ -24,7 +24,7 @@ sims_dir = "simulations";
 % sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
 % sim_name = "sim_true_popt_w";  % param optimization for w parameter
-sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
+% sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
 % sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
 
 % WARNING: The following simulations take a long time! ~5 hrs

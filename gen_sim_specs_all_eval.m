@@ -79,6 +79,16 @@ for i_opt = 1:length(opt_config_filenames)
         sim_spec.simulation.inputs.filename = ...
             sprintf("load_sequence_%d.mat", i_seq);
 
+        % Change initial training data for models
+        machine_names = string(fieldnames(opt_config.machines));
+        n_machines = length(machine_names);
+        for m = 1:n_machines
+            machine = machine_names(m);
+            new_td_filename = sprintf("machine_%d_data_%02d.csv", m, i_seq);
+            opt_config.machines.(machine).trainingData = ...
+                new_td_filename;
+        end
+
         % Save new sim_spec file in queue directory
         [~, name, ext] = fileparts(sim_spec_filename);
         name = compose("%s_%d_%03d", name, i_opt, i_seq);

@@ -30,13 +30,13 @@ function axs = make_metrics_plot(metrics_summary)
     grid on
 
     axs(2) = subplot(4,1,2);
-    y_values = metrics_summary.load_shortfalls_vs_max;
+    y_values = metrics_summary.load_tracking_errors_vs_max;
     plot(t, y_values, line_style, 'Linewidth', 2, ...
         'MarkerSize', marker_size);
     ylim(axes_limits_with_margin(y_values, 0.1, [0 10]))
     set(gca, 'TickLabelInterpreter', 'latex')
     ylabel('Metric', 'Interpreter', 'latex')
-    title("(b) Load shortfalls (kW)", 'Interpreter', 'latex')
+    title("(b) Load tracking errors (kW)", 'Interpreter', 'latex')
     grid on
 
     axs(3) = subplot(4,1,3);

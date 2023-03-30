@@ -50,7 +50,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "TRUE1"
+        name: "TRUE_1"
         setupFcn: "fixed_poly_model_setup"
         predictFcn: "fixed_poly_model_predict"
         updateFcn: "fixed_poly_model_update"
@@ -59,7 +59,7 @@ models:
             responseNames: "Power"
             coeff: [-9e-8, 4e-5, -0.0052, 0.7765, 15.661]
     model_2:
-        name: "TRUE2"
+        name: "TRUE_2"
         setupFcn: "fixed_poly_model_setup"
         predictFcn: "fixed_poly_model_predict"
         updateFcn: "fixed_poly_model_update"
@@ -69,7 +69,7 @@ models:
             coeff: [-1.42718017e-08, 1.87477980e-05, -8.28649653e-03,
                     1.88469092, -2.19952823]
     model_3:
-        name: "TRUE3"
+        name: "TRUE_3"
         setupFcn: "fixed_poly_model_setup"
         predictFcn: "fixed_poly_model_predict"
         updateFcn: "fixed_poly_model_update"
@@ -79,7 +79,7 @@ models:
             coeff: [-1.53490519e-09,  2.28838030e-06, -9.59520873e-04, 
                     6.18821903e-01, 7.51758182e+01]
 optimizer:
-    obj_func: "LoadObjFun2"
+    obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -94,5 +94,5 @@ optimizer:
     params:
         n_searches: 50
         w: 1000
-        z: 10
+        z: 10000
         PMax: 1580

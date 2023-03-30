@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "LIN1"
+        name: "LIN_1"
         setupFcn: "lin_model_setup"
         predictFcn: "lin_model_predict"
         updateFcn: "lin_model_update"
@@ -64,7 +64,7 @@ models:
             responseNames: "Power"
             significance: 0.1
     model_2:
-        name: "LIN2"
+        name: "LIN_2"
         setupFcn: "lin_model_setup"
         predictFcn: "lin_model_predict"
         updateFcn: "lin_model_update"
@@ -73,7 +73,7 @@ models:
             responseNames: "Power"
             significance: 0.1
     model_3:
-        name: "LIN3"
+        name: "LIN_3"
         setupFcn: "lin_model_setup"
         predictFcn: "lin_model_predict"
         updateFcn: "lin_model_update"
@@ -82,7 +82,7 @@ models:
             responseNames: "Power"
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun2"
+    obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -97,5 +97,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 10
+        z: 10000
         PMax: 1580

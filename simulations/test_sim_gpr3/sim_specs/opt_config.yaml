@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GPR2_1"
+        name: "GPR3_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -74,7 +74,7 @@ models:
                 FitMethod: "none"
             significance: 0.1
     model_2:
-        name: "GPR2_2"
+        name: "GPR3_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -93,7 +93,7 @@ models:
                 FitMethod: "none"
             significance: 0.1
     model_3:
-        name: "GPR2_3"
+        name: "GPR3_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -112,7 +112,7 @@ models:
                 FitMethod: "none"
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun2"
+    obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -127,5 +127,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 10
+        z: 10000
         PMax: 1580

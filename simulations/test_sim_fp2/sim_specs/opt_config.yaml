@@ -67,6 +67,7 @@ models:
                 x_inv: "@(x) x"
             outputTransform:
                 y: "@(x, y) y.*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
                 y_inv: "@(x, y) y./x"
             prior:
                 y: "@(x) 0.7.*ones(size(x))"
@@ -87,6 +88,7 @@ models:
                 x_inv: "@(x) x"
             outputTransform:
                 y: "@(x, y) y.*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
                 y_inv: "@(x, y) y./x"
             prior:
                 y: "@(x) 0.7.*ones(size(x))"
@@ -107,6 +109,7 @@ models:
                 x_inv: "@(x) x"
             outputTransform:
                 y: "@(x, y) y.*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
                 y_inv: "@(x, y) y./x"
             prior:
                 y: "@(x) 0.7.*ones(size(x))"
@@ -126,7 +129,7 @@ optimizer:
     const_func: "MaxPowerConstraint"
     optimoptions:
         MaxIterations: 2000
-        Display: "final-detailed"
+        Display: "none"
     params:
         n_searches: 10
         w: 1000

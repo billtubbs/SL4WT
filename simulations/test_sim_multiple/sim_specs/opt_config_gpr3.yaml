@@ -14,7 +14,7 @@ machines:
         trainingData: "machine_1_data.csv"
         params:
             op_limits: [56, 220]
-            n_ss: 2
+            n_ss: 1
             x_tol: 2
             y_tol: 5
     machine_2:
@@ -55,43 +55,61 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "FP1"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "GPR2_1"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
+            outputTransform:
+                y: "@(x, y) (y + 0.7).*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
+                y_inv: "@(x, y) y./x - 0.7"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [30.0, 0.1]  # [sigmaL0, sigmaF0]
+                BasisFunction: "none"
+                Sigma: 0.01  # noise std. dev.
+                FitMethod: "none"
             significance: 0.1
     model_2:
-        name: "FP2"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "GPR2_2"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
+            outputTransform:
+                y: "@(x, y) (y + 0.7).*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
+                y_inv: "@(x, y) y./x - 0.7"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [90.0, 0.1]  # [sigmaL0, sigmaF0]
+                BasisFunction: "none"
+                Sigma: 0.01  # noise std. dev.
+                FitMethod: "none"
             significance: 0.1
     model_3:
-        name: "FP3"
-        setupFcn: "fp1_model_setup"
-        predictFcn: "fp1_model_predict"
-        updateFcn: "fp1_model_update"
+        name: "GPR2_3"
+        setupFcn: "gpr_model_setup"
+        predictFcn: "gpr_model_predict"
+        updateFcn: "gpr_model_update"
         params:
             predictorNames: "Load"
             responseNames: "Power"
-            prior:
-                specific_energy: 0.7
-                se_sigma: 0.1
-                se_int: [0.4, 1.0]
+            outputTransform:
+                y: "@(x, y) (y + 0.7).*x"
+                y_sigma: "@(x, y_sigma) y_sigma.*x"
+                y_inv: "@(x, y) y./x - 0.7"
+            fit:
+                KernelFunction: "squaredexponential"
+                KernelParameters: [120.0, 0.1]  # [sigmaL0, sigmaF0]
+                BasisFunction: "none"
+                Sigma: 0.01  # noise std. dev.
+                FitMethod: "none"
             significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"
@@ -105,8 +123,9 @@ optimizer:
     const_func: "MaxPowerConstraint"
     optimoptions:
         MaxIterations: 2000
-        Display: "final-detailed"
+        Display: "none"
     params:
         n_searches: 10
-        z: 1000
+        w: 10000
+        z: 10
         PMax: 1580

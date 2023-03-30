@@ -72,9 +72,8 @@ for i = 1:n_machines
         % Generate training data sets
 
         % Option 1: Uniform random distribution of load points
-        X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
-            + rand(1, n_samples)' .* diff(x_sample_range)) ...
-                .* diff(machine_config.params.op_limits);
+        X_sample = random_sample_uniform( ...
+            machine_config.params.op_limits, x_sample_range, n_samples);
 
 %         % Option 2: evenly spaced linear points
 %         X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
@@ -110,6 +109,7 @@ for i = 1:n_machines
 
     predictions = struct();
     predictions.y_mean = nan(n_samples_val, n_samples);
+
 
     %% Make a plot of one of the samples
     j_ex = 7;
@@ -172,6 +172,7 @@ for i = 1:n_machines
     filename = sprintf("eval_plot_%s_m%d_single.pdf", ...
         model_config.name, m);
     save2pdf(fullfile(plot_dir, filename))
+
 
     %% Construct plot with all sample results
     figure(4+i); clf

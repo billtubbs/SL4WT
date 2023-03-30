@@ -6,7 +6,8 @@ clear all
 
 addpath("yaml")
 
-rng(0)
+seed = 0;
+rng(seed)
 
 % Directory where simulation config file is and input data
 % will be stored
@@ -327,3 +328,60 @@ figsize = [3.5 2.5];
 set(gcf, 'Position', [p(1:2) figsize])
 filename = sprintf("input_seq_%d.pdf", i_sel);
 save2pdf(fullfile(plot_dir, filename))
+
+
+%% Produce 22 sets of initial training points for each machine
+
+rng(seed+1)
+
+% Choose where to sample points (in % of full operating range)
+%x_sample_range = [0 1];
+x_sample_range = [0.05 0.15];  % used this for INDIN paper
+%x_sample_range = [0.4 0.6];
+%x_sample_range = [0.8 1];
+
+% Number of points per data set
+n_samples = 3;
+
+% Number of data sets to generate
+n = 22;
+
+% Generate n sets of randomized training data per machine
+training_data = cell(n, n_machines);
+
+machine_names = string(fieldnames(sys_config.equipment));
+n_machines = length(machine_names);
+
+for i = 1:n
+    for m = 1:n_machines
+        machine = machine_names(m);
+        machine_config = sys_config.equipment.(machine);
+
+        % Measurement noise level
+        sigma_M = sys_config.equipment.(machine).params.sigma_M;
+
+        % Sample random load points from defined range
+        X_sample = random_sample_uniform( ...
+            machine_config.params.op_limits, ...
+            x_sample_range, ...
+            n_samples ...
+        );
+
+        % Sample from machine load-power models (with measurement noise)
+        Y_sample = sample_op_pts_poly( ...
+            X_sample, ...
+            machine_config.params, ...
+            sigma_M ...
+        );
+
+        training_data = array2table( ...
+            [X_sample Y_sample], ...
+            "VariableNames", {'Load', 'Power'}  ...
+        );
+
+        filename = sprintf("machine_%d_data_%02d.csv", m, i);
+        writetable(training_data, fullfile(data_dir, filename))
+        fprintf("Training data file '%s' saved\n", filename)
+
+    end
+end

@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GPR_1"
+        name: "GPR1_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -66,7 +66,7 @@ models:
                 KernelFunction: "squaredexponential"
             significance: 0.1
     model_2:
-        name: "GPR_2"
+        name: "GPR1_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -77,7 +77,7 @@ models:
                 KernelFunction: "squaredexponential"
             significance: 0.1
     model_3:
-        name: "GPR_3"
+        name: "GPR1_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -88,7 +88,7 @@ models:
                 KernelFunction: "squaredexponential"
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun2"
+    obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -103,5 +103,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 10
+        z: 10000
         PMax: 1580

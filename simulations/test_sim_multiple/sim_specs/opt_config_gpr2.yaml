@@ -55,7 +55,7 @@ machines:
             y_tol: 5
 models:
     model_1:
-        name: "GP1"
+        name: "GP2_1"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -71,7 +71,7 @@ models:
                 #FitMethod: "none"
             significance: 0.1
     model_2:
-        name: "GP2"
+        name: "GP2_2"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
@@ -87,7 +87,7 @@ models:
                 #FitMethod: "none"
             significance: 0.1
     model_3:
-        name: "GP3"
+        name: "GP2_3"
         setupFcn: "gpr_model_setup"
         predictFcn: "gpr_model_predict"
         updateFcn: "gpr_model_update"
