@@ -156,10 +156,11 @@ for i = 1:n_machines
     machine = machine_names{i};
     machine_config = config.machines.(machine);
 
-    % Check all n_ss previous samples including the current
-    % one are similar to within the same tolerance
+    % Check if number of existing points is enough and it
+    % is not the first timestep (t == 0).
     n_ss = config.machines.(machine).params.n_ss;
-    if size(LOData.Machines.(machine).X, 1) >= n_ss
+    if (size(LOData.Machines.(machine).X, 1) >= n_ss) ...
+            && (t > 0)
 
         % Set steady state flag if load and power readings of all
         % machines have not significantly changed in most recent
@@ -285,8 +286,11 @@ for i = 1:n_machines
 
 end
 
-% Sum covariance matrices as an indicator of model uncertainty
-total_uncertainty = sum(cellfun(@sum, y_sigmas));
+% Sum avg. of std. deviations of predictions of each model
+% over full operating range as an indicator of overall model 
+% uncertainty
+avg_sigmas = cellfun(@mean, y_sigmas);
+total_uncertainty = sqrt(sum(avg_sigmas.^2));
 LOData.TotalUncertainty = ...
     [LOData.TotalUncertainty; total_uncertainty];
 
@@ -367,22 +371,75 @@ for j = 1:n_sols
         options);
 
     opt_flags(j) = flag;
-    if flag < 1
-        warning(compose("optimizer flag is %d.", flag))
-    end
 
-    % Check constraints met
+    % Check machine constraints met
     assert(all(load_sol - op_limits(:, 1) >= 0))
     assert(all(op_limits(:, 2) - load_sol >= 0))
 
-    if power_sol < best_power
+    % Record best solution
+    if (power_sol < best_power) && (flag >= 0)
         best_load = load_sol;
         best_power = power_sol;
     end
 end
-n_opt_fails = sum(opt_flags == 0);
+
+if all(opt_flags < 1)
+    warning("No optimizer solutions found")
+    flags = unique(opt_flags);
+    if numel(flags) == 1
+        switch flags(1)
+            case 0
+                message = "Number of iterations exceeded";
+            case -1
+                message = "Function error";
+            case -2
+                message = "No feasible point found";
+            otherwise
+                message = "unknown";
+        end
+    end
+end
+
+n_opt_fails = sum(opt_flags < 1);
 LOData.OptFails = [LOData.OptFails; n_opt_fails];
 gen_load_targets = best_load;
+
+% TODO: For debugging only:
+% Compute all model predictions
+x = gen_load_targets;
+machine_names = string(fieldnames(config.machines))';
+n_machines = numel(machine_names);
+y_means = nan(n_machines, 1);
+y_sigmas = nan(n_machines, 1);
+for i = 1:n_machines
+    machine = machine_names{i};
+    model_name = config.machines.(machine).model;
+    model_config = config.models.(model_name);
+    [y_means(i), y_sigmas(i), ~] = builtin( ...
+        "feval", ...
+        model_config.predictFcn, ...
+        models.(machine), ...
+        x(i), ...
+        model_vars.(machine), ...
+        model_config.params ...
+    );
+end
+
+% Weights for cost function
+w = config.optimizer.params.w;  % load error vs target
+z = config.optimizer.params.z;  % model uncertainty
+
+% Components of objective function
+f1 = sum(y_means).^2;
+f2 = w.* (sum(x) - CurrentLoadTarget).^2;
+f3 = -z .* sum(y_sigmas);
+f = f1 + f2 + f3;
+fprintf("%5.0f %10.3e %+10.3e %+10.3e = %10.3e ", t, f1, f2, f3, f)
+fprintf("[%5.0f %5.0f %5.0f %5.0f %5.0f]\n", gen_load_targets')
+
+% if t == 2500
+%     disp('stop for debugging')
+% end
 
 % Simulation iteration (not the model updates iteration)
 curr_iteration = curr_iteration + 1;

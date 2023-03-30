@@ -28,7 +28,7 @@ function [y_mean, y_sigma, y_int] = gpr_model_predict(model, x, vars, ...
     % Transform outputs
     if isfield(vars, "outputTransform")
         y_mean = vars.outputTransform.y(x, y_mean);
-        y_sigma = vars.outputTransform.y(x, y_sigma);  % TODO: is this correct?
+        y_sigma = vars.outputTransform.y_sigma(x, y_sigma);
         y_int = [vars.outputTransform.y(x, y_int(:,1)) ...
                  vars.outputTransform.y(x, y_int(:,2))];
     end

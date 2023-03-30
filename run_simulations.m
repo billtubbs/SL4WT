@@ -12,8 +12,10 @@ sims_dir = "simulations";
 
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
-% sim_name = "test_sim_gpr1";  % Gaussian process models
-% sim_name = "test_sim_gpr2";  % Gaussian process models
+% sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted, MATLAB defaults
+% sim_name = "test_sim_gpr2";  % Gaussian process regression - fitted linear basis func
+% sim_name = "test_sim_gpr3";  % Gaussian process models - unfitted basis func
+% sim_name = "test_sim_gpr4";  % Gaussian process models - unfitted basis func2
 % sim_name = "test_sim_fp1";  % First-principles model (zero order)
 % sim_name = "test_sim_fp2";  % First-principles model (adaptive 0/1st order)
 % sim_name = "test_sim_lin";  % Linear model
@@ -21,7 +23,12 @@ sims_dir = "simulations";
 % sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
 sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
-% sim_name = "sim_gpr_popt";
+% sim_name = "sim_true_popt_w";  % param optimization for w parameter
+% sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
+% sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
+
+% WARNING: The following simulations take a long time! ~5 hrs
+% sim_name = "sim_all_eval";  % run all optimizer evaluation simulations
 
 % Directory where config files are stored
 sim_spec_dir = fullfile(sims_dir, sim_name, "sim_specs");
@@ -107,14 +114,15 @@ while true
         end
     end
 
-    % Move completed sim_spec file to 'done' directory
+    % Copy completed sim_spec file to 'done' directory. Leave a
+    % copy so that plot scripts can use it.
     if n_sim_queue > 0
         move_from = fullfile(sim_spec_dir, sim_spec_filename);
         move_to = fullfile(sim_spec_dir, to_folder, files_info(i_sim).name);
         if ~exist(fullfile(sim_spec_dir, to_folder), 'dir')
             mkdir(fullfile(sim_spec_dir, to_folder))
         end
-        movefile(move_from, move_to)
+        copyfile(move_from, move_to)
     end
 
     if i_sim >= n_sim_queue

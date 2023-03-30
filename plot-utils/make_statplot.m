@@ -1,6 +1,6 @@
-function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
-    line_label, area_label, y_lim)
-% make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
+function ax = make_statplot(Y_line, Y_lower, Y_upper, x, x_label, ...
+    y_labels, line_label, area_label, y_lim)
+% ax = make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
 %     line_label, area_label, y_lim)
 % Plots a curve of the mean, lower and upper bound of a 
 % variable y = f(x).
@@ -47,15 +47,17 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
         x_label = string(x_label);
     end
     line_labels = cell(1, numel(y_labels)*2);
+    ax = gca;
+    
     % Get color order
-    colors = get(gca,'colororder');
-    set(gca, 'ColorOrder', colors);
+    colors = get(ax,'colororder');
+    set(ax, 'ColorOrder', colors);
     for iy = 1:ny
         line_labels{iy*2-1} = strcat(y_labels(iy), " ", area_label);
         line_labels{iy*2} = strcat(y_labels(iy), " ", line_label);
         % Modify colors if plotting more than one group
         if numel(Y_line) > 1
-            colors = get(gca,'colororder');
+            colors = get(ax,'colororder');
         end
         % Make filled area plot
         inBetween = [Y_lower(:,iy); flip(Y_upper(:,iy))];
@@ -69,7 +71,7 @@ function make_statplot(Y_line, Y_lower, Y_upper, x, x_label, y_labels, ...
     end
     ylim(axes_limits_with_margin([Y_upper Y_lower Y_line], ...
         0.1, y_lim, y_lim))
-    set(gca, 'TickLabelInterpreter', 'latex')
+    set(ax, 'TickLabelInterpreter', 'latex')
     if strlength(x_label) > 0
         xlabel(x_label, 'Interpreter', 'Latex')
     end

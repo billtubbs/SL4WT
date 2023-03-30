@@ -103,10 +103,12 @@ x = linspace(0, 8, 101)';
 [Y_pred, ~, Y_pred_int] = predict(gpr_model, x);
 
 % True values
-y_true = f(x);
+Y_true = f(x);
 
-% Plot predictions
-figure(1); clf
-make_stattdplot(Y_pred, Y_pred_int(:, 1), Y_pred_int(:, 2), y_true, x, ...
-   y_d, x_d, "$x$", '$y$', 'prediction', "confidence interval", [0 nan])
+rmse = sqrt(mean((Y_pred - Y_true).^2));
+assert(round(rmse, 4) == 0.6964)
 
+% % Plot predictions
+% figure(1); clf
+% make_stattdplot(Y_pred, Y_pred_int(:, 1), Y_pred_int(:, 2), y_true, x, ...
+%    y_d, x_d, "$x$", '$y$', 'prediction', "confidence interval", [0 nan])

@@ -5,6 +5,7 @@ function outputTransform = create_output_transform(params)
 %
     outputTransform = struct();
     outputTransform.y = str2func(params.outputTransform.y);
+    outputTransform.y_sigma = str2func(params.outputTransform.y_sigma);
     outputTransform.y_inv = str2func(params.outputTransform.y_inv);
 
 end
