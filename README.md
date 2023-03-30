@@ -4,11 +4,13 @@ MATLAB scripts to evaluate the Adaptive Real Time Exploration and Optimization (
 
 The refrigeration plant is simulated in Simulink. It has 5 parallel compressors, as shown in the diagram below.
 
-<IMG SRC="![refrig_diagram](https://user-images.githubusercontent.com/7958850/228906717-c947f887-9147-4ffa-b941-5ee489dfb47f.png) WIDTH="50%">
+<IMG SRC="https://user-images.githubusercontent.com/7958850/228906717-c947f887-9147-4ffa-b941-5ee489dfb47f.png" WIDTH="50%">
 
 The model was developed by Mehmet Mercangöz and coworkers at Imperial College, London, based on work by K. N. Widell, and T. Eikevik (2010) at 
 Norwegian University of Science and Technology.
 
+This work is part of a research project supervised by Dr. Mercangöz.  The results here have been submitted as a conference paper proposal (not yet accepted) with the following title:
+ - Using Prior Knowledge to Improve Adaptive Real Time Exploration and Optimization
 
 ## To reproduce the results in the paper
 
