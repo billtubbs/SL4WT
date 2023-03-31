@@ -44,9 +44,6 @@ assert(isequal(full_op_limit, [875 3142]))
 %    a bounded random walk between 875 and 2500 kW.
 %
 
-% Time sequence
-t = (0:1000:8000)';
-
 % Count scenarios
 scenario = 1;
 
@@ -58,6 +55,8 @@ t_stop = 16*dt_step;
 
 % Lower and upper values
 target_load_range = [1000 3000];
+
+load_seqs_sets = cell(2, 1);
 
 
 %% Scenarios 1 to 11 - constant load targets
@@ -128,6 +127,8 @@ for i = 1:n_seqs
 
     scenario = scenario + 1;
 end
+load_seqs_sets{1} = load_seqs;
+
 
 %% Make plot
 
@@ -164,37 +165,6 @@ figsize = [3.5 2.5];
 set(gcf, 'Position', [p(1:2) figsize])
 filename = "input_seqs_1.pdf";
 save2pdf(fullfile(plot_dir, filename))
-
-% %% Scenarios 6 to 10 - one step change
-% for i = 1:numel(load_targets)
-% 
-%     % Make a sequence with one random step change, making
-%     % sure the step amplitude is not zero
-%     l1 = randi(length(load_targets));
-%     load_target = load_targets(l1) .* ones(size(t));
-%     l2 = randsample([1:l1-1 l1+1:length(load_targets)], 1);
-%     t_step = t(2);
-%     load_target(t >= t_step) = load_targets(l2);
-% 
-%     % Store input signals as struct containing time series
-%     inputs = struct();
-% 
-%     ts = timeseries(load_target .* ones(size(t)), t);
-%     name = "load_target";
-%     ts.name = name;
-%     ts.TimeInfo.Units = 'seconds';
-%     ts.DataInfo.Interpolation.Name = 'zoh';
-%     ts.DataInfo.Units = 'kW';
-% 
-%     inputs.(name) = ts;
-% 
-%     % Save simulation data file
-%     filename = compose("load_sequence_%d.mat", scenario);
-%     save(fullfile(data_dir, filename), "inputs")
-%     fprintf("Input data file '%s' saved\n", filename)
-% 
-%     scenario = scenario + 1;
-% end
 
 
 %% Scenarios 11 to 20 - bounded random walk
@@ -266,6 +236,8 @@ for i = 1:n_seqs
 
     scenario = scenario + 1;
 end
+load_seqs_sets{2} = load_seqs;
+
 
 %% Make plots
 
@@ -305,13 +277,63 @@ filename = "input_seqs_2.pdf";
 save2pdf(fullfile(plot_dir, filename))
 
 
-%% Make plot of selected sequence
+%% Make combined figure with both plots
+
+figure(3); clf
+cols = get(gca, 'ColorOrder');
+
+tiledlayout(1, 2)
+
+
+i_seqs = [nan 0];
+for i_set = 1:2
+    load_seqs = load_seqs_sets{i_set};
+    i_seqs = [i_seqs(2) i_seqs(2)+size(load_seqs,2)];
+
+    nexttile;
+    %stairs(t_step, load_seqs, 'LineWidth', 1);
+    for i = 1:size(load_seqs, 2)
+        % Unfortunately, transparency doesn't work with stair plots
+        switch i
+            case 1
+                lw = 2;
+                c = 1;
+            otherwise
+                lw = 1;
+                c = 2;
+        end
+        stairs(t_step, load_seqs(:, i), 'LineWidth', lw, ...
+            'Color', [cols(c, :) 0.1]); hold on
+    end
+    text(100, full_op_limit(2)+110, "Op. limits", 'Interpreter', 'latex')
+    set(gca, 'TickLabelInterpreter', 'latex')
+    xlabel("Time (seconds)", 'Interpreter', 'latex')
+    ylabel("Target load (kW)", 'Interpreter', 'latex')
+    yline(full_op_limit, '--')
+    ylim([700 3400])
+    grid on
+    legend("seq. 12", 'Interpreter', 'latex')
+    title_text = sprintf("(%s) Sequences %d to %d", char(96+i_set), i_seqs);
+    title(title_text, 'Interpreter', 'latex')
+
+end
+
+% Resize plot and save as pdf
+set(gcf, 'Units', 'inches');
+p = get(gcf, 'Position');
+figsize = [7 2.5];
+set(gcf, 'Position', [p(1:2) figsize])
+filename = "input_seqs_1-2.pdf";
+save2pdf(fullfile(plot_dir, filename))
+
+
+%% Make plot of one selected sequence
 
 i_sel = 12;
 filename = compose("load_sequence_%d.mat", i_sel);
 load(fullfile(data_dir, filename))
 
-figure(3); clf
+figure(4); clf
 stairs(inputs.load_target.Time, inputs.load_target.Data, 'LineWidth', 1);
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')

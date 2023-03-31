@@ -47,7 +47,7 @@ for i = 1:n_sims
     filepath = fullfile(sim_spec_dir, sim_spec.optimizer.config_filename);
     fprintf("Loading optimizer configuration from '%s'\n", filepath)
     opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
-    
+
     % Load optimizer output data file
     filespec = fullfile(sims_dir, sim_name, "results", ...
             "load_opt_out.mat");
@@ -58,6 +58,14 @@ for i = 1:n_sims
     % Load simulation output data file
     filespec = fullfile(sims_dir, sim_name, "results", "sim_out.mat");
     load(filespec)
+
+    % Load optimum power results file
+    filename = sim_spec.simulation.outputs.min_power_data;
+    power_opt_table = readtable(fullfile("results", filename));
+    
+    % Set up linear interpolation function
+    power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
+        power_opt_table.TotalPower, load);
 
     % Calculate ideal power at all simulation times
     power_ideal = power_opt_func(sim_out.load_actual.Data);
@@ -75,14 +83,6 @@ for i = 1:n_sims
         opt_config.optimizer.params.PMax.*ones(size(sim_out.tout)) ...
     ];
 
-    % Load optimum power results file
-    filename = sim_spec.simulation.outputs.min_power_data;
-    power_opt_table = readtable(fullfile("results", filename));
-    
-    % Set up linear interpolation function
-    power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
-        power_opt_table.TotalPower, load);
-
     % Save key metrics for the comparison plot later
     filename = sprintf("%s_metrics_%03d.csv", sim_name, i_sim);
     metrics_summaries{i} = readtable(fullfile(results_dir, filename));
@@ -99,16 +99,16 @@ ax1 = subplot(2, 1, 1);
 for i = 1:n_sims
     data = load_data{:, i};
     t = data(:, 1);
-    load_target = data(:, 2);
-    if i == 1
-        plot(t, load_target); hold on
-    end
     Y = data(:, 3);
-    plot(t, Y);
+    plot(t, Y, 'Linewidth', 1); hold on
+    if i == n_sims
+        load_target = data(:, 2);
+        plot(t, load_target, 'k-');
+    end
 end
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex');
-leg_labels = [["Target"] labels];
+leg_labels = [labels ["Target"]];
 ylabel("Total load (kW)", 'Interpreter', 'latex');
 legend(leg_labels, 'Interpreter', 'latex', 'location', 'best');
 grid on
@@ -123,7 +123,7 @@ for i = 1:n_sims
 %         plot(t, power_ideal); hold on
 %     end
     Y = data(:, 3);
-    plot(t, Y); hold on
+    plot(t, Y, 'Linewidth', 1); hold on
     if i == n_sims
         power_limit = data(:, 4);
         plot(t, power_limit, 'k--');
@@ -141,12 +141,10 @@ linkaxes([ax1 ax2], 'x')
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
-figsize = [3.5 5];
+figsize = [3.5 4.5];
 set(gcf, 'Position', [p(1:2) figsize])
 filename = sprintf("sim_mult_load_power_tsplot_%d.pdf", n_sims);
-exportgraphics(gcf, fullfile(plot_dir, filename))
-
-
+save2pdf(fullfile(plot_dir, filename))
 
 
 %% Plot key metrics over time for all sims
