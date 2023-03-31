@@ -51,12 +51,12 @@ disp(eval_metrics)
 figure(1); clf
 
 semilogx(w, sims_summary.eval_metrics_max_power_limit_exceedance, 'o-', ...
-    'MarkerSize', 5);
+    'Linewidth', 1, 'MarkerSize', 5);
 hold on
-semilogx(w, sims_summary.eval_metrics_mean_load_tracking_errors_vs_target, 'o-', ...
-    'MarkerSize', 5);
+semilogx(w, sims_summary.eval_metrics_mean_load_tracking_errors_vs_target, ...
+    'o-', 'Linewidth', 1, 'MarkerSize', 5);
 semilogx(w, sims_summary.eval_metrics_mean_excess_power_used, 'o-', ...
-    'MarkerSize', 5);
+    'Linewidth', 1, 'MarkerSize', 5);
 grid on
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("$w$ (log scale)", 'Interpreter', 'latex')
