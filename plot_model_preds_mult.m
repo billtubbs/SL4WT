@@ -1,118 +1,163 @@
-% Plots model predictions for last simulation
+% Plots model predictions for multiple simulations
 %
-% Run this after running a simulation with run_simulations.m
-%
-% Alternatively, you can make the plots for a previous
-% simulation by specifying the variables below in the
-% workspace before running this script.
-%
-% E.g.
-% sim_name = "test_sim"
-% sims_dir = "simulations";
-% i_sim = 0    % only used if multiple sims run
+% Make plots for previous simulations by specifying the 
+% variables below and running this script. Note: only the
+% files of the last simulation in each simulation directory
+% are saved so you can only make theseplots for the last 
+% simulation.
 %
 
 addpath("yaml")
 addpath("plot-utils")
 
-% Directory where config files are stored
-sim_spec_dir = "sim_specs";
-
-% Directory where simulation results files are stored
-results_dir = fullfile(sims_dir, sim_name, "results");
+% Setup
+sim_names = ["test_sim_gpr1" "test_sim_gpr2" "test_sim_gpr3"];
+labels = ["GPR1" "GPR2" "GPR3"];
+sims_dir = "simulations";
+i_sim = 0;    % only used if multiple sims run
 
 % Directory where plots will be saved
-plot_dir = fullfile(sims_dir, sim_name, "plots");
+plot_dir = "plots";
 if ~exist(plot_dir, 'dir')
     mkdir(plot_dir)
 end
 
+sim_names = string(sim_names);
+n_sims = length(sim_names);
+assert(size(sim_names, 1) == 1)
+load_data = cell(1, n_sims);
+power_data = cell(1, n_sims);
+metrics_summaries = cell(1, n_sims);
+for i = 1:n_sims
+    sim_name = sim_names{i};
+    % Directory where config files are stored
+    sim_spec_dir = fullfile(sims_dir, sim_name, "sim_specs");
 
-% Load sim_spec file
-filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
-    "sim_spec.yaml");
-fprintf("Loading simulation spec from '%s'\n", filepath)
-sim_spec = yaml.loadFile(filepath, "ConvertToArray", true);
+    % Directory where simulation results files are stored
+    results_dir = fullfile(sims_dir, sim_name, "results");
+    fprintf("Getting simulation results from '%s' for plotting\n", ...
+        results_dir)
 
-% Load optimizer configuration file
-filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
-    sim_spec.optimizer.config_filename);
-fprintf("Loading optimizer configuration from '%s'\n", filepath)
-opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
+    % Load sim_spec file
+    filepath = fullfile(sim_spec_dir, "sim_spec.yaml");
+    fprintf("Loading simulation spec from '%s'\n", filepath)
+    sim_spec = yaml.loadFile(filepath, "ConvertToArray", true);
+    
+    % Load optimizer configuration file
+    filepath = fullfile(sim_spec_dir, sim_spec.optimizer.config_filename);
+    fprintf("Loading optimizer configuration from '%s'\n", filepath)
+    opt_config = yaml.loadFile(filepath, "ConvertToArray", true);
+    
+    % Load optimizer output data file
+    filespec = fullfile(sims_dir, sim_name, "results", ...
+            "load_opt_out.mat");
+    load(filespec)
+    machine_names = string(fieldnames(opt_config.machines))';
+    n_machines = numel(machine_names);
+    
+    % Load simulation output data file
+    filespec = fullfile(sims_dir, sim_name, "results", "sim_out.mat");
+    load(filespec)
 
-% Load optimizer output data file
-filespec = fullfile(sims_dir, sim_name, "results", ...
-        "load_opt_out.mat");
-load(filespec)
-machine_names = string(fieldnames(opt_config.machines))';
-n_machines = numel(machine_names);
+    % Calculate ideal power at all simulation times
+    power_ideal = power_opt_func(sim_out.load_actual.Data);
 
-% Load simulation output data file
-filespec = fullfile(sims_dir, sim_name, "results", "sim_out.mat");
-load(filespec)
+    % Save data for plotting below
+    load_data{1, i} = [
+        sim_out.load_actual.Time ...
+        sim_out.load_target.Data ...
+        sim_out.load_actual.Data ...
+    ];
+    power_data{1, i} = [
+        sim_out.total_power.Time ...
+        power_ideal ...
+        sim_out.total_power.Data ...
+        opt_config.optimizer.params.PMax.*ones(size(sim_out.tout)) ...
+    ];
 
-fprintf("Plotting simulation results from '%s'\n", ...
-    fullfile(sims_dir, sim_name, "results"))
+    % Load optimum power results file
+    filename = sim_spec.simulation.outputs.min_power_data;
+    power_opt_table = readtable(fullfile("results", filename));
+    
+    % Set up linear interpolation function
+    power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
+        power_opt_table.TotalPower, load);
 
-% Load optimum power results file
-filename = sim_spec.simulation.outputs.min_power_data;
-power_opt_table = readtable(fullfile("results", filename));
+    % Save key metrics for the comparison plot later
+    filename = sprintf("%s_metrics_%03d.csv", sim_name, i_sim);
+    metrics_summaries{i} = readtable(fullfile(results_dir, filename));
 
-% Set up linear interpolation function
-power_opt_func = @(load) interp1(power_opt_table.TotalLoadTarget, ...
-    power_opt_table.TotalPower, load);
+end
 
 
 %% Plot total load and power time series
 
-% Calculate ideal power at all simulation times
-power_ideal = power_opt_func(sim_out.load_actual.Data);
-
 figure(1); clf
 
 ax1 = subplot(2, 1, 1);
-Y = [sim_out.load_target.Data sim_out.load_actual.Data];
-x = sim_out.load_actual.Time;
-x_label = "Time (seconds)";
-y_labels = ["Target" "Actual"];
-make_tsplot(Y, x, y_labels, x_label);
-ylabel("Total load (kW)")
+% load_data contains Time Target Actual ...
+for i = 1:n_sims
+    data = load_data{:, i};
+    t = data(:, 1);
+    load_target = data(:, 2);
+    if i == 1
+        plot(t, load_target); hold on
+    end
+    Y = data(:, 3);
+    plot(t, Y);
+end
+set(gca, 'TickLabelInterpreter', 'latex')
+xlabel("Time (seconds)", 'Interpreter', 'latex');
+leg_labels = [["Target"] labels];
+ylabel("Total load (kW)", 'Interpreter', 'latex');
+legend(leg_labels, 'Interpreter', 'latex', 'location', 'best');
+grid on
 
 ax2 = subplot(2, 1, 2);
-Y = [
-    power_ideal ...
-    sim_out.total_power.Data ...
-    opt_config.optimizer.params.PMax.*ones(size(sim_out.tout)) ...
-];
-x = sim_out.total_power.Time;
-x_label = "Time (seconds)";
-y_labels = ["Ideal" "Actual" "Limit"];
-make_tsplot(Y, x, y_labels, x_label);
-ylabel("Total power (kW)")
+% power_data contains Time Ideal Actual PMax
+for i = 1:n_sims
+    data = power_data{:, i};
+    t = data(:, 1);
+%     if i == 1  % ideal is specific to each opt scenario
+%         power_ideal = data(:, 2);
+%         plot(t, power_ideal); hold on
+%     end
+    Y = data(:, 3);
+    plot(t, Y); hold on
+    if i == n_sims
+        power_limit = data(:, 4);
+        plot(t, power_limit, 'k--');
+    end
+end
+set(gca, 'TickLabelInterpreter', 'latex')
+xlabel("Time (seconds)", 'Interpreter', 'latex');
+leg_labels = [labels ["Limit"]];
+ylabel("Total power (kW)", 'Interpreter', 'latex');
+legend(leg_labels, 'Interpreter', 'latex', 'location', 'best');
+grid on
 
 linkaxes([ax1 ax2], 'x')
 
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
-figsize = [3.5 3.5];
+figsize = [3.5 5];
 set(gcf, 'Position', [p(1:2) figsize])
-filename = sprintf("%s_load_power_tsplot.pdf", sim_name);
+filename = sprintf("sim_mult_load_power_tsplot_%d.pdf", n_sims);
 exportgraphics(gcf, fullfile(plot_dir, filename))
 
 
-%% Plot key metrics over time
 
-filename = sprintf("%s_metrics_%03d.csv", sim_name, i_sim);
-metrics_summary = readtable(fullfile(results_dir, filename));
+
+%% Plot key metrics over time for all sims
 
 figure(2); clf
+make_metrics_plot_mult(metrics_summaries, labels);
 
-make_metrics_plot(metrics_summary);
-
-filename = sprintf("%s_metrics_plot.pdf", sim_name);
+filename = sprintf("mult_sims_metrics_plot_%d.pdf", n_sims);
 save2pdf(fullfile(plot_dir, filename))
 
+return
 
 
 %% Plot model predictions over time

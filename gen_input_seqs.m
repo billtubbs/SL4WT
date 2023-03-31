@@ -150,7 +150,7 @@ end
 text(100, full_op_limit(2)+110, "Op. limits", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')
-ylabel("Target Load (kW)", 'Interpreter', 'latex')
+ylabel("Target load (kW)", 'Interpreter', 'latex')
 yline(full_op_limit, '--')
 ylim([700 3400])
 grid on
@@ -289,7 +289,7 @@ end
 text(100, full_op_limit(2)+110, "Op. limits", 'Interpreter', 'latex')
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')
-ylabel("Target Load (kW)", 'Interpreter', 'latex')
+ylabel("Target load (kW)", 'Interpreter', 'latex')
 yline(full_op_limit, '--')
 ylim([700 3400])
 grid on
@@ -315,7 +315,7 @@ figure(3); clf
 stairs(inputs.load_target.Time, inputs.load_target.Data, 'LineWidth', 1);
 set(gca, 'TickLabelInterpreter', 'latex')
 xlabel("Time (seconds)", 'Interpreter', 'latex')
-ylabel("Target Load (kW)", 'Interpreter', 'latex')
+ylabel("Target load (kW)", 'Interpreter', 'latex')
 yline(full_op_limit, '--')
 ylim([700 3400])
 grid on

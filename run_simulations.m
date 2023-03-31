@@ -21,7 +21,7 @@ sims_dir = "simulations";
 % sim_name = "test_sim_lin";  % Linear model
 % TODO: For some reason the linear model simulation is very slow
 % sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
-sim_name = "test_sim_true";  % test optimizer with true system model
+% sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
 % sim_name = "sim_true_popt_w";  % param optimization for w parameter
 % sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
