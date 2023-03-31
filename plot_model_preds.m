@@ -1,11 +1,15 @@
 % Plots model predictions for last simulation
 %
-% Make sure that sim_name and sims_dir are set to the 
-% name of the simulation directory.
+% Run this after running a simulation with run_simulations.m
+%
+% Alternatively, you can make the plots for a previous
+% simulation by specifying the variables below in the
+% workspace before running this script.
 %
 % E.g.
 % sim_name = "test_sim"
 % sims_dir = "simulations";
+% i_sim = 0    % only used if multiple sims run
 %
 
 addpath("yaml")
@@ -17,10 +21,17 @@ sim_spec_dir = "sim_specs";
 % Directory where simulation results files are stored
 results_dir = fullfile(sims_dir, sim_name, "results");
 
+% Directory where plots will be saved
+plot_dir = fullfile(sims_dir, sim_name, "plots");
+if ~exist(plot_dir, 'dir')
+    mkdir(plot_dir)
+end
+
+
 % Load sim_spec file
 filepath = fullfile(sims_dir, sim_name, sim_spec_dir, ...
     "sim_spec.yaml");
-fprintf("Loading optimizer configuration from '%s'\n", filepath)
+fprintf("Loading simulation spec from '%s'\n", filepath)
 sim_spec = yaml.loadFile(filepath, "ConvertToArray", true);
 
 % Load optimizer configuration file
@@ -62,7 +73,7 @@ figure(1); clf
 ax1 = subplot(2, 1, 1);
 Y = [sim_out.load_target.Data sim_out.load_actual.Data];
 x = sim_out.load_actual.Time;
-x_label = "Time (s)";
+x_label = "Time (seconds)";
 y_labels = ["Target" "Actual"];
 make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total load (kW)")
@@ -74,7 +85,7 @@ Y = [
     opt_config.optimizer.params.PMax.*ones(size(sim_out.tout)) ...
 ];
 x = sim_out.total_power.Time;
-x_label = "Time (s)";
+x_label = "Time (seconds)";
 y_labels = ["Ideal" "Actual" "Limit"];
 make_tsplot(Y, x, y_labels, x_label);
 ylabel("Total power (kW)")
@@ -86,7 +97,7 @@ set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
 figsize = [3.5 3.5];
 set(gcf, 'Position', [p(1:2) figsize])
-filename = "input_seqs_1.pdf";
+filename = sprintf("%s_load_power_tsplot.pdf", sim_name);
 exportgraphics(gcf, fullfile(plot_dir, filename))
 
 
