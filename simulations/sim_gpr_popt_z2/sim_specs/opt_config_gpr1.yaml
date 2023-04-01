@@ -64,10 +64,6 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 95.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.51  # noise std. dev.
-                SigmaLowerBound: 0.5
             significance: 0.1
     model_2:
         name: "GPR1_2"
@@ -79,10 +75,6 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 110.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.51  # noise std. dev.
-                SigmaLowerBound: 0.5
             significance: 0.1
     model_3:
         name: "GPR1_3"
@@ -94,13 +86,9 @@ models:
             responseNames: "Power"
             fit:
                 KernelFunction: "squaredexponential"
-                KernelParameters: [15.0, 220.0]  # [sigmaL0, sigmaF0]
-                BasisFunction: "linear"
-                Sigma: 0.51  # noise std. dev.
-                SigmaLowerBound: 0.5
             significance: 0.1
 optimizer:
-    obj_func: "LoadObjFun"
+    obj_func: "LoadObjFun2"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
     A: []
     B: []
@@ -115,5 +103,5 @@ optimizer:
     params:
         n_searches: 10
         w: 1000
-        z: 10000
+        z: 100
         PMax: 1580
