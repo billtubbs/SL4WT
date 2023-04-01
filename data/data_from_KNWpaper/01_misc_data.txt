@@ -1,0 +1,63 @@
+variable	subvariable	period	unit	value
+sec_annual		2017	kWh/tonnes	201,0132315
+sec_annual		2019	kWh/tonnes	225,3748344
+sec_annual		2019	kWh/tonnes	247,2320778
+sec_annual		2020	kWh/tonnes	244,7592163
+sec_annual		2021	kWh/tonnes	227,8641948
+average_monthly_production_normalised		january	-	0,420580997
+average_monthly_production_normalised		february	-	0,378943226
+average_monthly_production_normalised		march	-	0,006125279
+average_monthly_production_normalised		april	-	0
+average_monthly_production_normalised		may	-	0,041673196
+average_monthly_production_normalised		june	-	0,211761642
+average_monthly_production_normalised		july	-	0,032837302
+average_monthly_production_normalised		august	-	0,217052551
+average_monthly_production_normalised		september	-	0,325539355
+average_monthly_production_normalised		october	-	0,852428974
+average_monthly_production_normalised		november	-	0,525680962
+average_monthly_production_normalised		december	-	0,018505595
+product_category	whole_frozen	2017-2021	-	0,609066635
+product_category	fillet_frozen	2017-2021	-	0,375611765
+product_category	roe	2017-2021	-	0,015321601
+peak_power		01.2021	MW	5,547
+peak_power		02.2021	MW	5,0256
+peak_power		03.2021	MW	1,6102
+peak_power		04.2021	MW	0,6762
+peak_power		05.2021	MW	3,106
+peak_power		06.2021	MW	3,42
+peak_power		07.2021	MW	2,18
+peak_power		08.2021	MW	5,4636
+peak_power		09.2021	MW	5,3516
+peak_power		10.2021	MW	5,2938
+peak_power		11.2021	MW	4,8086
+peak_power		12.2021	MW	1,1076
+power_consumption_by_section	ref_sys_1	whole_year_2021	-	0,480209479
+power_consumption_by_section	ref_sys_2	whole_year_2021	-	0,250386476
+power_consumption_by_section	rsw	whole_year_2021	-	0,019895294
+power_consumption_by_section	el_boiler	whole_year_2021	-	0,056398431
+power_consumption_by_section	fillet_sections	whole_year_2021	-	0,062325372
+power_consumption_by_section	others	whole_year_2021	-	0,130784949
+power_consumption_by_section	ref_sys_1	production_period_2021	-	0,483114791
+power_consumption_by_section	ref_sys_2	production_period_2021	-	0,286003749
+power_consumption_by_section	rsw	production_period_2021	-	0,022264815
+power_consumption_by_section	el_boiler	production_period_2021	-	0,048875218
+power_consumption_by_section	fillet_sections	production_period_2021	-	0,058836504
+power_consumption_by_section	others	production_period_2021	-	0,100904923
+power_consumption_by_section	ref_sys_1	non_production_period_2021	-	0,488832129
+power_consumption_by_section	ref_sys_2	non_production_period_2021	-	0,038212661
+power_consumption_by_section	rsw	non_production_period_2021	-	3,23811E-05
+power_consumption_by_section	el_boiler	non_production_period_2021	-	0,157470942
+power_consumption_by_section	fillet_sections	non_production_period_2021	-	0,049200038
+power_consumption_by_section	others	non_production_period_2021	-	0,266251849
+monthly_production_relative		01.2021	-	0,666333032
+monthly_production_relative		02.2021	-	0,741044757
+monthly_production_relative		03.2021	-	0
+monthly_production_relative		04.2021	-	0
+monthly_production_relative		05.2021	-	0,119834903
+monthly_production_relative		06.2021	-	0,275334279
+monthly_production_relative		07.2021	-	0,023844533
+monthly_production_relative		08.2021	-	1
+monthly_production_relative		09.2021	-	0,734471817
+monthly_production_relative		10.2021	-	0,850206802
+monthly_production_relative		11.2021	-	0,553237886
+monthly_production_relative		12.2021	-	0
