@@ -303,7 +303,10 @@ save2pdf(fullfile(plot_dir, filename))
 %% Area plot of loads of each machine - for published paper
 figure(3); clf
 
-ax1 = subplot(2, 1, 1);
+tiledlayout(2, 1, 'Padding', 'Compact');
+
+nexttile
+%ax1 = subplot(2, 1, 1);
 area(load_targets, loads_sorted)
 xlim(load_targets([1 end]))
 %xlabel("Load target (kW)", 'Interpreter', 'latex')
@@ -317,7 +320,8 @@ grid on
 title("(a) Optimum machine loads", 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
 
-ax2 = subplot(2, 1, 2);
+nexttile
+%ax2 = subplot(2, 1, 2);
 plot(load_targets, total_powers_prop ./ load_targets, 'Linewidth', 1)
 hold on
 plot(load_targets, total_powers ./ load_targets, 'Linewidth', 1)
@@ -359,7 +363,7 @@ legend({'Prop. loads', 'Opt. loads', 'Power limit'}, ...
     'Location', 'northeast', 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
 
-linkaxes([ax1 ax2], 'x')
+%linkaxes([ax1 ax2], 'x')
 
 % Resize
 p = get(gcf, 'Position');

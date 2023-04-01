@@ -11,7 +11,7 @@ function axs = make_metrics_plot_mult(metrics_summaries, labels)
     line_style = '.-';
     marker_size = 12;
 
-    tcl = tiledlayout(4, 1);
+    tcl = tiledlayout(4, 1, 'Padding', 'Compact');
     axs = gobjects(4, 1);
 
     axs(1) = nexttile(tcl);

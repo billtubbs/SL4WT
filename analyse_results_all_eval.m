@@ -96,7 +96,7 @@ y_lims = [ ...
     -2 25
 ];
 n_eval_vars = length(eval_var_names);
-tiledlayout(n_eval_vars, 1)
+tiledlayout(n_eval_vars, 1, 'Padding', 'Compact');
 for i = 1:n_eval_vars
     var_name = eval_var_names(i);
     col_name = eval_col_names(i);
