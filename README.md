@@ -4,7 +4,7 @@ MATLAB scripts to evaluate the Adaptive Real Time Exploration and Optimization (
 
 The refrigeration plant is simulated in Simulink. It has 5 parallel compressors, as shown in the diagram below.
 
-<IMG SRC="https://user-images.githubusercontent.com/7958850/228906717-c947f887-9147-4ffa-b941-5ee489dfb47f.png" WIDTH="50%">
+<img src="https://user-images.githubusercontent.com/7958850/229311353-02b421da-2cf2-4f48-bf65-1e9cd0eb9d81.png" width="40%" alt="Refrigeration plant diagram">
 
 The model was developed by Mehmet Mercangöz and coworkers at Imperial College, London, based on work by K. N. Widell, and T. Eikevik (2010) at 
 Norwegian University of Science and Technology.
@@ -103,6 +103,33 @@ analyse_results_all_eval.m
 ```
 
 
+## Scripts to make plots in paper
+
+ - [make_comp_curve_plots.m](make_comp_curve_plots.m) - Fig. 2. Steady-state characteristics of compressors.
+ - [find_optimum_solution.m](find_optimum_solution.m) - Fig. 3. Optimum load allocation and power consumption.
+ - [make_gpr_example_plots.m](make_gpr_example_plots.m) - Fig. 4. Predictions with different types of model.
+ - [make_popt_w_plot.m](make_popt_w_plot.m) - Fig. 5. Effect of *w* parameter on optimizer performance.
+ - [make_popt_z_plots_all.m](make_popt_z_plots_all.m) - Fig. 6. Effect of *z* parameter on optimizer performance.
+ - [gen_input_seqs.m](gen_input_seqs.m) - Fig. 7. Target load sequences.
+ - [plot_model_preds_mult.m](plot_model_preds_mult.m) - Fig. 8. Optimizer simulations – load and power.
+ - [plot_model_preds_mult.m](plot_model_preds_mult.m) - Fig. 9. Optimizer simulations – evaluation metrics.
+ - [analyse_results_all_eval.m](analyse_results_all_eval.m) - Fig. 10. Optimizer performance metrics.
+
+## Main functions
+
+  - [load_opt.m](load_opt.m) - S function used in Simulink model to simulate load optimizer.
+    - [LoadObjFun.m](LoadObjFun.m) - Objective function used by load optimizer
+    - [MaxPowerConstraint.m](MaxPowerConstraint.m) - Constraint function used by load optimizer
+    - [gpr_model_predict.m](gpr_model_predict.m) - Initializes a GP model
+    - [gpr_model_setup.m](gpr_model_setup.m) - Updates a GP model
+    - [gpr_model_update.m](gpr_model_update.m) - Make predictions with a GP model
+    - [lin_model_predict.m](lin_model_predict.m) - Initializes a linear model
+    - [lin_model_setup.m](lin_model_setup.m) - Updates a linear model
+    - [lin_model_update.m](lin_model_update.m) - Make predictions with a linear model
+    - [fixed_poly_model_predict.m](fixed_poly_model_predict.m) - Initializes the true system model
+    - [fixed_poly_model_setup.m](fixed_poly_model_setup.m) - Updates the true system model
+    - [fixed_poly_model_update.m](fixed_poly_model_update.m) - Make predictions with the true system model
+
 ## Other files
 
 Simulink model file:
@@ -111,13 +138,10 @@ Simulink model file:
 Other scripts:
  - [evaluate_models.m](evaluate_models.m) - runs Monte Carlo experiments to evaluate the extrapolation behaviour of each 
    model type when trained on small samples of random training points
- - [make_comp_curve_plots.m](make_comp_curve_plots.m) - makes plots showing the power vs. load characteristics of each compressor
  
-Functions:
- - [match_closest_points.m](match_closest_points.m) - function script to match the load and power values of a set of machines to an existing set of load and power values.
-
 Utility functions:
  - [yaml](yaml) - this directory contains a package by Martin Koch (2023) for reading and writing Yaml files
+ - [RandPtsInLinearConstraints](RandPtsInLinearConstraints) - code by Cheng (2023) to generate random points in constrained space
  - [data-utils](data-utils) - various data processing tools
  - [plot-utils](data-utils) - various plotting tools
 
