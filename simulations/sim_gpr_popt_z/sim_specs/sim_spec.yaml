@@ -14,4 +14,4 @@ simulation:
 system:
   config_filename: sys_config.yaml
 optimizer:
-  config_filename: opt_config_gpr2_009.yaml
+  config_filename: opt_config_gpr3_12.yaml
