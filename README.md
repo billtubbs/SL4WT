@@ -140,10 +140,10 @@ Other scripts:
    model type when trained on small samples of random training points
  
 Utility functions:
- - [yaml](yaml) - contains a package by Martin Koch (2023) for reading and writing Yaml files
+ - [yaml](yaml) - contains a copy of a package by Martin Koch (2023) for reading and writing Yaml files
  - [RandPtsInLinearConstraints](RandPtsInLinearConstraints) - contains a function by Cheng (2023) to generate random points in constrained space
- - [data-utils](data-utils) - various data processing tools
- - [plot-utils](data-utils) - various plotting tools
+ - [data-utils](data-utils) - various data processing tools - copied from [https://github.com/billtubbs/ml-data-utils](https://github.com/billtubbs/ml-data-utils)
+ - [plot-utils](plot-utils) - various plotting tools - copied from [https://github.com/billtubbs/ml-plot-utils](https://github.com/billtubbs/ml-plot-utils)
 
 ## Unit testing
  
