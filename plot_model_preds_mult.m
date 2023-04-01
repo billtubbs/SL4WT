@@ -153,7 +153,7 @@ figure(2); clf
 make_metrics_plot_mult(metrics_summaries, labels);
 
 filename = sprintf("mult_sims_metrics_plot_%d.pdf", n_sims);
-save2pdf(fullfile(plot_dir, filename))
+exportgraphics(gcf, fullfile(plot_dir, filename))
 
 return
 

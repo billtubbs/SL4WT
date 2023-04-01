@@ -321,7 +321,7 @@ end
 % Resize plot and save as pdf
 set(gcf, 'Units', 'inches');
 p = get(gcf, 'Position');
-figsize = [7 2.5];
+figsize = [8 2.5];
 set(gcf, 'Position', [p(1:2) figsize])
 filename = "input_seqs_1-2.pdf";
 save2pdf(fullfile(plot_dir, filename))
