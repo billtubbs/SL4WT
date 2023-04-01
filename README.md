@@ -120,15 +120,15 @@ analyse_results_all_eval.m
   - [load_opt.m](load_opt.m) - S function used in Simulink model to simulate load optimizer.
     - [LoadObjFun.m](LoadObjFun.m) - Objective function used by load optimizer
     - [MaxPowerConstraint.m](MaxPowerConstraint.m) - Constraint function used by load optimizer
-    - [gpr_model_predict.m](gpr_model_predict.m) - Initializes a GP model
-    - [gpr_model_setup.m](gpr_model_setup.m) - Updates a GP model
-    - [gpr_model_update.m](gpr_model_update.m) - Make predictions with a GP model
-    - [lin_model_predict.m](lin_model_predict.m) - Initializes a linear model
-    - [lin_model_setup.m](lin_model_setup.m) - Updates a linear model
-    - [lin_model_update.m](lin_model_update.m) - Make predictions with a linear model
-    - [fixed_poly_model_predict.m](fixed_poly_model_predict.m) - Initializes the true system model
-    - [fixed_poly_model_setup.m](fixed_poly_model_setup.m) - Updates the true system model
-    - [fixed_poly_model_update.m](fixed_poly_model_update.m) - Make predictions with the true system model
+    - [gpr_model_setup.m](gpr_model_setup.m) - Initializes a GP model
+    - [gpr_model_predict.m](gpr_model_predict.m) - Make predictions with a GP model
+    - [gpr_model_update.m](gpr_model_update.m) - Updates a GP model
+    - [lin_model_setup.m](lin_model_setup.m) - Initializes a linear model
+    - [lin_model_predict.m](lin_model_predict.m) - Make predictions with a linear model
+    - [lin_model_update.m](lin_model_update.m) - Updates a linear model
+    - [fixed_poly_model_setup.m](fixed_poly_model_setup.m) - Initializes the true system model
+    - [fixed_poly_model_predict.m](fixed_poly_model_predict.m) - Make predictions with the true system model
+    - [fixed_poly_model_update.m](fixed_poly_model_update.m) - Updates the true system model
 
 ## Other files
 
@@ -140,8 +140,8 @@ Other scripts:
    model type when trained on small samples of random training points
  
 Utility functions:
- - [yaml](yaml) - this directory contains a package by Martin Koch (2023) for reading and writing Yaml files
- - [RandPtsInLinearConstraints](RandPtsInLinearConstraints) - code by Cheng (2023) to generate random points in constrained space
+ - [yaml](yaml) - contains a package by Martin Koch (2023) for reading and writing Yaml files
+ - [RandPtsInLinearConstraints](RandPtsInLinearConstraints) - contains a function by Cheng (2023) to generate random points in constrained space
  - [data-utils](data-utils) - various data processing tools
  - [plot-utils](data-utils) - various plotting tools
 
