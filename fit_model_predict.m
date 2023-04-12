@@ -40,22 +40,31 @@ function [y_mean, y_sigma, y_int] = fit_model_predict(model, x, vars, ...
     switch params.fit.fitType
         case {'poly1', 'poly2', 'poly3'}
             if vars.fit.output.numobs > vars.fit.output.numparam
+
+                % Confidence level
                 level = 1 - vars.significance;
+
                 y_int = predint( ...
                     model,  ...
                     x, ...
                     level, ...
-                    'Observation', ... (default: 'observation')
+                    'Functional', ... (default: 'Observation')
                     'off' ... (default: 'off')
                 );
+
+                % Estimate std. dev.'s from confidence intervals
+                sd = norminv(0.5 + level / 2);
+                y_sigma = diff(y_int, [], 2) ./ (2 * sd);
+
             else
                 y_int = nan(size(x, 1), 2);
+                y_sigma = nan(size(x));
             end
+
         otherwise
             y_int = nan(size(x, 1), 2);
-    end
+            y_sigma = nan(size(x));
 
-    % TODO: Is there a need for sigma estimates?  Yes!
-    y_sigma = nan(size(x));
+    end
 
 end

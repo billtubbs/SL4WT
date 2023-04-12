@@ -65,7 +65,7 @@ function [y_mean, y_sigma, y_int] = ens_model_predict(models, x, vars, ...
                         params.models.(model_name).params ...
                     );
             end
-        
+
     end
 
     % Make combined predictions, std. dev., and conf. interval

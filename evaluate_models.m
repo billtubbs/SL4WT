@@ -32,7 +32,7 @@ n_machines = numel(machines);
 
 % Choose location of optimizer config
 sims_dir = "simulations";  % use opt_configs from main simulations
-filepath = fullfile(sims_dir, "test_sim_ens1", sim_spec_dir);
+filepath = fullfile(sims_dir, "test_sim_fit", sim_spec_dir);
 filename = "opt_config.yaml";
 opt_config = yaml.loadFile(fullfile(filepath, filename), ...
     "ConvertToArray", true);
