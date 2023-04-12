@@ -19,7 +19,7 @@ machines:
         trainingData: "machine_1_data4.csv"
         params:
             op_limits: [56, 220]
-            n_ss: 1
+            n_ss: 2
             x_tol: 2
             y_tol: 5
     machine_2:
@@ -28,7 +28,7 @@ machines:
         trainingData: "machine_2_data4.csv"
         params:
             op_limits: [237, 537]
-            n_ss: 1
+            n_ss: 2
             x_tol: 2
             y_tol: 5
     machine_3:
@@ -37,7 +37,7 @@ machines:
         trainingData: "machine_3_data4.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 1
+            n_ss: 2
             x_tol: 2
             y_tol: 5
     machine_4:
@@ -46,7 +46,7 @@ machines:
         trainingData: "machine_4_data4.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 1
+            n_ss: 2
             x_tol: 2
             y_tol: 5
     machine_5:
@@ -55,18 +55,23 @@ machines:
         trainingData: "machine_5_data4.csv"
         params:
             op_limits: [194, 795]
-            n_ss: 1
+            n_ss: 2
             x_tol: 2
             y_tol: 5
 models:
     model_1:
+        name: "ENS_1"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
-            method: "stacking"
-            models:
-                model_11:
+            predictorNames: "Load"
+            responseNames: "Power"
+            method: "bagging"
+            n_estimators: 10
+            max_samples: 0.7
+            base_models:
+                model_1:
                     setupFcn: "fit_model_setup"
                     predictFcn: "fit_model_predict"
                     updateFcn: "fit_model_update"
@@ -76,34 +81,19 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
-                model_12:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly2'
-                model_13:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly3'
     model_2:
+        name: "ENS_2"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
-            method: "stacking"
-            models:
-                model_21:
+            predictorNames: "Load"
+            responseNames: "Power"
+            method: "bagging"
+            n_estimators: 10
+            max_samples: 0.7
+            base_models:
+                model_2:
                     setupFcn: "fit_model_setup"
                     predictFcn: "fit_model_predict"
                     updateFcn: "fit_model_update"
@@ -113,34 +103,19 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
-                model_22:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly2'
-                model_23:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly3'
     model_3:
+        name: "ENS_3"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
         params:
-            method: "stacking"
-            models:
-                model_31:
+            predictorNames: "Load"
+            responseNames: "Power"
+            method: "bagging"
+            n_estimators: 10
+            max_samples: 0.7
+            base_models:
+                model_3:
                     setupFcn: "fit_model_setup"
                     predictFcn: "fit_model_predict"
                     updateFcn: "fit_model_update"
@@ -150,26 +125,7 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
-                model_32:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly2'
-                model_33:
-                    setupFcn: "fit_model_setup"
-                    predictFcn: "fit_model_predict"
-                    updateFcn: "fit_model_update"
-                    params:
-                        predictorNames: "Load"
-                        responseNames: "Power"
-                        significance: 0.1
-                        fit:
-                            fitType: 'poly3'
+
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]
@@ -181,9 +137,10 @@ optimizer:
     UB: [220, 537, 795, 795, 795]
     const_func: "MaxPowerConstraint"
     optimoptions:
-        MaxIterations: 500000
-        Display: "iter"
+        MaxIterations: 2000
+        Display: "none"
     params:
+        n_searches: 10
         w: 1000
         z: 10000
         PMax: 1580

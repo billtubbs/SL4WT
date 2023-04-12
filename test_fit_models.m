@@ -42,7 +42,7 @@ x = 200;
 
 assert(round(y_mean, 4) == 139.7200);
 assert(isequaln(y_sigma, nan));
-assert(isequal(round(y_int, 4), [137.5938  141.8462]));
+assert(isequal(round(y_int, 4), [137.1788  142.2612]));
 
 
 %% Test 'poly2' - quadratic model

@@ -16,7 +16,7 @@ machines:
     machine_1:
         name: "Machine 1"
         model: "model_1"
-        trainingData: "machine_1_data.csv"
+        trainingData: "machine_1_data4.csv"
         params:
             op_limits: [56, 220]
             n_ss: 2
@@ -25,7 +25,7 @@ machines:
     machine_2:
         name: "Machine 2"
         model: "model_2"
-        trainingData: "machine_2_data.csv"
+        trainingData: "machine_2_data4.csv"
         params:
             op_limits: [237, 537]
             n_ss: 2
@@ -34,7 +34,7 @@ machines:
     machine_3:
         name: "Machine 3"
         model: "model_3"
-        trainingData: "machine_3_data.csv"
+        trainingData: "machine_3_data4.csv"
         params:
             op_limits: [194, 795]
             n_ss: 2
@@ -43,7 +43,7 @@ machines:
     machine_4:
         name: "Machine 4"
         model: "model_3"
-        trainingData: "machine_4_data.csv"
+        trainingData: "machine_4_data4.csv"
         params:
             op_limits: [194, 795]
             n_ss: 2
@@ -52,7 +52,7 @@ machines:
     machine_5:
         name: "Machine 5"
         model: "model_3"
-        trainingData: "machine_5_data.csv"
+        trainingData: "machine_5_data4.csv"
         params:
             op_limits: [194, 795]
             n_ss: 2
@@ -66,6 +66,7 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
+            method: "stacking"
             models:
                 model_11:
                     setupFcn: "fit_model_setup"
@@ -104,6 +105,7 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
+            method: "stacking"
             models:
                 model_21:
                     setupFcn: "fit_model_setup"
@@ -142,6 +144,7 @@ models:
         params:
             predictorNames: "Load"
             responseNames: "Power"
+            method: "stacking"
             models:
                 model_31:
                     setupFcn: "fit_model_setup"
@@ -185,8 +188,9 @@ optimizer:
     const_func: "MaxPowerConstraint"
     optimoptions:
         MaxIterations: 2000
-        Display: "final-detailed"
+        Display: "none"
     params:
         n_searches: 10
-        z: 1000
+        w: 1000
+        z: 10000
         PMax: 1580

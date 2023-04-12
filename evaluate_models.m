@@ -32,13 +32,13 @@ n_machines = numel(machines);
 
 % Choose location of optimizer config
 sims_dir = "simulations";  % use opt_configs from main simulations
-filepath = fullfile(sims_dir, "test_sim_gpr2", sim_spec_dir);
+filepath = fullfile(sims_dir, "test_sim_ens1", sim_spec_dir);
 filename = "opt_config.yaml";
 opt_config = yaml.loadFile(fullfile(filepath, filename), ...
     "ConvertToArray", true);
 
 % Number of points to sample for the seed set
-n_samples = 3;
+n_samples = 5;
 
 % Choose where to sample points (in % of full operating range)
 %x_sample_range = [0 1];

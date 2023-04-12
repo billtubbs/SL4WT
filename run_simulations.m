@@ -20,12 +20,13 @@ sims_dir = "simulations";
 % sim_name = "test_sim_fp2";  % First-principles model (adaptive 0/1st order)
 % sim_name = "test_sim_lin";  % Linear model
 % TODO: For some reason the linear model simulation is very slow
-% sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
-% sim_name = "test_sim_true";  % test optimizer with true system model
+% sim_name = "test_sim_ens1";  % Ensemble model with bagging, TODO: NaNs check method of calculating y_sigma
+% sim_name = "test_sim_ens3";  % Ensemble model with stacking, TODO: NaNs check method of calculating y_sigma
+sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
 % sim_name = "sim_true_popt_w";  % param optimization for w parameter
 % sim_name = "sim_gpr_popt_z";  % param optimization for z parameter
-sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
+% sim_name = "sim_gpr_popt_z2";  % param opt for z parameter with LoadObjFunc2
 
 % WARNING: The following simulations take a long time! ~5 hrs
 % sim_name = "sim_all_eval";  % run all optimizer evaluation simulations
