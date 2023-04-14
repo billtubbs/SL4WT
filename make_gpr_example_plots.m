@@ -32,13 +32,14 @@ machine_names = fieldnames(sys_config.equipment)';
 % Choose one machine to make plots for
 m = 3;
 machine = machine_names{m};
+machine_config = sys_config.equipment.(machine);
 
 % Choose simulations to get optimizer config files from
 sim_specs = [
     "test_sim_lin" ...
-    "test_sim_gpr" ...
     "test_sim_gpr1" ...
     "test_sim_gpr2" ...
+    "test_sim_gpr3" ...
 ];
 title_texts = [
     "LR" ...
@@ -46,178 +47,167 @@ title_texts = [
     "GPR 2" ...
     "GPR 3" ...
 ];
-n_plots = length(sim_specs);
+n_opt = length(sim_specs);
 
 
-%% Generate training data points
+%% Training data sets x2
 
-% Number of random experiments
-n = 100;
-
-% Number of points to sample for the seed set
-n_samples = 3;
-
-% Choose where to sample points (in % of full operating range)
-%x_sample_range = [0 1];
-%x_sample_range = [0.0 0.2];
-x_sample_range = [0.05 0.15];
-%x_sample_range = [0.4 0.6];
-%x_sample_range = [0.8 1];
-
-% Get machine configuration
-machine_config = sys_config.equipment.(machine);
-
-% Measurement noise level
-sigma_M = sys_config.equipment.(machine).params.sigma_M;
-
+% These data used in test_sim_gpr3
+data = [
+    243.11    196.37
+    265.81    206.33
+    281.16    214.46
+    371.71    260.62
+     445.2    302.43
+    484.68    325.83
+    500.85     335.5
+    196.05    174.55
+    474.95    319.63
+     479.1    322.31
+    480.69    323.17
+    481.95    323.79
+    482.89    324.65
+    483.55    324.83
+    683.89    445.81
+    197.28    174.97
+    309.74    228.88
+    752.21     480.2
+    399.83    276.34
+];
+n = 2;
 training_data = cell(1, n);
-for j = 1:n
 
-    % Generate training data sets
-
-    % Option 1: Uniform random distribution of load points
-    X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
-        + rand(1, n_samples)' .* diff(x_sample_range)) ...
-            .* diff(machine_config.params.op_limits);
-    
-    %         % Option 2: evenly spaced linear points
-    %         X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
-    %             + linspace(0, 1, n_samples)' .* diff(x_sample_range)) ...
-    %                 .* diff(machine_config.params.op_limits);
-    
-    % Sample from machine load-power models (with measurement noise)
-    Y_sample = sample_op_pts_poly(X_sample, machine_config.params, sigma_M);
-
-    training_data{j} = array2table( ...
-        [X_sample Y_sample], ...
-        "VariableNames", {'Load', 'Power'}  ...
-    );
-end
-
-
-%% Make figure with subplots
-
-figure(1); clf
-tiledlayout(1, n_plots, 'Padding', 'none');
-
-% No. of points to sample for validation data set
-n_samples_val = 101;
-
-% Choose training data samples to use for each machine
-td_ex_selections = struct();
-td_ex_selections.machine_1 = 2;
-td_ex_selections.machine_2 = 6;
-td_ex_selections.machine_3 = 7;
-td_ex_selections.machine_4 = 8;
-td_ex_selections.machine_5 = 9;
-
-td_ex = td_ex_selections.(machine);
-fprintf("Sample points selected: %d\n", td_ex)
-disp(sortrows(training_data{td_ex}))
-
-% Generate validation data set (without noise)
-X = linspace( ...
-    machine_config.params.op_limits(1), ...
-    machine_config.params.op_limits(2), ...
-    n_samples_val ...
-)';
-validation_data = array2table( ...
-    [X sample_op_pts_poly(X, machine_config.params, 0)], ...
-    "VariableNames", {'Load', 'Power'} ...
+n_samples = 3;
+training_data{1} = array2table( ...
+    data(1:n_samples, :), ...  % first n samples only
+    "VariableNames", ["Load" "Power"] ...
 );
+training_data{2} = array2table( ...
+    data, ...  % all data
+    "VariableNames", ["Load" "Power"] ...
+);
+n_samples = cellfun(@(d) size(d, 1), training_data);
 
-axs = repmat(axes, 1, n_plots);
-for i = 1:n_plots
-    sim_name = sim_specs(i);
 
-    ax = nexttile;
+%% Make figures with subplots
 
-    % Plot true system output
-    x = validation_data.Load;
-    plot(x, validation_data.Power, 'k--', 'Linewidth', 1); 
-    hold on
+n_figs = length(training_data);
 
-    sims_dir = "simulations";  % use opt_configs from main simulations
-    filepath = fullfile(sims_dir, sim_name, sim_spec_dir);
-    filename = "opt_config.yaml";
-    opt_config = yaml.loadFile(fullfile(filepath, filename), ...
-        "ConvertToArray", true);
+for td = 1:n_figs
 
-    % Number of random experiments
-    n = 100;
-
-    % Choose limits for y-axes of plots
-    y_lims = struct;
-    y_lims.machine_1 = [20 180];
-    y_lims.machine_2 = [160 380];
-    y_lims.machine_3 = [100 600];
-    y_lims.machine_4 = y_lims.machine_3;
-    y_lims.machine_5 = y_lims.machine_3;
-
-    model_name = opt_config.machines.(machine).model;
-    model_config = opt_config.models.(model_name);
-
-    predictions = struct();
-    predictions.y_mean = nan(n_samples_val, n_samples);
-
-    % Initialize and fit model
-    [model, vars] = builtin("feval", ...
-        model_config.setupFcn, ...
-        training_data{j}, ...
-        model_config.params ...
-    );
-
-    % Make predictions
-    [y_mean, y_sigma, ci] = builtin("feval", ...
-        model_config.predictFcn, ...
-        model, ...
-        validation_data.Load, ...
-        vars, ...
-        model_config.params ...
+    figure(td); clf
+    tiledlayout(1, n_opt, 'Padding', 'none');
+    
+    % No. of points to sample for validation data set
+    n_samples_val = 101;
+    
+    fprintf("Sample points selected: %d\n", td)
+    disp(sortrows(training_data{td}))
+    
+    % Generate validation data set (without noise)
+    X = linspace( ...
+        machine_config.params.op_limits(1), ...
+        machine_config.params.op_limits(2), ...
+        n_samples_val ...
+    )';
+    validation_data = array2table( ...
+        [X sample_op_pts_poly(X, machine_config.params, 0)], ...
+        "VariableNames", {'Load', 'Power'} ...
     );
     
-    % Make plot with confidence intervals
-    make_statdplot( ...
-        y_mean, ...
-        ci(:,2), ...
-        ci(:,1), ...
-        x, ...
-        training_data{td_ex}.Power, ...
-        training_data{td_ex}.Load, ...
-        'Load (kW)', ...
-        {''}, ...
-        "prediction", ...
-        "CI", ...
-        y_lims.(machine) ...
+    axs = repmat(axes, 1, n_opt);
+    for i = 1:n_opt
+        sim_name = sim_specs(i);
+    
+        ax = nexttile;
+    
+        % Plot true system output
+        x = validation_data.Load;
+        plot(x, validation_data.Power, 'k--', 'Linewidth', 1); 
+        hold on
+    
+        sims_dir = "simulations";  % use opt_configs from main simulations
+        filepath = fullfile(sims_dir, sim_name, sim_spec_dir);
+        filename = "opt_config.yaml";
+        opt_config = yaml.loadFile(fullfile(filepath, filename), ...
+            "ConvertToArray", true);
+    
+        % Number of random experiments
+        n = 100;
+    
+        % Choose limits for y-axes of plots
+        y_lims = struct;
+        y_lims.machine_1 = [20 180];
+        y_lims.machine_2 = [160 380];
+        y_lims.machine_3 = [100 600];
+        y_lims.machine_4 = y_lims.machine_3;
+        y_lims.machine_5 = y_lims.machine_3;
+    
+        model_name = opt_config.machines.(machine).model;
+        model_config = opt_config.models.(model_name);
+    
+        predictions = struct();
+        predictions.y_mean = nan(n_samples_val, n_samples(td));
+    
+        % Initialize and fit model
+        [model, vars] = builtin("feval", ...
+            model_config.setupFcn, ...
+            training_data{td}, ...
+            model_config.params ...
         );
-    if i == 1
-        ylabel('Power (kW)', 'Interpreter', 'latex')
+    
+        % Make predictions
+        [y_mean, y_sigma, ci] = builtin("feval", ...
+            model_config.predictFcn, ...
+            model, ...
+            validation_data.Load, ...
+            vars, ...
+            model_config.params ...
+        );
+        
+        % Make plot with confidence intervals
+        make_statdplot( ...
+            y_mean, ...
+            ci(:,2), ...
+            ci(:,1), ...
+            x, ...
+            training_data{td}.Power, ...
+            training_data{td}.Load, ...
+            'Load (kW)', ...
+            {''}, ...
+            "prediction", ...
+            "CI", ...
+            y_lims.(machine) ...
+            );
+        if i == 1
+            ylabel('Power (kW)', 'Interpreter', 'latex')
+        end
+        xlim(machine_config.params.op_limits)
+        %ylim(y_lims(m, :))
+        if (i == 2) && (td == 1)
+            legend({'true', 'CI', 'prediction', 'data'})
+        else
+            set(ax.Legend, 'visible', 'off')
+        end
+        title_text = sprintf("(%s) %s", char(96+i), title_texts(i));
+        title(title_text, 'Interpreter', 'latex')
+    
+        axs(i) = ax;
+    
     end
-    xlim(machine_config.params.op_limits)
-    %ylim(y_lims(m, :))
-    if i == 2
-        legend({'true', 'CI', 'prediction', 'data'})
-    else
-        set(ax.Legend, 'visible', 'off')
-    end
-    title_text = sprintf("(%s) %s", char(96+i), title_texts(i));
-    title(title_text, 'Interpreter', 'latex')
-
-    axs(i) = ax;
+    linkaxes(axs, 'y')
+    
+    % Resize plot and save as pdf
+    set(gcf, 'Units', 'inches');
+    p = get(gcf, 'Position');
+    figsize = [n_opt*2+2.5 2.5];
+    set(gcf, ...
+        'Position', [p(1:2) figsize] ...
+    )
+    p = get(gcf, 'Position');
+    filename = sprintf("eval_plot_%s_m%d_%d_%d.pdf", ...
+        model_config.name, m, n_opt, td);
+    exportgraphics(gcf, fullfile(plot_dir, filename))
+    %save2pdf(fullfile(plot_dir, filename))
 
 end
-linkaxes(axs, 'y')
-
-% Resize plot and save as pdf
-set(gcf, 'Units', 'inches');
-p = get(gcf, 'Position');
-figsize = [n_plots*2+2.5 2.5];
-set(gcf, ...
-    'Position', [p(1:2) figsize] ...
-)
-p = get(gcf, 'Position');
-filename = sprintf("eval_plot_%s_m%d_%d.pdf", ...
-    model_config.name, m, n_plots);
-exportgraphics(gcf, fullfile(plot_dir, filename))
-%save2pdf(fullfile(plot_dir, filename))
-
