@@ -169,7 +169,6 @@ save2pdf(fullfile(plot_dir, filename))
 
 %% Scenarios 11 to 20 - bounded random walk
 
-
 % Load target level - average
 mean_load_target = mean(target_load_range);
 

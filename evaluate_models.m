@@ -1,5 +1,7 @@
-% Fit models to small noisy samples of data and compute
-% the prediction errors
+% Fit various models to small noisy samples of data and compute
+% the prediction errors.  This is used to produce Fig. 4 in
+% INDIN 2023 paper.
+%
 
 clear variables
 
@@ -12,7 +14,7 @@ rng(0)
 sims_dir = "tests/simulations";
 sim_name = "test_sim";
 sim_spec_dir = "sim_specs";
-
+data_dir = "data";
 plot_dir = "plots";
 if ~exist(plot_dir, 'dir')
     mkdir(plot_dir)
@@ -20,162 +22,205 @@ end
 
 % Load system configuration from file
 filename = "sys_config.yaml";
-filespec = fullfile(sims_dir, sim_name, sim_spec_dir, filename);
-sys_config = yaml.loadFile(filespec, "ConvertToArray", true);
+filename_spec = fullfile(sims_dir, sim_name, sim_spec_dir, filename);
+sys_config = yaml.loadFile(filename_spec, "ConvertToArray", true);
 
 machine_names = fieldnames(sys_config.equipment)';
+n_machines = numel(machine_names);
 
-% Choose machines to make plots for
+% Choose one machine to make plots for.
 m = 3;
-machines = machine_names(m);
-n_machines = numel(machines);
+machine = machine_names{m};
 
 % Choose location of optimizer config
 sims_dir = "simulations";  % use opt_configs from main simulations
-filepath = fullfile(sims_dir, "test_sim_fit", sim_spec_dir);
+filepath = fullfile(sims_dir, "test_sim_gpr3", sim_spec_dir);
 filename = "opt_config.yaml";
 opt_config = yaml.loadFile(fullfile(filepath, filename), ...
     "ConvertToArray", true);
 
-% Number of points to sample for the seed set
-n_samples = 5;
+model_name = opt_config.machines.(machine).model;
+model_config = opt_config.models.(model_name);
 
-% Choose where to sample points (in % of full operating range)
-%x_sample_range = [0 1];
-x_sample_range = [0.05 0.15];
-%x_sample_range = [0.4 0.6];
-%x_sample_range = [0.8 1];
-
-% Number of random experiments
-n = 100;
+% Get machine configuration
+machine_config = sys_config.equipment.(machine);
 
 % Choose limits for y-axes of plots
 y_lims = struct;
 y_lims.machine_1 = [20 180];
 y_lims.machine_2 = [160 380];
 y_lims.machine_3 = [100 600];
+y_lims.machine_4 = [100 600];
+y_lims.machine_5 = [100 600];
 
-for i = 1:n_machines
-    machine = machines{i};
+% Choose whether to use existing sample data set or generate
+% a new one. For existing data sets (used in simulations),
+% run gen_input_seqs.m to generate these.
+%  1: Generate random data - see below for parameters
+%  2: Use data sets in data directory
+option = 2;
 
-    % Get machine configuration
-    machine_config = sys_config.equipment.(machine);
+% Choose one data set for sample plot
+j_ex = 7;  % use 7 or 11
 
-    % Measurement noise level
-    sigma_M = sys_config.equipment.(machine).params.sigma_M;
+switch option
 
-    % Generate n sets of randomized training data
-    training_data = cell(1, n);
+    case 1  % Generate random data
 
-    for j = 1:n
+        fprintf("Generating random training data...\n")
+        n_samples = 5;
 
-        % Generate training data sets
+        % Choose where to sample points (in % of full operating range)
+        %x_sample_range = [0 1];
+        x_sample_range = [0.05 0.15];
+        %x_sample_range = [0.4 0.6];
+        %x_sample_range = [0.8 1];
+        
+        % Number of random experiments
+        n = 100;
 
-        % Option 1: Uniform random distribution of load points
-        X_sample = random_sample_uniform( ...
-            machine_config.params.op_limits, x_sample_range, n_samples);
+        % Measurement noise level
+        sigma_M = sys_config.equipment.(machine).params.sigma_M;
 
-%         % Option 2: evenly spaced linear points
-%         X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
-%             + linspace(0, 1, n_samples)' .* diff(x_sample_range)) ...
-%                 .* diff(machine_config.params.op_limits);
+        % Generate n sets of randomized training data
+        training_data = cell(1, n);
 
-        % Sample from machine load-power models (with measurement noise)
-        Y_sample = sample_op_pts_poly(X_sample, machine_config.params, sigma_M);
+        % Generate n training data sets        
+        for j = 1:n
 
-        training_data{j} = array2table( ...
-            [X_sample Y_sample], ...
-            "VariableNames", {'Load', 'Power'}  ...
-        );
+            % Option 1: Uniform random distribution of load points
+            X_sample = random_sample_uniform( ...
+                machine_config.params.op_limits, x_sample_range, n_samples);
     
-    end
+    %         % Option 2: evenly spaced linear points
+    %         X_sample = machine_config.params.op_limits(1) + (x_sample_range(1) ...
+    %             + linspace(0, 1, n_samples)' .* diff(x_sample_range)) ...
+    %                 .* diff(machine_config.params.op_limits);
+    
+            % Sample from machine load-power models (with measurement noise)
+            Y_sample = sample_op_pts_poly(X_sample, machine_config.params, sigma_M);
+    
+            training_data{j} = array2table( ...
+                [X_sample Y_sample], ...
+                "VariableNames", {'Load', 'Power'}  ...
+            );
+        
+        end
+        n_samples = n_samples * ones(n, 1);
 
-    % No. of points to sample for validation data set
-    n_samples_val = 101;
+    case 2
 
-    % Generate validation data set (without noise)
-    X = linspace( ...
-        machine_config.params.op_limits(1), ...
-        machine_config.params.op_limits(2), ...
-        n_samples_val ...
-    )';
-    validation_data = array2table( ...
-        [X sample_op_pts_poly(X, machine_config.params, 0)], ...
-        "VariableNames", {'Load', 'Power'} ...
-    );
+        fprintf("Loading training data from files...\n")
 
-    model_name = opt_config.machines.(machine).model;
-    model_config = opt_config.models.(model_name);
+        % Load files from data directory
+        filename_spec = sprintf("machine_%d_data_*.csv", m);
+        file_info = dir(fullfile(data_dir, filename_spec));
+        n = length(file_info);
+        training_data = cell(1, n);
 
-    predictions = struct();
-    predictions.y_mean = nan(n_samples_val, n_samples);
+        % Load n training data sets 
+        n_samples = nan(n, 1);
+        for j = 1:n
+            filename = file_info(j).name;
+            training_data{j} = readtable(fullfile(data_dir, filename));
+            n_samples(j) = size(training_data{j}, 1);
+        end
+
+    otherwise
+        error("Invalid option")
+
+end
+
+fprintf("Number of training data sets: %d\n", n)
 
 
-    %% Make a plot of one of the samples
-    j_ex = 7;
+%% Generate validation data using true system characteristics
+
+% No. of points to sample for validation data set
+n_samples_val = 101;
+
+% Generate validation data set (without noise)
+X = linspace( ...
+    machine_config.params.op_limits(1), ...
+    machine_config.params.op_limits(2), ...
+    n_samples_val ...
+)';
+validation_data = array2table( ...
+    [X sample_op_pts_poly(X, machine_config.params, 0)], ...
+    "VariableNames", {'Load', 'Power'} ...
+);
+
+predictions = struct();
+predictions.y_mean = nan(n_samples_val, n);
+
+
+%% Make a plot of one of the samples
+
 %     while max(diff(sort(training_data{j_ex}.Load))) < 170
 %         j_ex = j_ex + 1;
 %     end
-    fprintf("Sample plotted: %d\n", j_ex)
+fprintf("Plotting example data set number %d\n", j_ex)
 
-    % Initialize and fit model
-    [model, vars] = builtin("feval", ...
-        model_config.setupFcn, ...
-        training_data{j_ex}, ...
-        model_config.params ...
+% Initialize and fit model
+[model, vars] = builtin("feval", ...
+    model_config.setupFcn, ...
+    training_data{j_ex}, ...
+    model_config.params ...
+);
+
+% Make predictions
+[y_mean, y_sigma, ci] = builtin("feval", ...
+    model_config.predictFcn, ...
+    model, ...
+    validation_data.Load, ...
+    vars, ...
+    model_config.params ...
+);
+
+figure(m); clf
+x = validation_data.Load;
+
+% Plot true system output
+plot(x, validation_data.Power, 'k--', 'Linewidth', 1); 
+hold on
+
+% Make plot with confidence intervals
+make_statdplot( ...
+    y_mean, ...
+    ci(:,2), ...
+    ci(:,1), ...
+    x, ...
+    training_data{j_ex}.Power, ...
+    training_data{j_ex}.Load, ...
+    'Load (kW)', ...
+    {''}, ...
+    "prediction", ...
+    "CI", ...
+    y_lims.(machine) ...
     );
+    %y_labels, line_label, area_label, y_lim)
+ylabel('Power (kW)', 'Interpreter', 'latex')
+xlim(machine_config.params.op_limits)
+legend({'true', 'CI', 'prediction', 'data'})
+title(escape_latex_chars(machine_config.name), 'Interpreter', 'latex')
 
-    % Make predictions
-    [y_mean, y_sigma, ci] = builtin("feval", ...
-        model_config.predictFcn, ...
-        model, ...
-        validation_data.Load, ...
-        vars, ...
-        model_config.params ...
-    );
+% Resize plot and save as pdf
+set(gcf, 'Units', 'inches');
+p = get(gcf, 'Position');
+figsize = [3.5 2.5];
+set(gcf, ...
+    'Position', [p(1:2) figsize] ...
+)
+p = get(gcf, 'Position');
+filename = sprintf("eval_plot_%s_m%d_single.pdf", ...
+    model_config.name, m);
+save2pdf(fullfile(plot_dir, filename))
 
-    figure(i); clf
-    x = validation_data.Load;
-
-    % Plot true system output
-    plot(x, validation_data.Power, 'k--', 'Linewidth', 1); 
-    hold on
-
-    % Make plot with confidence intervals
-    make_statdplot( ...
-        y_mean, ...
-        ci(:,2), ...
-        ci(:,1), ...
-        x, ...
-        training_data{j_ex}.Power, ...
-        training_data{j_ex}.Load, ...
-        'Load (kW)', ...
-        {''}, ...
-        "prediction", ...
-        "CI", ...
-        y_lims.(machine) ...
-        );
-        %y_labels, line_label, area_label, y_lim)
-    ylabel('Power (kW)', 'Interpreter', 'latex')
-    xlim(machine_config.params.op_limits)
-    legend({'true', 'CI', 'prediction', 'data'})
-    title(escape_latex_chars(machine_config.name), 'Interpreter', 'latex')
-
-    % Resize plot and save as pdf
-    set(gcf, 'Units', 'inches');
-    p = get(gcf, 'Position');
-    figsize = [3.5 2.5];
-    set(gcf, ...
-        'Position', [p(1:2) figsize] ...
-    )
-    p = get(gcf, 'Position');
-    filename = sprintf("eval_plot_%s_m%d_single.pdf", ...
-        model_config.name, m);
-    save2pdf(fullfile(plot_dir, filename))
+return
 
 
     %% Construct plot with all sample results
-    figure(4+i); clf
+    figure(4+m); clf
 
     % Plot true system output
     plot(validation_data.Load, validation_data.Power, 'k--', 'Linewidth', 1); 
@@ -252,7 +297,7 @@ for i = 1:n_machines
     fprintf("Avg. no. of exceedences of CIs: %.1f\n", mean(n_exceeded))
     fprintf("No. of times CIs exceeded: %d\n", sum(n_exceeded > 0))
 
-end
+
 
 % To use data in Matlab's Regression Learner app use these
 % data arrays

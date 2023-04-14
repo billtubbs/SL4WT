@@ -60,6 +60,7 @@ machines:
             y_tol: 5
 models:
     model_1:
+        name: "ENS_1"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
@@ -98,7 +99,9 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
+            significance: 0.1
     model_2:
+        name: "ENS_2"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
@@ -137,7 +140,9 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
+            significance: 0.1
     model_3:
+        name: "ENS_3"
         setupFcn: "ens_model_setup"
         predictFcn: "ens_model_predict"
         updateFcn: "ens_model_update"
@@ -176,6 +181,7 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly3'
+            significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]

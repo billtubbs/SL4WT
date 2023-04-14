@@ -81,6 +81,7 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
+            significance: 0.1
     model_2:
         name: "ENS_2"
         setupFcn: "ens_model_setup"
@@ -103,6 +104,7 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
+            significance: 0.1
     model_3:
         name: "ENS_3"
         setupFcn: "ens_model_setup"
@@ -125,7 +127,7 @@ models:
                         significance: 0.1
                         fit:
                             fitType: 'poly1'
-
+            significance: 0.1
 optimizer:
     obj_func: "LoadObjFun"
     X0: [56.1, 237.1, 194.1, 194.1, 194.1]

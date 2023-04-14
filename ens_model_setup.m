@@ -8,6 +8,9 @@ function [models, vars] = ens_model_setup(data, params)
 
     models = struct();
 
+    % Initialize variables
+    vars = struct("significance", params.significance);
+
     switch params.method
         case "bagging"
 
