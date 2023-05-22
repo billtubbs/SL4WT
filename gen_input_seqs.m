@@ -283,14 +283,14 @@ cols = get(gca, 'ColorOrder');
 
 tiledlayout(1, 2)
 
-
 i_seqs = [nan 0];
 for i_set = 1:2
     load_seqs = load_seqs_sets{i_set};
-    i_seqs = [i_seqs(2) i_seqs(2)+size(load_seqs,2)];
+    i_seqs = [i_seqs(2)+1 i_seqs(2)+size(load_seqs,2)];
 
     nexttile;
     %stairs(t_step, load_seqs, 'LineWidth', 1);
+    % To change attributes of one line, need to make them iteratively
     for i = 1:size(load_seqs, 2)
         % Unfortunately, transparency doesn't work with stair plots
         switch i
@@ -311,7 +311,7 @@ for i_set = 1:2
     yline(full_op_limit, '--')
     ylim([700 3400])
     grid on
-    legend("seq. 12", 'Interpreter', 'latex')
+    legend(compose("seq. %d", i_seqs(1)), 'Interpreter', 'latex')
     title_text = sprintf("(%s) Sequences %d to %d", char(96+i_set), i_seqs);
     title(title_text, 'Interpreter', 'latex')
 

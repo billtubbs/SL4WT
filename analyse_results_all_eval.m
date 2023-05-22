@@ -60,32 +60,31 @@ input_filenames = sort(string(unique(sims_summary.input_filename)));
 assert(all(groupcounts(sims_summary, "sim_spec_name").GroupCount == 1))
 assert(all(groupcounts(sims_summary, "opt_config").GroupCount == 1))
 
-% Find evaluation metrics
-eval_var_names = string(sims_summary.Properties.VariableNames( ...
-    startsWith(sims_summary.Properties.VariableNames, "eval_metrics") ...
-)');
-
-% TODO: Statistic time-series plots of these vars
-% selected_vars = [ ...
-%     "power_limit_exceedances" ...
-%     "load_shortfalls_vs_max" ...
-%     "excess_power_used" ...
-%     "overall_model_RMSE" ...
-% ]';
-
-selected_vars = struct();
-selected_vars.max_power_limit_exceedance = "Max. power limit exceedance (kW)";
-selected_vars.mean_load_tracking_errors_vs_max = "Avg. load tracking error (kW)";
-selected_vars.mean_excess_power_used = "Avg. excess power used (kW)";
-selected_vars.final_model_RMSE = "Final model RMSE (kW)";
-
-eval_var_names = string(fieldnames(selected_vars));
-eval_col_names = compose("eval_metrics_%s", eval_var_names);
-assert(all(ismember(eval_col_names, sims_summary.Properties.VariableNames)))
+% Select metrics to include in plot
+selected_vars = [
+    "max_power_limit_exceedance" ...
+    "mean_load_tracking_errors_vs_max" ...
+    "mean_excess_power_used" ...
+    "final_model_RMSE" ...
+];
+col_names = compose("eval_metrics_%s", selected_vars);
+assert(all(ismember(col_names, ...
+    sims_summary.Properties.VariableNames)))
+plot_ylabels = [
+    "MPLE (kW)" ...
+    "ALTE (kW)" ...
+    "AEP (kW)" ...
+    "FOME (kW)" ...
+];
+plot_titles = [
+    "Max. power limit exceedance" ...
+    "Avg. load tracking error" ...
+    "Avg. excess power used" ...
+    "Final overall model error" ...
+];
 
 
 %% Make box plots of selected metrics
-
 
 figure(1); clf
 
@@ -95,11 +94,11 @@ y_lims = [ ...
     -3 40
     -2 25
 ];
-n_eval_vars = length(eval_var_names);
-tiledlayout(n_eval_vars, 1, 'Padding', 'Compact');
-for i = 1:n_eval_vars
-    var_name = eval_var_names(i);
-    col_name = eval_col_names(i);
+n_plots = length(selected_vars);
+tiledlayout(n_plots, 1, 'Padding', 'Compact');
+for i = 1:n_plots
+    var_name = selected_vars(i);
+    col_name = col_names(i);
 
     nexttile;
 
@@ -109,7 +108,7 @@ for i = 1:n_eval_vars
         col_name, ...
         'opt_name' ...
     );
-    
+
     % Select results to include
     opts_to_include = ["LR" "GPR1" "GPR2" "GPR3"];
     boxplot( ...
@@ -119,8 +118,8 @@ for i = 1:n_eval_vars
     )
     ylim(y_lims(i, :))
     set(gca, 'TickLabelInterpreter', 'latex')
-    ylabel("Metric", 'Interpreter', 'latex')
-    title(sprintf("(%s) %s", char(96+i), selected_vars.(var_name)), ...
+    ylabel(plot_ylabels(i), 'Interpreter', 'latex')
+    title(sprintf("(%s) %s", char(96+i), plot_titles(i)), ...
         'Interpreter', 'latex')
     grid on
 

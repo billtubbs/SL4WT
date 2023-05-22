@@ -23,8 +23,8 @@ function axs = make_metrics_plot_mult(metrics_summaries, labels)
     end
     ylim(axes_limits_with_margin(cell2mat(y_values), 0.1, [0 10]))
     set(gca, 'TickLabelInterpreter', 'latex')
-    ylabel('Metric', 'Interpreter', 'latex')
-    title("(a) Power limit exceedances (kW)", 'Interpreter', 'latex')
+    ylabel('PLE (kW)', 'Interpreter', 'latex')
+    title("(a) Power limit exceedances", 'Interpreter', 'latex')
     grid on
 
     axs(2) = nexttile(tcl);
@@ -35,8 +35,8 @@ function axs = make_metrics_plot_mult(metrics_summaries, labels)
     end
     ylim(axes_limits_with_margin(cell2mat(y_values), 0.1, [0 10]))
     set(gca, 'TickLabelInterpreter', 'latex')
-    ylabel('Metric', 'Interpreter', 'latex')
-    title("(b) Load tracking errors (kW)", 'Interpreter', 'latex')
+    ylabel('LTE (kW)', 'Interpreter', 'latex')
+    title("(b) Load tracking errors", 'Interpreter', 'latex')
     grid on
 
     axs(3) = nexttile(tcl);
@@ -47,8 +47,8 @@ function axs = make_metrics_plot_mult(metrics_summaries, labels)
     end
     ylim(axes_limits_with_margin(cell2mat(y_values), 0.1, [0 10]))
     set(gca, 'TickLabelInterpreter', 'latex')
-    ylabel('Metric', 'Interpreter', 'latex')
-    title("(c) Excess power used (kW)", 'Interpreter', 'latex')
+    ylabel('EP (kW)', 'Interpreter', 'latex')
+    title("(c) Excess power used", 'Interpreter', 'latex')
     grid on
 
     axs(4) = nexttile(tcl);
@@ -60,8 +60,8 @@ function axs = make_metrics_plot_mult(metrics_summaries, labels)
     ylim(axes_limits_with_margin(cell2mat(y_values), 0.1, [0 10]))
     set(gca, 'TickLabelInterpreter', 'latex')
     xlabel('Time (s)', 'Interpreter', 'latex')
-    ylabel('Metric', 'Interpreter', 'latex')
-    title("(d) Overall model error (RMSE)", 'Interpreter', 'latex')
+    ylabel('OME (kW)', 'Interpreter', 'latex')
+    title("(d) Overall model error", 'Interpreter', 'latex')
     grid on
 
     linkaxes(axs, 'x')
