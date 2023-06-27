@@ -12,15 +12,18 @@ sims_dir = "simulations";
 
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
-% sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted, MATLAB defaults
+sim_name = "test_sim_gpr1";  % Gaussian process regression - fitted, MATLAB defaults
 % sim_name = "test_sim_gpr2";  % Gaussian process regression - fitted linear basis func
 % sim_name = "test_sim_gpr3";  % Gaussian process models - unfitted basis func
 % sim_name = "test_sim_gpr4";  % Gaussian process models - unfitted basis func2
 % sim_name = "test_sim_fp1";  % First-principles model (zero order)
 % sim_name = "test_sim_fp2";  % First-principles model (adaptive 0/1st order)
-sim_name = "test_sim_lin";  % Linear model
+% sim_name = "test_sim_lin";  % Linear model
 % TODO: For some reason the linear model simulation is very slow
-% sim_name = "test_sim_ens";  % Ensemble model  NOT YET WORKING, need y_sigma estimate
+% sim_name = "test_sim_lin2";  % Linear model - using fit model types
+% sim_name = "test_sim_ens1";  % Ensemble model with bagging
+% sim_name = "test_sim_ens3";  % Ensemble model with stacking
+% TODO: Add test ensemble boosting method
 % sim_name = "test_sim_true";  % test optimizer with true system model
 % sim_name = "test_sim_multiple";
 % sim_name = "sim_true_popt_w";  % param optimization for w parameter

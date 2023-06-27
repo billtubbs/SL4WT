@@ -38,9 +38,9 @@ function ax = make_stattdplot(Y_line, Y_lower, Y_upper, y_true, x, y_d, ...
     ny = size(Y_line, 2);
     if nargin < 9
         if n == 1
-            y_labels = "$y(t)$";
+            y_labels = "$y(x)$";
         else
-            y_labels = compose("$y_{%d}(t)$", 1:ny);
+            y_labels = compose("$y_{%d}(x)$", 1:ny);
         end
     else
         y_labels = string(y_labels);

@@ -17,14 +17,20 @@ Load = [50 100 150]';
 Power = [35.05 70.18 104.77]';
 data = table(Load, Power);
 
+% Initialize model
 params = struct();
 params.predictorNames = "Load";
 params.responseNames = "Power";
 params.significance = 0.1;
 params.fit.fitType = 'poly1';
-
-% Initialize model
 [model, vars] = fit_model_setup(data, params);
+
+% Initialize linear model for comparison
+params2 = struct();
+params2.predictorNames = "Load";
+params2.responseNames = "Power";
+params2.significance = 0.1;
+[model2, vars2] = lin_model_setup(data, params2);
 
 assert(isequal(fieldnames(vars), {'significance', 'fit'}'))
 assert(isequal(fieldnames(model), {'p1', 'p2'}'));
@@ -36,13 +42,25 @@ assert(isequal( ...
 assert(round(1 - vars.fit.gof.rsquare, 5, 'significant') == 1.9996e-05);
 assert(round(1 - vars.fit.gof.adjrsquare, 5, 'significant') == 3.9992e-05);
 
+% Compare to linear model
+coeff2 = model2.Coefficients;
+assert(all(abs([model.p2 model.p1]' - coeff2.Estimate) < 1e-13))
+assert(abs(model2.Rsquared.Ordinary - vars.fit.gof.rsquare) < 1e-15);
+assert(abs(model2.Rsquared.Adjusted - vars.fit.gof.adjrsquare) < 1e-15);
+
 % Test predictions with single point
 x = 200;
 [y_mean, y_sigma, y_int] = fit_model_predict(model, x, vars, params);
 
 assert(round(y_mean, 4) == 139.7200);
-assert(isequaln(y_sigma, nan));
+assert(isequaln(round(y_sigma, 4), 1.2926));
 assert(isequal(round(y_int, 4), [137.5938  141.8462]));
+
+% Compare to linear model
+[y_mean2, y_sigma2, y_int2] = lin_model_predict(model2, x, vars2, params2);
+assert(abs(y_mean - y_mean2) < 1e-13);
+assert(abs(y_sigma - y_sigma2) < 1e-10);  % TODO: Should these be closer?
+assert(all(abs(y_int - y_int2) < 1e-10));
 
 
 %% Test 'poly2' - quadratic model

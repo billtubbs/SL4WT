@@ -3,7 +3,7 @@ function [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, ...
 % [y_mean, y_sigma, x_int] = lin_model_predict(model, x, vars, params)
 % Make predictions with a linear model of the form:
 %
-%   power = a + b * load 
+%   y_mean = a + b * x
 %
 % Returns
 %   y_mean (n, ny) double
@@ -19,13 +19,26 @@ function [y_mean, y_sigma, y_int] = lin_model_predict(model, x, vars, ...
 %
 
     % Make predictions using model
-    [y_mean, y_int] = predict(model, x, 'Alpha', vars.significance);
+    [y_mean, y_int] = predict( ...
+        model, ...
+        x, ...
+        'Alpha', vars.significance, ...
+        'Prediction', 'curve', ... (default: 'curve')
+        'Simultaneous', false ... (default: false)
+    );
 
-    % Standard deviation of residuals. This is calculated:
+    % Standard deviation of residuals is calculated as follows:
     % residuals = model.Residuals{:, "Raw"};
     % n = model.NumObservations;
     % p = model.NumCoefficients;
     % RMSE = sqrt(sum(residuals.^2) ./ (n - p))
-    y_sigma = model.RMSE .* ones(size(x));
+    % assert(abs(model.RMSE - RMSE) < 1e-10)
+
+    % Confidence intervals are calculated as follows
+    % TODO: Check calculations
+
+    % Estimate std. dev. from confidence intervals
+    sd = norminv(0.5 + (1 - vars.significance) / 2);
+    y_sigma = diff(y_int, [], 2) ./ (2 * sd);
 
 end

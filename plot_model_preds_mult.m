@@ -155,8 +155,6 @@ make_metrics_plot_mult(metrics_summaries, labels);
 filename = sprintf("mult_sims_metrics_plot_%d.pdf", n_sims);
 exportgraphics(gcf, fullfile(plot_dir, filename))
 
-return
-
 
 %% Plot model predictions over time
 

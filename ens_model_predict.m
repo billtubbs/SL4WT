@@ -23,25 +23,65 @@ function [y_mean, y_sigma, y_int] = ens_model_predict(models, x, vars, ...
     y_sigmas = nan(n, n_models);
     y_ints = nan(n, 2, n_models);
 
-    for i = 1:n_models
-        model_name = model_names{i};
+    switch params.method
+        case "bagging"
 
-        % Make predictions with each sub-model
-        % Note: builtin() is needed here because other code in the
-        %   MATLAB workspace overrides the built-in feval function.
-        [y_means(:, i), y_sigmas(:, i), y_ints(:, :, i)] = builtin("feval", ...
-                params.models.(model_name).predictFcn, ...
-                models.(model_name), ...
-                x, ...
-                vars.(model_name), ...
-                params.models.(model_name).params ...
-            );
+            % Base model name - only one type allowed currently
+            base_model_names = string(fieldnames(params.base_models));
+            assert(numel(base_model_names) == 1)
+            base_model_name = base_model_names(1);
+
+            for i = 1:n_models
+                model_name = model_names{i};
+
+                % Make predictions with each sub-model
+                % Note: builtin() is needed here because other code in the
+                %   MATLAB workspace overrides the built-in feval function.
+                [y_means(:, i), y_sigmas(:, i), y_ints(:, :, i)] = builtin("feval", ...
+                        params.base_models.(base_model_name).predictFcn, ...
+                        models.(model_name), ...
+                        x, ...
+                        vars.(model_name), ...
+                        params.base_models.(base_model_name).params ...
+                    );
+            end
+
+        case "boosting"
+            error("NotImplementedError")
+    
+        case "stacking"  % for heterogenous models
+    
+            for i = 1:n_models
+                model_name = model_names{i};
+        
+                % Make predictions with each sub-model
+                % Note: builtin() is needed here because other code in the
+                %   MATLAB workspace overrides the built-in feval function.
+                [y_means(:, i), y_sigmas(:, i), y_ints(:, :, i)] = builtin("feval", ...
+                        params.models.(model_name).predictFcn, ...
+                        models.(model_name), ...
+                        x, ...
+                        vars.(model_name), ...
+                        params.models.(model_name).params ...
+                    );
+            end
 
     end
 
     % Make combined predictions, std. dev., and conf. interval
-    y_mean = mean(y_means, 2);
-    y_sigma = nan(n, 1);  % TODO: Not implemented yet
-    y_int = [min(y_ints(:, 1), 3) max(y_ints(:, 2), 3)];
+    
+%     y_sigma = mean(y_sigmas, 2);  %TODO: is this the right way?
+%     y_int = [min(y_ints(:, 1, :), [], 3) ...
+%              max(y_ints(:, 2, :), [], 3)];
+    y_mean = nan(size(x));
+    y_sigma = nan(size(x));
+    y_int = nan(size(x, 1), 2);
+    alpha = vars.significance;
+    for j = 1:length(x)
+        mus = y_means(j, :)';
+        sigmas = y_sigmas(j, :)';
+        [y_mean(j), y_int(j, :), y_sigma(j)] = ...
+            mix_gaussians(mus, sigmas, alpha);
+    end
 
 end

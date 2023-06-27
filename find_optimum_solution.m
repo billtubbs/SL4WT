@@ -315,7 +315,7 @@ set(gca, 'TickLabelInterpreter', 'latex')
 labels = compose("%d", 1:5);
 lh = legend(labels, 'Location', 'northwest', 'Interpreter', 'latex', 'NumColumns', 4);
 lp = get(lh, 'Position');
-set(lh, 'Position', [0.28 0.83 0.25 0.08])
+set(lh, 'Position', [0.16 0.83 0.25 0.08])
 grid on
 title("(a) Optimum machine loads", 'Interpreter', 'latex')
 set(gca,'fontsize', 8)
@@ -374,6 +374,7 @@ set(gcf, 'Units', 'inches', ...
 )
 
 filename = "optimum_loads_plot_area_3-5in.pdf";
-save2pdf(fullfile(plot_dir, filename))
+exportgraphics(gcf, fullfile(plot_dir, filename))
+%save2pdf(fullfile(plot_dir, filename))
 
 

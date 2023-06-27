@@ -319,10 +319,6 @@ obj_func = @(x) feval(obj_func_name, x, config);
 const_func_name = config.optimizer.const_func;
 const_func = @(x) feval(const_func_name, x, config);
 
-% Test functions before starting optimizer (for debugging only)
-% J = obj_func(x0);
-% c = const_func(x0);
-
 % Do a random search of initial points, including the solution
 % from the previous iteration
 if isfield(config.optimizer.params, "n_searches")
@@ -332,8 +328,13 @@ else
 end
 
 % Initial point for solver
-X0 = config.optimizer.X0';
+x0 = config.optimizer.X0';
 
+% Test functions before starting optimizer (for debugging only)
+% J = obj_func(x0);
+% c = const_func(x0);
+
+X0 = x0;
 if n_searches > 0
     % Add random initialization points
     % Start from a point inside operating limits
@@ -397,6 +398,7 @@ if all(opt_flags < 1)
             otherwise
                 message = "unknown";
         end
+        disp(message)
     end
 end
 
