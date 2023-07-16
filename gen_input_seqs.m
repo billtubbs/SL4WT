@@ -9,12 +9,22 @@ addpath("yaml")
 seed = 0;
 rng(seed)
 
+% Name of simulation and directory where sim specs and results are
+sim_name = "sim_all_eval";
+sim_data_dir = fullfile("simulations", sim_name, "data");
+if ~exist(sim_data_dir, 'dir')
+    mkdir(sim_data_dir)
+end
+
 % Directory where simulation config file is and input data
 % will be stored
-data_dir = "data";
 plot_dir = "plots";
 if ~exist(plot_dir, 'dir')
     mkdir(plot_dir)
+end
+data_dir = "data";
+if ~exist(data_dir, 'dir')
+    mkdir(data_dir)
 end
 
 % Load simulation config file with machine parameters
@@ -401,7 +411,7 @@ for i = 1:n
         );
 
         filename = sprintf("machine_%d_data_%02d.csv", m, i);
-        writetable(training_data, fullfile(data_dir, filename))
+        writetable(training_data, fullfile(sim_data_dir, filename))
         fprintf("Training data file '%s' saved\n", filename)
 
     end

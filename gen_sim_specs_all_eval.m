@@ -37,6 +37,9 @@ end
 if ~exist(fullfile(sim_spec_dir, "queue"), 'dir')
     mkdir(fullfile(sim_spec_dir, "queue"))
 end
+if ~exist(sim_data_dir, 'dir')
+    mkdir(sim_data_dir)
+end
 
 % Load simulation base configuration from file
 sim_spec_filename = "sim_spec_base.yaml";
