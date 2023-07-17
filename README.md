@@ -4,7 +4,7 @@ MATLAB scripts to evaluate the Adaptive Real Time Exploration and Optimization (
 
 The refrigeration plant is simulated in Simulink. It has 5 parallel compressors, as shown in the diagram below.
 
-<img src="https://user-images.githubusercontent.com/7958850/229311353-02b421da-2cf2-4f48-bf65-1e9cd0eb9d81.png" width="40%" alt="Refrigeration plant diagram">
+<img src="https://user-images.githubusercontent.com/7958850/229311353-02b421da-2cf2-4f48-bf65-1e9cd0eb9d81.png" width="50%" alt="Refrigeration plant diagram">
 
 The model was developed by Mehmet Mercangöz and coworkers at Imperial College, London, based on work by K. N. Widell, and T. Eikevik (2010) at 
 Norwegian University of Science and Technology.
@@ -21,20 +21,18 @@ runtests
 
 Note: There are two tests which may fail. [test_run_simulation.m](test_run_simulation.m) always fails when executed by `runtests` because it runs a Simulink model. To do this test, open the script and run it the normal way (not as a unit test) in MATLAB. The [test_ens_model.m](test_ens_model.m) fails because this model has not been implemented yet.
 
-Then, you need to generate the random simulation inputs:
+First, run this script to compute the optimal machine loads for all machines (warning: This takes about 15 minutes):
+```lang-matlab
+find_optimum_solution
+```
+Once this script has finished, the optimum load solutions are saved on file so it shouldn't need to be run again.
+
+Then, generate the random simulation input sequences:
 ```lang-matlab
 gen_input_seqs
 ```
 
-Then, run this script to compute the optimal machine loads for all machines (warning: This takes about 15 minutes):
-```lang-matlab
-find_optimum_solution
-```
-(Once this script has finished, the optimum load solutions are saved on file so it shouldn't need to be run again).
-
-Open the script [run_simulations.m](run_simulations.m).
-
-In the top part of this script you can choose from a set of test simulations to run:
+Then, open the script [run_simulations.m](run_simulations.m). In the top part of this script you can choose from a set of test simulations to run:
 ```lang-matlab
 % Choose simulation sub-directory name where config files, data,
 % are located and results will be stored
@@ -44,7 +42,7 @@ In the top part of this script you can choose from a set of test simulations to 
 sim_name = "test_sim_true";  % test optimizer with true system models
 ```
 
-The 'sim_name' variable refers to a sub-directory in the 'simulations' directory which contains a config file that defines the 
+The `sim_name` variable refers to a sub-directory in the 'simulations' directory which contains a config file that defines the 
 simulation and load optimizer setup.
 
 If you run the above simulation, you should get the following output:
@@ -95,9 +93,15 @@ The outputs of the simulation are written to a sub-directory called 'results' in
 
 Details of every simulation (configuration, optimizer parameters, evaluation results etc.) are appended to a summary file named 'sims_summary.csv'. Note that this file is not over-written, so it is useful for accumulating and comparing results from multiple simulations. To delete past simulation results, just delete all files in the results sub-folder of the simulation directory.
 
-If everything appears to be working, you can try running the main evaluation simulations. Warning: There are 110 simulations which take about 5 hours to complete.
+If everything appears to be working, you can try running the main evaluation simulations.
 
-Once complete, you can run the following script to produce the box-plot shown in the paper:
+Before running these, you need to generate the simulation specification files, which will be saved in [simulations/sim_all_eval/sim_specs/queue](simulations/sim_all_eval/sim_specs/queue) by running
+```
+gen_sim_specs_all_eval
+```
+Then, set `sim_name = "sim_all_eval"` in [run_simulations.m](run_simulations.m) and run it.  ***Warning: There are 110 simulations which take about 5 hours to complete.***
+
+Once complete, you can run the following script to produce the box-plot shown in Fig. 10 in the paper:
 ```lang-matlab
 analyse_results_all_eval.m
 ```
@@ -144,6 +148,7 @@ Utility functions:
  - [RandPtsInLinearConstraints](RandPtsInLinearConstraints) - contains a function by Cheng (2023) to generate random points in constrained space
  - [data-utils](data-utils) - various data processing tools - copied from [https://github.com/billtubbs/ml-data-utils](https://github.com/billtubbs/ml-data-utils)
  - [plot-utils](plot-utils) - various plotting tools - copied from [https://github.com/billtubbs/ml-plot-utils](https://github.com/billtubbs/ml-plot-utils)
+ - [gen_seq_brw01.m	](gen_seq_brw01.m	) - generates a bounded random walk (BRW) sequence
 
 ## Unit testing
  
