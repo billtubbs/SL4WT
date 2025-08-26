@@ -12,6 +12,8 @@ Norwegian University of Science and Technology.
 This work is part of a research project supervised by Dr. Mercangöz.  The results here have been submitted as a conference paper proposal (accepted) with the following title:
  - Using Prior Knowledge to Improve Adaptive Real Time Exploration and Optimization
 
+[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=billtubbs/SL4WT)
+
 ## To reproduce the results in the paper
 
 After downloading the code, I recommend running the unittests first (MATLAB command line from the main repository directory):
